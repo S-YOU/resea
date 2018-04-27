@@ -3,7 +3,8 @@ ENTRY(x64_startup);
 
 MEMORY {
   startup(rx): ORIGIN = 0x00010000, LENGTH = 1K
-  kernel(rw): ORIGIN = 0xffff800000011000, LENGTH = 30K
+  kernel(rx): ORIGIN = 0xffff800000011000, LENGTH = 60K
+  ram(rx): ORIGIN = 0xffff800000020000, LENGTH = 256K
 }
 
 SECTIONS {
@@ -15,7 +16,7 @@ SECTIONS {
     *(.text);
   } > kernel
 
-  . = ALIGN(0x1000);
+  . = ALIGN(8);
 
   .data :{
     *(.data);
@@ -25,10 +26,12 @@ SECTIONS {
     *(.rodata*);
   } > kernel
 
+  . = ALIGN(8);
+
   __bss_start = .;
   .bss :{
     *(.bss);
-  } > kernel
+  } > ram
   __bss_end = .;
 
   /DISCARD/ :{

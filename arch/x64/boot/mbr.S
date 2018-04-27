@@ -3,6 +3,7 @@
 
 #define PT_LOAD 1
 #define SECTOR_SIZE 512
+#define LOG2_SECTOR_SIZE 9
 #define ELF_MAGIC 0x7f
 #define ELF_HEADER_SIZE 64
 
@@ -149,14 +150,14 @@ load_segment:
 not_reachable:
 
 error:
-    mov ah, 0x01    /* Send a character feature. */
-    xor dx, dx /* The COM port. */
+    mov ah, 0x01 /* Send a character feature. */
+    xor dx, dx   /* The COM port. */
     int 0x14
     hlt
 
 /* DI: dest address, SI: cluster offset, CX: # of clusters */
 read_kernel_file:
-    pusha
+    pushad
     mov ax, [KERNEL_FIRST_CLUSTER]
 
 read_cluster:
@@ -165,7 +166,7 @@ read_cluster:
     cmp si, 0
     jge next_cluster
 
-    pusha
+    pushad
     sub ax, 2 /* Cluster number *typically* starts with 2. */
     mov cl, [LOG2_SECTORS_PER_CLUSTER]
     shl ax, cl /* Divide by SECTORS_PER_CLUSTER */
@@ -177,9 +178,8 @@ read_cluster:
     mov word ptr [DAP_DEST_SEG], di
     mov al, [SECTORS_PER_CLUSTER]
     mov byte ptr [DAP_NUM], al
-    popa
+    popad
     call read_sector
-    add di, SECTORS_PER_CLUSTER * 512
 
 next_cluster:
     mov bx, FAT_TABLE
@@ -194,19 +194,28 @@ next_cluster:
     cmp si, 0
     jge read_cluster
 
+    /* EDI += SECTORS_PER_CLUSTER * SECTOR_SIZE */
+    xor eax, eax
+    mov al, [SECTORS_PER_CLUSTER]
+    shl ax, LOG2_SECTOR_SIZE
+    add edi, eax
+
+    /* Copy again instead of PUSH/POP to reduce code side. */
+    mov eax, [bx]
+
     loop read_cluster
 1:
-    popa
+    popad
     ret
 
 read_sector:
-    pusha
+    pushad
     mov ah, 0x42
     mov si, DAP
     mov dl, [DRIVER_NUMBER]
     int 0x13
 
-    popa
+    popad
     ret
 
 /* Look for the signature in the disk. Returns in SI the offset of signature */

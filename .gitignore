@@ -1,4 +1,6 @@
 *.o
+*.log
+*.deps
 *.elf
 *.img
 *.bin

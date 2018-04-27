@@ -125,8 +125,11 @@ long_mode:
     mov fs, ax
     mov gs, ax
 
+    mov rsp, 0xffff800000007c00
+
     mov rax, x64_init_addr
     call rax
+
 
 halt:
     hlt

@@ -26,6 +26,7 @@ void kernel_init(void) {
     printf("Starting Resea...\n");
 
     memory_init();
+    arch_init();
     process_init();
     thread_init();
 
@@ -36,6 +37,11 @@ void kernel_init(void) {
     thread_set_state(t_a, THREAD_RUNNABLE);
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);
+
+    printf("Kernel initialized.\n");
+
+    MAGICBREAK
+    *((char *) 0x1234789) = 0x33;
 
     for(;;);
 

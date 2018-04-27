@@ -5,12 +5,12 @@ COMMON_MK = $(shell pwd)/mk/common.mk
 default: build
 
 ARCH_DIR = arch/$(ARCH)
-CFLAGS := $(CFLAGS)
+CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration
 LDFLAGS := $(CFLAGS)
 
 all_objs :=
 all_libs :=
-all_include_dirs :=
+all_include_dirs := .
 
 include kernel/build.mk arch/$(ARCH)/build.mk
 include $(foreach lib, $(all_libs), libs/$(lib)/build.mk)
@@ -48,12 +48,18 @@ setup:
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
 	$(PROGRESS) LD $@
-	$(LD) $(LDFLAGS) --script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
+	$(LD) $(LDFLAGS)--script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
 
 %.o: %.S Makefile
 	$(PROGRESS) CC $@
 	$(CC) $(CFLAGS) -c -o $@ $<
 
+%.deps: %.c Makefile
+	$(PROGRESS) GENDEPS $@
+	$(CC) $(CFLAGS) $(addprefix -I, $(all_include_dirs)) -MF $@ -MT $(<:.c=.o) -MM $<
+
 %.o: %.c Makefile
 	$(PROGRESS) CC $@
-	$(CC) $(CFLAGS) $(addprefix -I,$(all_include_dirs)) -c -o $@ $<
+	$(CC) $(CFLAGS) $(addprefix -I, $(all_include_dirs)) -c -o $@ $<
+
+-include $(all_objs:.o=.deps)

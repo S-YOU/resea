@@ -3,33 +3,25 @@
         {
             "name": "Mac",
             "includePath": [
-                "${workspaceFolder}",
-                "/Library/Developer/CommandLineTools/usr/include/c++/v1",
-                "/usr/local/include",
-                "/Library/Developer/CommandLineTools/usr/lib/clang/9.1.0/include",
-                "/Library/Developer/CommandLineTools/usr/include",
-                "/usr/include",
+                "${workspaceFolder}/libs/string",
+                "${workspaceFolder}/libs/printf",
                 "${workspaceFolder}/libs/resea",
-                "${workspaceFolder}/arch/x64"
+                "${workspaceFolder}/arch/x64",
+                "${workspaceFolder}"
             ],
             "defines": [],
             "intelliSenseMode": "clang-x64",
             "browse": {
                 "path": [
-                    "${workspaceFolder}",
-                    "/Library/Developer/CommandLineTools/usr/include/c++/v1",
-                    "/usr/local/include",
-                    "/Library/Developer/CommandLineTools/usr/lib/clang/9.1.0/include",
-                    "/Library/Developer/CommandLineTools/usr/include",
-                    "/usr/include"
+                    "${workspaceFolder}/libs/string",
+                    "${workspaceFolder}/libs/printf",
+                    "${workspaceFolder}/libs/resea",
+                    "${workspaceFolder}/arch/x64"
                 ],
                 "limitSymbolsToIncludedHeaders": true,
                 "databaseFilename": ""
             },
-            "macFrameworkPath": [
-                "/System/Library/Frameworks",
-                "/Library/Frameworks"
-            ],
+            "macFrameworkPath": [],
             "compilerPath": "/usr/bin/clang",
             "cStandard": "c11",
             "cppStandard": "c++17"

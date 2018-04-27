@@ -1,34 +1,50 @@
 #include <resea/types.h>
-
-static inline void asm_outb(uint16_t port, uint8_t value) {
-    INLINE_ASM("outb %0, %1" :: "a"(value), "Nd"(port));
-}
-
-#define IOPORT_SERIAL 0x3f8
-static void serial_init(void) {
-    asm_outb(IOPORT_SERIAL + 1, 0x00);
-    asm_outb(IOPORT_SERIAL + 3, 0x80);
-    asm_outb(IOPORT_SERIAL + 0, 0x03);
-    asm_outb(IOPORT_SERIAL + 1, 0x00);
-    asm_outb(IOPORT_SERIAL + 3, 0x03);
-    asm_outb(IOPORT_SERIAL + 2, 0xC7);
-    asm_outb(IOPORT_SERIAL + 4, 0x0B);
-}
-
-void arch_putchar(char ch) {
-    asm_outb(IOPORT_SERIAL, ch);
-}
-
+#include "gdt.h"
+#include "idt.h"
+#include "tss.h"
+#include "apic.h"
+#include "paging.h"
+#include "serial.h"
 
 extern uint8_t __bss_start;
 extern uint8_t __bss_end;
 
-void x64_init(void) {
+static inline void clear_bss_section(void) {
     /* Clear .bss section. */
     for (uint8_t *p = &__bss_start; p < &__bss_end; p++) {
         *p = 0;
     }
+}
 
-    serial_init();
+void kernel_init(void);
+
+void x64_init(void) {
+    static bool initialized = false;
+
+    // Note that the kernel memory allocator is not initialized yet.
+    if (!initialized) {
+        clear_bss_section();
+        x64_init_serial();
+    }
+
+    initialized = true;
     kernel_init();
+}
+
+
+void arch_init(void) {
+    // Now we are able to use kernel memory allocator.
+
+    // Initialize paging table first: we need mappings to
+    // Local APIC.
+    x64_init_paging();
+
+    // Local APIC have to be initialized *just* after page
+    // table initialization because CPUVAR uses Local APIC
+    // internally.
+    x64_init_apic();
+
+    x64_init_gdt();
+    x64_init_tss();
+    x64_init_idt();
 }

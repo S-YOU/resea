@@ -1,0 +1,12 @@
+{
+    "files.associations": {
+        "types.h": "c",
+        "gdt.h": "c",
+        "cpu.h": "c",
+        "paging.h": "c",
+        "serial.h": "c",
+        "memory.h": "c",
+        "string.h": "c",
+        "idt.h": "c"
+    }
+}
