@@ -15,7 +15,7 @@ tid_t allocate_tid(void) {
 
 struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t arg) {
     struct thread *thread = kmalloc(sizeof(*thread), KMALLOC_NORMAL);
-    struct runqueue *runqueue = kmalloc(sizeof(*runqueue), KMALLOC_NORMAL);
+    struct runqueue *rq = kmalloc(sizeof(*runqueue), KMALLOC_NORMAL);
     uintptr_t stack = 0xa0000000; // XXX
     uintptr_t stack_size = 8192; // XXX
 
@@ -23,7 +23,9 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
     thread->flags = THREAD_BLOCKED;
     arch_init_arch(&thread->arch, start, stack, stack_size);
     thread_list_append(&process->threads, thread);
-    runqueue_list_append(&runqueue, runqueue);
+
+    rq->thread = thread;
+    runqueue_list_append(&runqueue, rq);
     return thread;
 }
 
@@ -43,6 +45,7 @@ void thread_switch(void) {
             if (CPUVAR->current_thread) {
                 arch_switch(&CPUVAR->current_thread->arch, &rq->thread->arch);
             } else {
+                CPUVAR->current_thread = rq->thread;
                 arch_first_switch(&rq->thread->arch);
             }
         }

@@ -3,5 +3,5 @@
 #include "exception.h"
 
 void x64_handle_exception(uint8_t exception) {
-    INFO("Exception %d", exception);
+    PANIC("Exception %d", exception);
 }

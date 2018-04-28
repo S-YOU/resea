@@ -8,6 +8,23 @@
 #include "serial.h"
 #include "smp.h"
 
+#ifdef X64_THREAD_TESTER
+#include <kernel/process.h>
+#include <kernel/thread.h>
+
+void thread_tester(void) {
+    INFO("x64: starting thread tester");
+    struct process *kernel = process_create();
+    uintptr_t start = 0x01000000;
+    struct thread *t_a = thread_create(kernel, start, 0);
+    struct thread *t_b = thread_create(kernel, start, 0);
+    struct thread *t_c = thread_create(kernel, start, 0);
+    thread_set_state(t_a, THREAD_RUNNABLE);
+    thread_set_state(t_b, THREAD_RUNNABLE);
+    thread_set_state(t_c, THREAD_RUNNABLE);
+}
+#endif
+
 extern uint8_t __bss_start;
 extern uint8_t __bss_end;
 
@@ -60,13 +77,6 @@ void arch_init(void) {
     // All kernel components are initialized.
 
 #ifdef X64_THREAD_TESTER
-    INFO("x64: starting thread tester");
-    struct process *kernel = process_create();
-    struct thread *t_a = thread_create(kernel, (uintptr_t) thread_b, 0);
-    struct thread *t_b = thread_create(kernel, (uintptr_t) thread_a, 0);
-    struct thread *t_c = thread_create(kernel, (uintptr_t) thread_c, 0);
-    thread_set_state(t_a, THREAD_RUNNABLE);
-    thread_set_state(t_b, THREAD_RUNNABLE);
-    thread_set_state(t_c, THREAD_RUNNABLE);
+    thread_tester();
 #endif
 }

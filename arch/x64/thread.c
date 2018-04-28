@@ -12,14 +12,10 @@ void returned_from_thread(void) {
 
 void arch_switch(struct arch_thread *prev, struct arch_thread *next) {
     INLINE_ASM(
-        "   movq %4, %0\n"    // Set prev RIP to label "1".
+        "   movq %4, %0\n"    // Set prev RIP to label "returned_from_thread".
         "   movq %%rsp, %1\n" // Save the current RSP to prev.
         "   movq %3, %%rsp\n" // Restore next's RSP.
-        "   pushq %2\n"       // Push next's RIP to RET.
-        "   ret\n"            // Resume the next.
-
-        "1:"                 // Threads resume from here.
-        "   ret\n"           // Return from arch_switch.
+        "   jmpq *%2\n"        // Resume next.
     : "=m"(prev->rip), "=m"(prev->rsp)
     : "r"(next->rip), "r"(next->rsp), "r"(returned_from_thread)
     );
@@ -27,9 +23,9 @@ void arch_switch(struct arch_thread *prev, struct arch_thread *next) {
 
 
 void arch_first_switch(struct arch_thread *next) {
+    MAGICBREAK
     INLINE_ASM(
         "   movq %1, %%rsp\n" // Restore next's RSP.
-        "   pushq %0\n"       // Push next's RIP to RET.
-        "   ret\n"            // Resume the next.
+        "   jmpq *%0\n"        // Resume next.
     :: "r"(next->rip), "r"(next->rsp));
 }
