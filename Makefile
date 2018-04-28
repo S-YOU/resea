@@ -48,7 +48,7 @@ setup:
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
 	$(PROGRESS) LD $@
-	$(LD) $(LDFLAGS)--script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
+	$(LD) $(LDFLAGS) --Map kernel/kernel.map --script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
 
 %.o: %.S Makefile
 	$(PROGRESS) CC $@

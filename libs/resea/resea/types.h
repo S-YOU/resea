@@ -16,17 +16,17 @@ typedef unsigned char bool;
 #define ROUND_UP(x, size) (((x) + ((size) - 1)) & ~((size) - 1))
 
 #include <resea/arch.h>
-#include <printf.h>
 
 typedef uintmax_t size_t;
 
 #define INLINE_ASM __asm__ __volatile__
 #define atomic_compare_and_swap  __sync_bool_compare_and_swap
 
-#define INFO(fmt, ...) printf(fmt, ## __VA_ARGS__)
-#define BUG(fmt, ...) printf("BUG: " fmt, ## __VA_ARGS__)
+#include <printf.h>
+#define INFO(fmt, ...) printf(fmt "\n", ## __VA_ARGS__)
+#define BUG(fmt, ...) printf("BUG: " fmt "\n", ## __VA_ARGS__)
 #define PANIC(fmt, ...) do { \
-        printf("PANIC: " fmt, ## __VA_ARGS__); \
+        printf("PANIC: " fmt "\n", ## __VA_ARGS__); \
         for(;;); \
     } while(0)
 

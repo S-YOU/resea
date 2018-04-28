@@ -1,7 +1,6 @@
 #include "memory.h"
 #include "process.h"
 #include "thread.h"
-#include <printf.h>
 
 void thread_a() {
     while (1) {
@@ -23,7 +22,7 @@ void thread_c() {
 
 
 void kernel_init(void) {
-    printf("Starting Resea...\n");
+    INFO("Starting Resea...");
 
     memory_init();
     arch_init();
@@ -38,15 +37,15 @@ void kernel_init(void) {
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);
 
-    printf("Kernel initialized.\n");
+    INFO("Kernel initialized.");
 
     MAGICBREAK
-//    *((char *) 0x1234789) = 0x33;
+    *((char *) 0x1234789) = 0x33;
 
     for(;;);
 
     for (;;) {
         thread_switch();
-        printf("Returned from thread_switch().\n");
+        INFO("Returned from thread_switch().\n");
     }
 }
