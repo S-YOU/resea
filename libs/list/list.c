@@ -2,7 +2,7 @@
 
 
 void list_init(struct list **list) {
-    (*list)->next = NULL;
+    *list = NULL;
 }
 
 

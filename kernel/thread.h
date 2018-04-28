@@ -2,17 +2,32 @@
 #define __THREAD_H__
 
 #include <resea/types.h>
+#include <list.h>
 
 typedef uint32_t tid_t;
 
 #define THREAD_RUNNABLE 1
 #define THREAD_BLOCKED 2
 
+
 struct thread {
+    struct thread *next;
     uint32_t flags;
     tid_t tid;
-    struct arch_regs regs;
+    struct arch_thread arch;
 };
+
+struct runqueue {
+    struct runqueue *next;
+    struct thread *thread;
+};
+
+DEFINE_LIST(thread, struct thread)
+DEFINE_LIST(runqueue, struct runqueue)
+
+static inline int thread_get_state(struct thread *thread) {
+    return thread->flags & 3;
+}
 
 static inline void thread_set_state(struct thread *thread, int state) {
     thread->flags = (thread->flags & ~3) | state;

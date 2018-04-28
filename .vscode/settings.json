@@ -9,6 +9,10 @@
         "string.h": "c",
         "idt.h": "c",
         "tss.h": "c",
-        "apic.h": "c"
+        "apic.h": "c",
+        "list.h": "c",
+        "arch.h": "c",
+        "arch_types.h": "c",
+        "thread.h": "c"
     }
 }

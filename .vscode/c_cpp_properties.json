@@ -5,6 +5,7 @@
             "includePath": [
                 "${workspaceFolder}/libs/string",
                 "${workspaceFolder}/libs/printf",
+                "${workspaceFolder}/libs/list",
                 "${workspaceFolder}/libs/resea",
                 "${workspaceFolder}/arch/x64",
                 "${workspaceFolder}"

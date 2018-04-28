@@ -1,5 +1,4 @@
 #include <stdarg.h>
-#include <resea/arch.h>
 #include <resea/types.h>
 #include "printf.h"
 

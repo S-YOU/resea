@@ -5,7 +5,7 @@
 
 struct process {
     tid_t pid;
-//    LIST(struct thread *) threads;
+    struct thread *threads;
 };
 
 struct process *process_create(void);

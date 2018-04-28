@@ -13,14 +13,13 @@ typedef unsigned char bool;
 #define STATIC_ASSERT _Static_assert
 #define UNUSED __attribute__((unused))
 #define PACKED __attribute__((packed))
+#define NORETURN __attribute__((noreturn))
 #define ROUND_UP(x, size) (((x) + ((size) - 1)) & ~((size) - 1))
+#define INLINE_ASM __asm__ __volatile__
+#define atomic_compare_and_swap  __sync_bool_compare_and_swap
 
 #include <resea/arch.h>
 
-typedef uintmax_t size_t;
-
-#define INLINE_ASM __asm__ __volatile__
-#define atomic_compare_and_swap  __sync_bool_compare_and_swap
 
 #include <printf.h>
 #define INFO(fmt, ...) printf(fmt "\n", ## __VA_ARGS__)

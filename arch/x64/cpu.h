@@ -12,6 +12,7 @@ struct x64_cpuvar {
   struct gdtr gdtr;
   struct idtr idtr;
   struct tss tss;
+  struct thread *current_thread;
   uint64_t intr_stack_addr;
 };
 

@@ -20,14 +20,13 @@ static inline paddr_t to_paddr(void *addr) {
     return ((uintptr_t) addr & ~KERNEL_BASE_ADDR);
 }
 
-struct arch_regs {
+struct arch_thread {
+    uint64_t rip;
+    uint64_t rsp;
 };
 
 struct arch_vmspace {
     paddr_t pml4_addr;
 };
-
-void arch_init_regs(struct arch_regs *regs);
-void arch_switch_to(struct arch_regs *regs);
 
 #endif
