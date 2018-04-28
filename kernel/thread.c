@@ -16,8 +16,9 @@ tid_t allocate_tid(void) {
 struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t arg) {
     struct thread *thread = kmalloc(sizeof(*thread), KMALLOC_NORMAL);
     struct runqueue *rq = kmalloc(sizeof(*runqueue), KMALLOC_NORMAL);
-    uintptr_t stack = 0xa0000000; // XXX
-    uintptr_t stack_size = 8192; // XXX
+
+    uintptr_t stack_size = 0x1000;
+    uintptr_t stack = kmalloc(stack_size, KMALLOC_NORMAL);
 
     thread->tid = allocate_tid();
     thread->flags = THREAD_BLOCKED;

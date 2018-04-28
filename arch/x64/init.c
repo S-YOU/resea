@@ -12,13 +12,32 @@
 #include <kernel/process.h>
 #include <kernel/thread.h>
 
+void thread_a(void) {
+    while (1) {
+        arch_putchar('A');
+        for (volatile int i = 0xf00000; i > 0; i--);
+    }
+}
+void thread_b(void) {
+    while (1) {
+        arch_putchar('B');
+        for (volatile int i = 0xf00000; i > 0; i--);
+    }
+}
+void thread_c(void) {
+    while (1) {
+        arch_putchar('C');
+        for (volatile int i = 0xf00000; i > 0; i--);
+    }
+}
+
 void thread_tester(void) {
     INFO("x64: starting thread tester");
     struct process *kernel = process_create();
     uintptr_t start = 0x01000000;
-    struct thread *t_a = thread_create(kernel, start, 0);
-    struct thread *t_b = thread_create(kernel, start, 0);
-    struct thread *t_c = thread_create(kernel, start, 0);
+    struct thread *t_a = thread_create(kernel, thread_a, 0);
+    struct thread *t_b = thread_create(kernel, thread_b, 0);
+    struct thread *t_c = thread_create(kernel, thread_c, 0);
     thread_set_state(t_a, THREAD_RUNNABLE);
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);

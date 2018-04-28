@@ -26,6 +26,7 @@ void arch_first_switch(struct arch_thread *next) {
     MAGICBREAK
     INLINE_ASM(
         "   movq %1, %%rsp\n" // Restore next's RSP.
-        "   jmpq *%0\n"        // Resume next.
+        "   sti\n"            // Accept interrupts.
+        "   jmpq *%0\n"       // Resume next.
     :: "r"(next->rip), "r"(next->rsp));
 }
