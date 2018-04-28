@@ -32,6 +32,7 @@ static inline void x64_write_apic(paddr_t addr, uint32_t data) {
     return;
 }
 
+void x64_ack_interrupt(void);
 void x64_init_apic_timer(void);
 void x64_init_apic(void);
 

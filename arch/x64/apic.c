@@ -8,6 +8,10 @@
 #include "asm.h"
 #include "msr.h"
 
+void x64_ack_interrupt(void) {
+    x64_write_apic(APIC_REG_EOI, 0);
+}
+
 
 void x64_init_apic_timer(void) {
     uint8_t vector = 32;
