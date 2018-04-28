@@ -3,10 +3,10 @@ objs := startup.o init.o thread.o serial.o gdt.o idt.o tss.o paging.o \
 	smp.o apic.o ioapic.o cpu.o handler.o irq.o exception.o pic.o
 
 BOCHS ?= bochs
-CFLAGS += -O2 -Wall -Wextra -g3 --target=x86_64
-CFLAGS += -ffreestanding -fno-builtin -nostdinc -nostdlib -mcmodel=large
-CFLAGS += -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-avx -mno-avx2
-LDFLAGS +=
+override CFLAGS += -O2 -Wall -Wextra -g3 --target=x86_64
+override CFLAGS += -ffreestanding -fno-builtin -nostdinc -nostdlib -mcmodel=large
+override CFLAGS += -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-avx -mno-avx2
+override LDFLAGS +=
 QEMUFLAGS += -d cpu_reset,page -D qemu.log -nographic
 
 .PHONY: bochs

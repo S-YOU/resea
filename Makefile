@@ -5,8 +5,8 @@ COMMON_MK = $(shell pwd)/mk/common.mk
 default: build
 
 ARCH_DIR = arch/$(ARCH)
-CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration
-LDFLAGS := $(CFLAGS)
+override CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration
+override LDFLAGS := $(LDFLAGS)
 
 all_objs :=
 all_libs :=
@@ -48,7 +48,7 @@ setup:
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
 	$(PROGRESS) LD $@
-	$(LD) $(LDFLAGS) --Map kernel/kernel.map --script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
+	$(LD) $(LDFLAGS) --Map=kernel/kernel.map --script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
 
 %.o: %.S Makefile
 	$(PROGRESS) CC $@

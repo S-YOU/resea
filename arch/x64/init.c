@@ -35,7 +35,7 @@ void x64_init(void) {
 }
 
 
-void arch_init(void) {
+void arch_early_init(void) {
     // Now we are able to use kernel memory allocator.
 
     // Initialize paging table first: we need mappings to
@@ -53,4 +53,20 @@ void arch_init(void) {
 
     x64_init_smp();
     x64_init_apic_timer();
+}
+
+
+void arch_init(void) {
+    // All kernel components are initialized.
+
+#ifdef X64_THREAD_TESTER
+    INFO("x64: starting thread tester");
+    struct process *kernel = process_create();
+    struct thread *t_a = thread_create(kernel, (uintptr_t) thread_b, 0);
+    struct thread *t_b = thread_create(kernel, (uintptr_t) thread_a, 0);
+    struct thread *t_c = thread_create(kernel, (uintptr_t) thread_c, 0);
+    thread_set_state(t_a, THREAD_RUNNABLE);
+    thread_set_state(t_b, THREAD_RUNNABLE);
+    thread_set_state(t_c, THREAD_RUNNABLE);
+#endif
 }

@@ -56,7 +56,6 @@ x64_irq_handler\num:
 .align 8
 .globl  x64_exp_handler\num
 x64_exp_handler\num:
-    xchg bx,bx
     cli
     /* Get error code from the stack and overwrite by SAVE_REGS. */
     push rax
