@@ -28,9 +28,9 @@ void x64_ioapic_enable_irq(uint8_t vector, uint8_t irq) {
     idt = (struct intr_desc *) CPUVAR->idt;
 
     // compute the address of the interrupt handler
-    handler  = (paddr_t) x64_irq_handler0x20 +
-               (((paddr_t) x64_irq_handler0x21 -
-                 (paddr_t) x64_irq_handler0x20) * irq);
+    handler  = (uintptr_t) x64_irq_handler0x20 +
+               (((uintptr_t) x64_irq_handler0x21 -
+                 (uintptr_t) x64_irq_handler0x20) * irq);
 
     x64_set_intr_desc(&idt[vector], INTR_HANDLER_IST, KERNEL_CODE64_SEG, handler);
 

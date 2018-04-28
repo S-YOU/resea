@@ -32,7 +32,6 @@ static void set_tss_desc(struct tss_desc *desc, paddr_t base) {
 
 void  x64_init_gdt(void) {
     struct seg_desc *gdt = (struct seg_desc *) &CPUVAR->gdt;
-    paddr_t tss = to_paddr(&CPUVAR->tss);
 
     memset(&CPUVAR->gdt, 0, sizeof(CPUVAR->gdt));
     memset(&CPUVAR->gdtr, 0, sizeof(CPUVAR->gdtr));
@@ -58,7 +57,7 @@ void  x64_init_gdt(void) {
                  GDTTYPE_USER_DATA64, GDT_LIMIT2_MASK_DATA64);
 
     // TSS
-    set_tss_desc((struct tss_desc *) &gdt[GDT_TSS], tss);
+    set_tss_desc((struct tss_desc *) &gdt[GDT_TSS], (uintptr_t) &CPUVAR->tss);
 
     // Update GDTR
     CPUVAR->gdtr.length = GDT_LENGTH;
