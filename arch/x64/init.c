@@ -2,9 +2,11 @@
 #include "gdt.h"
 #include "idt.h"
 #include "tss.h"
+#include "pic.h"
 #include "apic.h"
 #include "paging.h"
 #include "serial.h"
+#include "smp.h"
 
 extern uint8_t __bss_start;
 extern uint8_t __bss_end;
@@ -25,6 +27,7 @@ void x64_init(void) {
     if (!initialized) {
         clear_bss_section();
         x64_init_serial();
+        x64_init_pic();
     }
 
     initialized = true;
@@ -47,4 +50,7 @@ void arch_init(void) {
     x64_init_gdt();
     x64_init_tss();
     x64_init_idt();
+
+    x64_init_smp();
+    x64_init_apic_timer();
 }

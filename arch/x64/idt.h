@@ -23,5 +23,6 @@ struct idtr {
 } PACKED;
 
 void x64_init_idt(void);
+void x64_set_intr_desc(struct intr_desc *desc, uint8_t ist, uint16_t seg, paddr_t offset);
 
 #endif

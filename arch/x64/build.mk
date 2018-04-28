@@ -1,6 +1,6 @@
 include_dirs := .
 objs := startup.o init.o thread.o serial.o gdt.o idt.o tss.o paging.o \
-	apic.o cpu.o handler.o irq.o exception.o
+	smp.o apic.o ioapic.o cpu.o handler.o irq.o exception.o pic.o
 
 BOCHS ?= bochs
 CFLAGS += -O2 -Wall -Wextra -g3 --target=x86_64

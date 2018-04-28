@@ -41,7 +41,7 @@ void kernel_init(void) {
     printf("Kernel initialized.\n");
 
     MAGICBREAK
-    *((char *) 0x1234789) = 0x33;
+//    *((char *) 0x1234789) = 0x33;
 
     for(;;);
 

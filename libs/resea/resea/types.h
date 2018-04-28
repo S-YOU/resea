@@ -23,6 +23,7 @@ typedef uintmax_t size_t;
 #define INLINE_ASM __asm__ __volatile__
 #define atomic_compare_and_swap  __sync_bool_compare_and_swap
 
+#define INFO(fmt, ...) printf(fmt, ## __VA_ARGS__)
 #define BUG(fmt, ...) printf("BUG: " fmt, ## __VA_ARGS__)
 #define PANIC(fmt, ...) do { \
         printf("PANIC: " fmt, ## __VA_ARGS__); \
