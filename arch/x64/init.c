@@ -36,12 +36,17 @@ void thread_c(void) {
 
 void thread_tester(void) {
     INFO("x64: starting thread tester");
+    struct process *user_process = process_create();
     struct thread *t_a = thread_create(kernel_process, (uintptr_t) thread_a, 0);
     struct thread *t_b = thread_create(kernel_process, (uintptr_t) thread_b, 0);
     struct thread *t_c = thread_create(kernel_process, (uintptr_t) thread_c, 0);
+    struct thread *t_d = thread_create(user_process, (uintptr_t) 0x01000000, 0);
+    struct thread *t_e = thread_create(user_process, (uintptr_t) 0x01000000, 0);
     thread_set_state(t_a, THREAD_RUNNABLE);
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);
+    thread_set_state(t_d, THREAD_RUNNABLE);
+    thread_set_state(t_e, THREAD_RUNNABLE);
 }
 #endif
 

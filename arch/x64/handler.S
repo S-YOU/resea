@@ -115,7 +115,6 @@ x64_exp_handler\num:
 
 ret_from_exp:
     RESTORE_REGS
-    xchg bx, bx
     iretq
 
 .macro EXP_HANDLER_WITHOUT_ERRCODE num

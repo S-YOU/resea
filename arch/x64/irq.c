@@ -14,7 +14,11 @@ void x64_handle_irq(UNUSED uint8_t vector) {
 
     // XXX
     static int tick = 0;
+    // The interval MUST be long enough; short interval leads to
+    // recursive timer interrupt handling, kernel stack starvation,
+    // and eventually a nasty bug.
     if (tick++ > 100) {
+        tick = 0;
         thread_switch();
     }
 }

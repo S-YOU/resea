@@ -35,6 +35,12 @@ static inline void asm_set_cr3(uint64_t value) {
     INLINE_ASM("mov %0, %%cr3" :: "r"(value) : "memory");
 }
 
+static inline uint64_t asm_read_cr2(void) {
+    uint64_t value;
+    INLINE_ASM("mov %%cr2, %0" : "=r"(value));
+    return value;
+}
+
 static inline void asm_wrmsr(uint32_t reg, uint64_t value) {
     INLINE_ASM("wrmsr" :: "c"(reg), "A"(value));
 }

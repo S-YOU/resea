@@ -34,7 +34,7 @@ enter_userspace:
     xor %r15, %r15
 
     /* TODO: sanitize other registers */
-
+    xchgw %bx,%bx
     iretq
 
 /* void arch_switch(struct arch_thread *prev, struct arch_thread *next); */
