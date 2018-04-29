@@ -1,39 +1,39 @@
-.intel_syntax noprefix
+#include "asmdefs.h"
 
 .macro SAVE_REGS
-  push  r15
-  push  r14
-  push  r13
-  push  r12
-  push  r11
-  push  r10
-  push  r9
-  push  r8
-  push  rbp
-  push  rdi
-  push  rsi
-  push  rdx
-  push  rcx
-  push  rbx
-  push  rax
+    push r15
+    push r14
+    push r13
+    push r12
+    push r11
+    push r10
+    push r9
+    push r8
+    push rbp
+    push rdi
+    push rsi
+    push rdx
+    push rcx
+    push rbx
+    push rax
 .endm
 
 .macro RESTORE_REGS
-  pop   rax
-  pop   rbx
-  pop   rcx
-  pop   rdx
-  pop   rsi
-  pop   rdi
-  pop   rbp
-  pop   r8
-  pop   r9
-  pop   r10
-  pop   r11
-  pop   r12
-  pop   r13
-  pop   r14
-  pop   r15
+    pop rax
+    pop rbx
+    pop rcx
+    pop rdx
+    pop rsi
+    pop rdi
+    pop rbp
+    pop r8
+    pop r9
+    pop r10
+    pop r11
+    pop r12
+    pop r13
+    pop r14
+    pop r15
 .endm
 
 .extern x64_handle_irq
@@ -49,15 +49,23 @@ x64_irq_handler\num:
      * returns after context switches to other threads.
      */
 
-    /* Check CS register in the IRET frame. */
-    test qword ptr [rsi + 8], 0
-    jne 1f
-
-    /* from kernel: use current stack (assuming Red Zone is disabled) */
     push rsi
     mov rsi, rsp
-    mov rsp, [rsp + 32] /* Extract RSP from the IRET frame */
 
+    /* Check CS register in the IRET frame. */
+    test qword ptr [rsi + 16], 3
+    jz 1f
+
+    /* from user: use dedicated kernel stack */
+    swapgs
+    mov rsp, gs:[0] /* Extract RSP from gsinfo. */
+
+1:
+    /* from kernel: use current stack (assuming Red Zone is disabled) */
+    mov rsp, [rsp + 32] /* Extract RSP from the IRET frame */
+    jmp 2f
+
+2:
     /* Copy IRET frame. */
     push [rsi + 40]    /* SS */
     push [rsi + 32]    /* RSP */
@@ -65,17 +73,18 @@ x64_irq_handler\num:
     push [rsi + 16]    /* CS */
     push [rsi + 8]     /* RIP */
     mov rsi, [rsi + 0] /* Restore RSI. */
-
-    /* from user: use dedicated kernel stack */
-1:
-
-2:
     SAVE_REGS
 
     mov rdi, \num
     call x64_handle_irq
 
     RESTORE_REGS
+
+    /* Check CS register in the IRET frame. */
+    test qword ptr [rsp + 8], 3
+    jz 3f
+    swapgs
+3:
     iretq
 .endm
 

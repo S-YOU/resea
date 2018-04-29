@@ -15,19 +15,22 @@
 void thread_a(void) {
     while (1) {
         arch_putchar('A');
-        for (volatile int i = 0xf00000; i > 0; i--);
+        arch_putchar('\n');
+        for (volatile int i = 0x100000; i > 0; i--);
     }
 }
 void thread_b(void) {
     while (1) {
         arch_putchar('B');
-        for (volatile int i = 0xf00000; i > 0; i--);
+        arch_putchar('\n');
+        for (volatile int i = 0x100000; i > 0; i--);
     }
 }
 void thread_c(void) {
     while (1) {
         arch_putchar('C');
-        for (volatile int i = 0xf00000; i > 0; i--);
+        arch_putchar('\n');
+        for (volatile int i = 0x100000; i > 0; i--);
     }
 }
 

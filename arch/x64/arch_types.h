@@ -20,9 +20,21 @@ static inline paddr_t to_paddr(void *addr) {
     return ((uintptr_t) addr & ~KERNEL_BASE_ADDR);
 }
 
+// Don't forget to update hardcoded offsets in switch.S!
+struct gsinfo {
+    // A pointer to the dedicated kernel stack. This value
+    // is used by only userspace threads.
+    uint64_t rsp0;
+};
+
+// Don't forget to update hardcoded offsets in switch.S!
 struct arch_thread {
-    uint64_t rip;
-    uint64_t rsp;
+    uint64_t rip;          // offset: 0
+    uint64_t cs;           // offset: 8
+    uint64_t rflags;       // offset: 16
+    uint64_t rsp;          // offset: 24
+    uint64_t ss;           // offset: 32
+    struct gsinfo *gsinfo; // offset: 40
 };
 
 struct arch_vmspace {

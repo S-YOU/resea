@@ -25,8 +25,7 @@ void x64_init_apic_timer(void) {
 void x64_init_apic(void) {
 
     // Local APIC hardware intialization
-    asm_wrmsr(MSR_IA32_APIC_BASE,
-              (asm_rdmsr(MSR_IA32_APIC_BASE) & 0xfffff100) | 0x0800);
+    asm_wrmsr(MSR_APIC_BASE, (asm_rdmsr(MSR_APIC_BASE) & 0xfffff100) | 0x0800);
 
     // Local APIC software initialization
     x64_write_apic(APIC_REG_SPURIOUS_INT, 1 << 8);
