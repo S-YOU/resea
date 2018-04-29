@@ -21,7 +21,7 @@ void thread_a(void) {
 void thread_b(void) {
     while (1) {
         arch_putchar('B');
-        for (volatile int i = 0xf00000; i > 0; i--);
+//        for (volatile int i = 0xf00000; i > 0; i--);
     }
 }
 void thread_c(void) {

@@ -51,10 +51,11 @@ search_from_beginning:
         while (rq) {
             int state = thread_get_state(rq->thread);
             if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
+                int first_switch = CPUVAR->current_thread == NULL;
                 CPUVAR->current_runqueue = rq;
                 CPUVAR->current_thread = rq->thread;
-                if (CPUVAR->current_thread) {
-                    INFO("%s: %d", __func__, rq->thread->tid);
+                if (!first_switch) {
+//                    INFO("%s: %d", __func__, rq->thread->tid);
                     arch_switch(&CPUVAR->current_thread->arch, &rq->thread->arch);
                     return;
                 } else {

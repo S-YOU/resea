@@ -42,12 +42,42 @@
 .globl x64_irq_handler\num
 x64_irq_handler\num:
     cli
+
+    /*
+     * The current RSP points to IST0, a shared interrupt handler stack.
+     * Switch into the thread's own kernel stack since x64_handler_irq()
+     * returns after context switches to other threads.
+     */
+
+    /* Check CS register in the IRET frame. */
+    test qword ptr [rsi + 8], 0
+    jne 1f
+
+    /* from kernel: use current stack */
+    xchg bx,bx
+    push rsi
+    mov rsi, rsp
+    mov rsp, [rsp + 32] /* Extract RSP from the IRET frame */
+
+    /* Copy IRET frame. */
+    push [rsi + 40]    /* SS */
+    push [rsi + 32]    /* RSP */
+    push [rsi + 24]    /* RFLAGS */
+    push [rsi + 16]    /* CS */
+    push [rsi + 8]     /* RIP */
+    mov rsi, [rsi + 0] /* Restore RSI. */
+
+    /* from user: use dedicated kernel stack */
+1:
+
+2:
     SAVE_REGS
 
     mov rdi, \num
     call x64_handle_irq
 
     RESTORE_REGS
+    xchg bx,bx
     iretq
 .endm
 
