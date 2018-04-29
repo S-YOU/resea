@@ -54,7 +54,6 @@ void thread_switch(void) {
                 CPUVAR->current_thread = rq->thread;
                 CPUVAR->current_runqueue = rq;
                 if (current_thread) {
-                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
                     arch_switch(&current_thread->arch, &rq->thread->arch);
                     return;
                 } else {
