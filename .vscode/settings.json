@@ -15,6 +15,7 @@
         "arch_types.h": "c",
         "thread.h": "c",
         "asm.h": "c",
-        "printf.h": "c"
+        "printf.h": "c",
+        "switch.h": "c"
     }
 }

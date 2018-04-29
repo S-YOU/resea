@@ -59,8 +59,8 @@ void thread_switch(void) {
     // Runqueue will never be empty since idle runs forever until
     // is_computer_on() returns true.
     //
-    // Note that we can't switch into the idle thread on the first
-    // call because `current_runqueue points` to the thread.
+    // Note that we can't switch into the idle thread on the first call.
+    // call because the current context will become its context.
     //
     struct runqueue *rq = CPUVAR->current_runqueue->next;
 
@@ -71,7 +71,7 @@ void thread_switch(void) {
             struct thread *current_thread = CPUVAR->current_thread;
             CPUVAR->current_thread = rq->thread;
             CPUVAR->current_runqueue = rq;
-                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+//                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch(&current_thread->arch, &rq->thread->arch);
             return;
         }
@@ -86,7 +86,7 @@ void thread_switch(void) {
             struct thread *current_thread = CPUVAR->current_thread;
             CPUVAR->current_thread = rq->thread;
             CPUVAR->current_runqueue = rq;
-                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+//                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch(&current_thread->arch, &rq->thread->arch);
             return;
         }

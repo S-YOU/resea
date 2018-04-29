@@ -34,8 +34,9 @@ struct arch_thread {
     // IRET frame.
     uint64_t rip;          // offset: 0
     uint64_t rsp;          // offset: 8
-    uint64_t is_user;      // offset: 16
-    struct gsinfo gsinfo;  // offset: 24
+    uint64_t rflags;       // offset: 16
+    uint64_t is_user;      // offset: 24
+    struct gsinfo gsinfo;  // offset: 32
 };
 
 struct arch_vmspace {

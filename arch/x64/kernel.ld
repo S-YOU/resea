@@ -31,6 +31,12 @@ SECTIONS {
   __bss_start = .;
   .bss :{
     *(.bss);
+
+    /* The kernel stack used in boot sequence and idle thread. */
+    __boot_stack = .;
+    . = ALIGN(8);
+    . += 8192;
+    __boot_stack_end = .;
   } > ram
   __bss_end = .;
 

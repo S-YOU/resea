@@ -6,7 +6,6 @@
 .globl start_kernel_thread
 start_kernel_thread:
     /* arch_create_thred() pushed `arg` and `start` onto the stack. */
-    xchgw %bx,%bx
     pop %rdi
     ret
 
@@ -46,7 +45,7 @@ arch_switch:
     /* set GS base addresses. Note that we're in kernel space; the
        current GS base will be swapped by SWAPGS in the interrupt
        handler. */
-    lea 24(%rsi), %rdx
+    lea 32(%rsi), %rdx
     mov $MSR_GS_BASE, %ecx
     mov %edx, %eax
     shrq $32, %rdx
@@ -58,9 +57,16 @@ arch_switch:
     xor %edx, %edx
     wrmsr
 
+    /* We have to restore Interrupt Flags properly. */
+    pushfq
+    pop %rbx
+    pushq 16(%rsi)      /* Restore next's RFLAGS. */
+    popfq
+
     movabs $1f, %rax
     movq %rax, 0(%rdi)  /* Set prev RIP to label "1". */
     movq %rsp, 8(%rdi)  /* Save the current RSP to prev. */
+    movq %rbx, 16(%rdi) /* Save the RFLAGS to prev. */
     movq 8(%rsi), %rsp  /* Restore next's RSP. */
     jmpq *0(%rsi)       /* Resume next. */
 

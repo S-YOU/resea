@@ -77,16 +77,19 @@ x64_irq_handler\num:
 
     mov rdi, \num
     call x64_handle_irq
+    jmp ret_from_irq
+.endm
 
+ret_from_irq:
     RESTORE_REGS
 
     /* Check CS register in the IRET frame. */
     test qword ptr [rsp + 8], 3
-    jz 3f
+    jz 1f
     swapgs
-3:
+1:
     iretq
-.endm
+
 
 .extern x64_handle_exception
 .macro EXP_HANDLER_WITH_ERRCODE num

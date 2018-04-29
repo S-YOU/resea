@@ -21,6 +21,7 @@ void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
 
         arch->rip = (uint64_t) start_kernel_thread;
         arch->rsp = (uint64_t) rsp;
+        arch->rflags = KERNEL_DEFAULT_RFLAGS;
         arch->is_user = false;
     } else {
         arch->gsinfo.kstack = (uintptr_t) kmalloc(KERNEL_STACK_SIZE, KMALLOC_NORMAL);
@@ -39,6 +40,7 @@ void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
 
         arch->rip = (uint64_t) enter_userspace;
         arch->rsp = (uint64_t) rsp0;
+        arch->rflags = ENTER_USERSPACE_DEFAULT_RFLAGS;
         arch->is_user = true;
     }
 }

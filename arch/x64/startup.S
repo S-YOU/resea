@@ -125,7 +125,7 @@ long_mode:
     mov fs, ax
     mov gs, ax
 
-    mov rsp, 0xffff800000007c00
+    mov rsp, boot_stack_addr
 
     mov rax, x64_init_addr
     call rax
@@ -141,6 +141,9 @@ halt:
 x64_init_addr:
     .quad x64_init
 
+boot_stack_addr:
+    .quad __boot_stack_end
+
 gdtr:
     .word gdt_end - gdt - 1
     .quad 0x7e0a
@@ -151,3 +154,4 @@ gdt:
     .quad 0x00cf92000000ffff /* 16: 64-bit data segment (kernel): 0x0000000000000000 - 0xffffffffffffffff */
     .quad 0x00cf9a000000ffff /* 24: 32-bit code segment (kernel): 0x00000000         - 0xffffffff */
 gdt_end:
+

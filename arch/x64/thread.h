@@ -9,5 +9,11 @@
 
 // IF and reserved bit set.
 #define USER_DEFAULT_RFLAGS (0x202)
+#define KERNEL_DEFAULT_RFLAGS (0x202)
+
+// Disable interrupts since the kernel stack temporarily holds `arg` and
+// a IRET frame. If interrupt is enabled during enter_userspace, an
+// interrupt handler may overwrite them.
+#define ENTER_USERSPACE_DEFAULT_RFLAGS (0x002)
 
 #endif
