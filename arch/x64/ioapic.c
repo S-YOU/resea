@@ -22,17 +22,6 @@ static void ioapic_write(uint8_t reg, uint32_t data) {
 
 
 void x64_ioapic_enable_irq(uint8_t vector, uint8_t irq) {
-    struct intr_desc *idt;
-    paddr_t handler;
-
-    idt = (struct intr_desc *) CPUVAR->idt;
-
-    // compute the address of the interrupt handler
-    handler  = (uintptr_t) x64_irq_handler0x20 +
-               (((uintptr_t) x64_irq_handler0x21 -
-                 (uintptr_t) x64_irq_handler0x20) * irq);
-
-    x64_set_intr_desc(&idt[vector], INTR_HANDLER_IST, KERNEL_CODE64_SEG, handler);
 
     ioapic_write(IOAPIC_REG_NTH_IOREDTBL_HIGH(irq), 0);
     ioapic_write(IOAPIC_REG_NTH_IOREDTBL_LOW(irq),  vector);
