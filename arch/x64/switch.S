@@ -40,9 +40,9 @@ enter_userspace:
 /* void arch_switch(struct arch_thread *prev, struct arch_thread *next); */
 .globl arch_switch
 arch_switch:
-    /* TODO: save and restore FPU registers and deubg registers. */
+    /* TODO: save and restore FPU registers and debug registers. */
 
-    /* set GS base addresses. Note that we're in kernel space; the
+    /* Set GS base addresses. Note that we're in kernel space; the
        current GS base will be swapped by SWAPGS in the interrupt
        handler. */
     lea 32(%rsi), %rdx
@@ -59,16 +59,17 @@ arch_switch:
 
     /* We have to restore Interrupt Flags properly. */
     pushfq
-    pop %rbx
+    pop %rdx
     pushq 16(%rsi)      /* Restore next's RFLAGS. */
     popfq
 
     movabs $1f, %rax
     movq %rax, 0(%rdi)  /* Set prev RIP to label "1". */
     movq %rsp, 8(%rdi)  /* Save the current RSP to prev. */
-    movq %rbx, 16(%rdi) /* Save the RFLAGS to prev. */
+    movq %rdx, 16(%rdi) /* Save the RFLAGS to prev. */
     movq 8(%rsi), %rsp  /* Restore next's RSP. */
     jmpq *0(%rsi)       /* Resume next. */
 
 1:
+    /* Resumed thread starts from here. Just return from arch_switch(). */
     ret

@@ -13,8 +13,8 @@ void x64_handle_irq(UNUSED uint8_t vector) {
     x64_ack_interrupt();
 
     // XXX
-//    static int tick = 0;
-//    if (tick++ > 10) {
+    static int tick = 0;
+    if (tick++ > 100) {
         thread_switch();
-//    }
+    }
 }

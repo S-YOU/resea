@@ -71,7 +71,6 @@ void thread_switch(void) {
             struct thread *current_thread = CPUVAR->current_thread;
             CPUVAR->current_thread = rq->thread;
             CPUVAR->current_runqueue = rq;
-//                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch(&current_thread->arch, &rq->thread->arch);
             return;
         }
@@ -86,7 +85,6 @@ void thread_switch(void) {
             struct thread *current_thread = CPUVAR->current_thread;
             CPUVAR->current_thread = rq->thread;
             CPUVAR->current_runqueue = rq;
-//                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch(&current_thread->arch, &rq->thread->arch);
             return;
         }
@@ -94,17 +92,18 @@ void thread_switch(void) {
         rq = rq->next;
     }
 
-    if (thread_get_state(CPUVAR->current_thread) == THREAD_BLOCKED) {
-        // No threads are runnable. Run idle thread. Assuming `runqueue` points
-        // to the idle thread.
-        struct thread *current_thread = CPUVAR->current_thread;
-        CPUVAR->current_thread = runqueue->thread;
-        CPUVAR->current_runqueue = runqueue;
-        arch_switch(&current_thread->arch, &runqueue->thread->arch);
+    if (thread_get_state(CPUVAR->current_thread) == THREAD_RUNNABLE) {
+        // No another thread to run. Resume the current thread.
         return;
     }
 
-    // No another thread to run. Resume the current thread.
+    // No threads are runnable. Resume the idle thread. Assuming `runqueue` points
+    // to the idle thread.
+    struct thread *current_thread = CPUVAR->current_thread;
+    CPUVAR->current_thread = runqueue->thread;
+    CPUVAR->current_runqueue = runqueue;
+    arch_switch(&current_thread->arch, &runqueue->thread->arch);
+
 }
 
 

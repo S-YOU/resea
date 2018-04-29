@@ -97,6 +97,7 @@ ret_from_irq:
 .globl  x64_exp_handler\num
 x64_exp_handler\num:
     cli
+
     /* Get error code from the stack and overwrite by SAVE_REGS. */
     push rax
     mov  rax, [rsp + 8]
@@ -109,10 +110,13 @@ x64_exp_handler\num:
     mov  rsi, [rsp + 120] /* error code */
     mov  rdi, \num
     call x64_handle_exception
-
-    RESTORE_REGS
-    iretq
+    jmp ret_from_exp
 .endm
+
+ret_from_exp:
+    RESTORE_REGS
+    xchg bx, bx
+    iretq
 
 .macro EXP_HANDLER_WITHOUT_ERRCODE num
 .align 8
