@@ -9,7 +9,7 @@ struct process *process_create(void) {
     return process;
 }
 
-void process_destroy(struct process *process) {
+void process_destroy(UNUSED struct process *process) {
 
 }
 

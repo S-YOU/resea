@@ -6,14 +6,18 @@
 #include "tss.h"
 #include "apic.h"
 
+struct current_thread;
+struct runqueue;
+
 struct x64_cpuvar {
   struct seg_desc gdt[GDT_DESC_NUM];
   struct intr_desc idt[IDT_DESC_NUM];
   struct gdtr gdtr;
   struct idtr idtr;
   struct tss tss;
+
   struct thread *current_thread;
-  uint64_t intr_stack_addr;
+  struct runqueue *current_runqueue;
 };
 
 static inline int x64_get_cpu_index() {

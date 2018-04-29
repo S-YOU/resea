@@ -13,6 +13,8 @@
         "list.h": "c",
         "arch.h": "c",
         "arch_types.h": "c",
-        "thread.h": "c"
+        "thread.h": "c",
+        "asm.h": "c",
+        "printf.h": "c"
     }
 }

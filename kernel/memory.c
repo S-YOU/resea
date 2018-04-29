@@ -2,7 +2,7 @@
 #include "memory.h"
 
 paddr_t allocated;
-paddr_t alloc_pages(size_t size, int flags) {
+paddr_t alloc_pages(size_t size, UNUSED int flags) {
     size = ROUND_UP(size, PAGE_SIZE);
     paddr_t addr = allocated;
     allocated += size;

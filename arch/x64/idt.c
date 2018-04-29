@@ -17,10 +17,10 @@ void x64_set_intr_desc(struct intr_desc *desc, uint8_t ist, uint16_t seg, uintpt
 }
 
 
-#define SET_IRQ_DESC(n) set_irq_desc(&idt[n], (uintptr_t) x64_irq_handler##n)
-static void set_irq_desc(struct intr_desc *desc, uintptr_t offset) {
+#define SET_EXP_DESC(n) set_kernel_intr_desc(&idt[n], (uintptr_t) x64_exp_handler##n)
+#define SET_IRQ_DESC(n) set_kernel_intr_desc(&idt[n], (uintptr_t) x64_irq_handler##n)
+static void set_kernel_intr_desc(struct intr_desc *desc, uintptr_t offset) {
 
-    printf("offset %p\n", offset);
     desc->offset1  = offset & 0xffff;
     desc->seg      = KERNEL_CODE64_SEG;
     desc->ist      = INTR_HANDLER_IST;
@@ -38,27 +38,27 @@ void x64_init_idt(void) {
     memset(&CPUVAR->idtr, 0, sizeof(CPUVAR->idtr));
 
     // expeptions
-    x64_set_intr_desc(&idt[0],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler0);
-    x64_set_intr_desc(&idt[1],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler1);
-    x64_set_intr_desc(&idt[2],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler2);
-    x64_set_intr_desc(&idt[3],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler3);
-    x64_set_intr_desc(&idt[4],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler4);
-    x64_set_intr_desc(&idt[5],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler5);
-    x64_set_intr_desc(&idt[6],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler6);
-    x64_set_intr_desc(&idt[7],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler7);
-    x64_set_intr_desc(&idt[8],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler8);
-    x64_set_intr_desc(&idt[9],  INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler9);
-    x64_set_intr_desc(&idt[10], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler10);
-    x64_set_intr_desc(&idt[11], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler11);
-    x64_set_intr_desc(&idt[12], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler12);
-    x64_set_intr_desc(&idt[13], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler13);
-    x64_set_intr_desc(&idt[14], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler14);
-    x64_set_intr_desc(&idt[15], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler15);
-    x64_set_intr_desc(&idt[16], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler16);
-    x64_set_intr_desc(&idt[17], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler17);
-    x64_set_intr_desc(&idt[18], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler18);
-    x64_set_intr_desc(&idt[19], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler19);
-    x64_set_intr_desc(&idt[20], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) &x64_exp_handler20);
+    SET_EXP_DESC(0);
+    SET_EXP_DESC(1);
+    SET_EXP_DESC(2);
+    SET_EXP_DESC(3);
+    SET_EXP_DESC(4);
+    SET_EXP_DESC(5);
+    SET_EXP_DESC(6);
+    SET_EXP_DESC(7);
+    SET_EXP_DESC(8);
+    SET_EXP_DESC(9);
+    SET_EXP_DESC(10);
+    SET_EXP_DESC(11);
+    SET_EXP_DESC(12);
+    SET_EXP_DESC(13);
+    SET_EXP_DESC(14);
+    SET_EXP_DESC(15);
+    SET_EXP_DESC(16);
+    SET_EXP_DESC(17);
+    SET_EXP_DESC(18);
+    SET_EXP_DESC(19);
+    SET_EXP_DESC(20);
 
     // Interrupts
     SET_IRQ_DESC(0x20);
@@ -93,9 +93,9 @@ void x64_init_idt(void) {
     SET_IRQ_DESC(0x3d);
     SET_IRQ_DESC(0x3e);
     SET_IRQ_DESC(0x3f);
-    SET_IRQ_DESC(0x40);
 
-    for (int i=0x41; i <= 0xff; i++) {
+    // To reduce the code size, we don't use all IDT entries for now.
+    for (int i=0x40; i <= 0xff; i++) {
         x64_set_intr_desc(&idt[i], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) x64_unknown_irq_handler);
     }
 

@@ -43,11 +43,11 @@ static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool all
 }
 
 
-void arch_create_vmspace(struct arch_vmspace *vms) {
+void arch_create_vmspace(UNUSED struct arch_vmspace *vms) {
 }
 
 
-void arch_remove_vmspace(struct arch_vmspace *vms) {
+void arch_remove_vmspace(UNUSED struct arch_vmspace *vms) {
 }
 
 

@@ -18,11 +18,11 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
     struct runqueue *rq = kmalloc(sizeof(*runqueue), KMALLOC_NORMAL);
 
     uintptr_t stack_size = 0x1000;
-    uintptr_t stack = kmalloc(stack_size, KMALLOC_NORMAL);
+    uintptr_t stack = (uintptr_t) kmalloc(stack_size, KMALLOC_NORMAL);
 
     thread->tid = allocate_tid();
     thread->flags = THREAD_BLOCKED;
-    arch_init_arch(&thread->arch, start, stack, stack_size);
+    arch_init_arch(&thread->arch, start, arg, stack, stack_size);
     thread_list_append(&process->threads, thread);
 
     rq->thread = thread;
@@ -31,25 +31,42 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
 }
 
 
-void thread_destroy(struct thread *thread) {
+void thread_destroy(UNUSED struct thread *thread) {
 }
 
 
 void thread_switch(void) {
+search_from_beginning:
     if (!runqueue) {
         PANIC("No threads.");
     }
 
-    for (struct runqueue *rq = runqueue; rq != NULL; rq = rq->next) {
-        int state = thread_get_state(rq->thread);
-        if (state == THREAD_RUNNABLE || rq->thread != CPUVAR->current_thread) {
-            if (CPUVAR->current_thread) {
-                arch_switch(&CPUVAR->current_thread->arch, &rq->thread->arch);
-            } else {
+
+    struct runqueue *rq = CPUVAR->current_runqueue;
+    if (!rq) {
+        rq = runqueue;
+    }
+
+    for (;;) {
+        while (rq) {
+            int state = thread_get_state(rq->thread);
+            if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
+                CPUVAR->current_runqueue = rq;
                 CPUVAR->current_thread = rq->thread;
-                arch_first_switch(&rq->thread->arch);
+                if (CPUVAR->current_thread) {
+                    INFO("%s: %d", __func__, rq->thread->tid);
+                    arch_switch(&CPUVAR->current_thread->arch, &rq->thread->arch);
+                    return;
+                } else {
+                    arch_first_switch(&rq->thread->arch);
+                    // UNREACHABLE
+                }
             }
+
+            rq = rq->next;
         }
+
+        rq = runqueue;
     }
 }
 
@@ -57,5 +74,6 @@ void thread_switch(void) {
 void thread_init(void) {
 
     runqueue_list_init(&runqueue);
+    CPUVAR->current_runqueue = NULL;
     CPUVAR->current_thread = NULL;
 }
