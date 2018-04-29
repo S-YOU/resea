@@ -19,6 +19,10 @@ void *kmalloc(size_t size, int flags) {
 }
 
 
+void kfree(void *ptr) {
+}
+
+
 void memory_init(void) {
     allocated = 0x001000000;
 }

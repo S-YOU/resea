@@ -8,10 +8,12 @@ typedef uint32_t tid_t;
 
 #define THREAD_RUNNABLE 1
 #define THREAD_BLOCKED 2
+#define KERNEL_STACK_SIZE 8192
 
-
+struct process;
 struct thread {
     struct thread *next;
+    struct process *process;
     uint32_t flags;
     tid_t tid;
     struct arch_thread arch;
@@ -37,7 +39,7 @@ struct process;
 
 tid_t allocate_tid(void);
 struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t arg);
-void thread_switch_to(struct thread *thread);
+void thread_destroy(struct thread *thread);
 void thread_switch(void);
 void thread_init(void);
 

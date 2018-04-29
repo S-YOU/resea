@@ -8,6 +8,8 @@ struct process {
     struct thread *threads;
 };
 
+extern struct process *kernel_process;
+
 struct process *process_create(void);
 void process_destroy(struct process *process);
 void process_init(void);

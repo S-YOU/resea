@@ -15,7 +15,6 @@ struct x64_cpuvar {
   struct gdtr gdtr;
   struct idtr idtr;
   struct tss tss;
-
   struct thread *current_thread;
   struct runqueue *current_runqueue;
 };

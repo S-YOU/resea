@@ -14,6 +14,11 @@ static inline uint8_t asm_inb(uint16_t port) {
     return value;
 }
 
+// Don't divide into asm_sti and asm_hlt!
+static inline void asm_stihlt(void) {
+    INLINE_ASM("sti; hlt");
+}
+
 static inline void asm_lgdt(uintptr_t gdtr) {
     INLINE_ASM("lgdt (%%rax)" :: "a"(gdtr));
 }

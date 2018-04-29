@@ -13,6 +13,7 @@ struct vmspace {
 
 paddr_t alloc_pages(size_t size, int flags);
 void *kmalloc(size_t size, int flags);
+void kfree(void *ptr);
 void memory_init(void);
 
 #endif

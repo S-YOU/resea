@@ -13,5 +13,7 @@ void process_destroy(UNUSED struct process *process) {
 
 }
 
+struct process *kernel_process = NULL;
 void process_init(void) {
+    kernel_process = process_create();
 }

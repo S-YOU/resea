@@ -11,9 +11,15 @@ struct list {
     static inline void name##_list_init(type **list) {              \
         list_init((struct list **) list);                           \
     }                                                               \
+                                                                    \
+    static inline bool name##_list_is_empty(type **list) {          \
+        return *list == NULL;                                       \
+    }                                                               \
+                                                                    \
     static inline void name##_list_append(type **list, type *e) {   \
         list_append((struct list **) list, e);                      \
     }                                                               \
+                                                                    \
     static inline void name##_list_remove(type **list, type *e) {   \
         list_remove((struct list **) list, e);                      \
     }

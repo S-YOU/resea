@@ -6,6 +6,8 @@
 
 static tid_t last_tid = 0;
 static struct runqueue *runqueue;
+struct thread *idle_thread = NULL;
+
 
 tid_t allocate_tid(void) {
     // FIXME
@@ -20,9 +22,11 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
     uintptr_t stack_size = 0x1000;
     uintptr_t stack = (uintptr_t) kmalloc(stack_size, KMALLOC_NORMAL);
 
+    thread->process = process;
     thread->tid = allocate_tid();
     thread->flags = THREAD_BLOCKED;
-    arch_init_arch(&thread->arch, start, arg, stack, stack_size);
+    arch_create_thread(&thread->arch, process == kernel_process,
+        start, arg, stack, stack_size);
     thread_list_append(&process->threads, thread);
 
     rq->thread = thread;
@@ -31,44 +35,76 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
 }
 
 
-void thread_destroy(UNUSED struct thread *thread) {
+void thread_destroy(struct thread *thread) {
+    if (thread == idle_thread) {
+        PANIC("idle thread can't be destroyied");
+    }
+
+    // XXX: lock
+    for (struct runqueue *rq = runqueue; rq != NULL; rq = rq->next) {
+        if (rq->thread == thread) {
+            runqueue_list_remove(&runqueue, rq);
+            kfree(rq);
+            break;
+        }
+    }
+
+    thread_list_remove(&thread->process->threads, thread);
+    arch_destroy_thread(&thread->arch);
+    kfree(thread);
 }
 
 
 void thread_switch(void) {
-    if (!runqueue) {
-        PANIC("No threads.");
-    }
+    // Runqueue will never be empty since idle runs forever until
+    // is_computer_on() returns true.
+    //
+    // Note that we can't switch into the idle thread on the first
+    // call because `current_runqueue points` to the thread.
+    //
+    struct runqueue *rq = CPUVAR->current_runqueue->next;
 
-
-    struct runqueue *rq = CPUVAR->current_runqueue;
-    if (!rq) {
-        rq = runqueue;
-    }
-
-    for (;;) {
-        while (rq) {
-            int state = thread_get_state(rq->thread);
-            if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
-                struct thread *current_thread = CPUVAR->current_thread;
-                CPUVAR->current_thread = rq->thread;
-                CPUVAR->current_runqueue = rq;
-                if (current_thread) {
-//                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
-                    arch_switch(&current_thread->arch, &rq->thread->arch);
-                    return;
-                } else {
-//                    INFO("first: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
-                    arch_first_switch(&rq->thread->arch);
-                    // UNREACHABLE
-                }
-            }
-
-            rq = rq->next;
+    // XXX: lock
+    while (rq) {
+        int state = thread_get_state(rq->thread);
+        if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
+            struct thread *current_thread = CPUVAR->current_thread;
+            CPUVAR->current_thread = rq->thread;
+            CPUVAR->current_runqueue = rq;
+                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+            arch_switch(&current_thread->arch, &rq->thread->arch);
+            return;
         }
 
-        rq = runqueue;
+        rq = rq->next;
     }
+
+    rq = runqueue->next; // Skip idle thread.
+    while (rq) {
+        int state = thread_get_state(rq->thread);
+        if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
+            struct thread *current_thread = CPUVAR->current_thread;
+            CPUVAR->current_thread = rq->thread;
+            CPUVAR->current_runqueue = rq;
+                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+            arch_switch(&current_thread->arch, &rq->thread->arch);
+            return;
+        }
+
+        rq = rq->next;
+    }
+
+    if (thread_get_state(CPUVAR->current_thread) == THREAD_BLOCKED) {
+        // No threads are runnable. Run idle thread. Assuming `runqueue` points
+        // to the idle thread.
+        struct thread *current_thread = CPUVAR->current_thread;
+        CPUVAR->current_thread = runqueue->thread;
+        CPUVAR->current_runqueue = runqueue;
+        arch_switch(&current_thread->arch, &runqueue->thread->arch);
+        return;
+    }
+
+    // No another thread to run. Resume the current thread.
 }
 
 
@@ -76,5 +112,10 @@ void thread_init(void) {
 
     runqueue_list_init(&runqueue);
     CPUVAR->current_runqueue = NULL;
-    CPUVAR->current_thread = NULL;
+
+    // Create an idle thread. We specify NULL as handler because it won't
+    // be used.
+    idle_thread = thread_create(kernel_process, (uintptr_t) NULL, 0);
+    CPUVAR->current_thread = idle_thread;
+    CPUVAR->current_runqueue = runqueue;
 }

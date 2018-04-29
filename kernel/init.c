@@ -12,6 +12,18 @@ void kernel_init(void) {
     arch_init();
     INFO("Kernel initialized.");
 
+    if (thread_list_is_empty(&kernel_process->threads)) {
+        PANIC("No threads to run.");
+    }
+
     thread_switch();
-    PANIC("Returned from thread_switch().\n");
+
+    // From here, we're in the idle thread context. Idle thread
+    // is resumed when there are no other threads to run.
+    for (;;) {
+        PANIC("idling...\n");
+        // Sleep until an interrupt occur not to heat up the computer and
+        // to save money on electricity.
+        arch_idle();
+    }
 }
