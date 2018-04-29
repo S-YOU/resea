@@ -53,8 +53,7 @@ x64_irq_handler\num:
     test qword ptr [rsi + 8], 0
     jne 1f
 
-    /* from kernel: use current stack */
-    xchg bx,bx
+    /* from kernel: use current stack (assuming Red Zone is disabled) */
     push rsi
     mov rsi, rsp
     mov rsp, [rsp + 32] /* Extract RSP from the IRET frame */
@@ -77,7 +76,6 @@ x64_irq_handler\num:
     call x64_handle_irq
 
     RESTORE_REGS
-    xchg bx,bx
     iretq
 .endm
 

@@ -9,7 +9,6 @@ void arch_init_arch(struct arch_thread *arch, uintptr_t start, UNUSED uintmax_t 
 
 
 NORETURN void arch_first_switch(struct arch_thread *next) {
-    MAGICBREAK
     INLINE_ASM(
         "   movq %1, %%rsp\n" // Restore next's RSP.
         "   sti\n"            // Accept interrupts.

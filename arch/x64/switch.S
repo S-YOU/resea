@@ -8,8 +8,8 @@ arch_switch:
     movq %rsp, 8(%rdi)  /* Save the current RSP to prev. */
     movq 8(%rsi), %rsp  /* Restore next's RSP. */
     sti                 /* XXX: accept interrupts. */
+    xchgw %bx,%bx
     jmpq *0(%rsi)       /* Resume next. */
 
 1:
-    xchgw %bx,%bx
     ret

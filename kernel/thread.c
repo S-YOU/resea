@@ -36,7 +36,6 @@ void thread_destroy(UNUSED struct thread *thread) {
 
 
 void thread_switch(void) {
-search_from_beginning:
     if (!runqueue) {
         PANIC("No threads.");
     }
@@ -51,12 +50,12 @@ search_from_beginning:
         while (rq) {
             int state = thread_get_state(rq->thread);
             if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
-                int first_switch = CPUVAR->current_thread == NULL;
-                CPUVAR->current_runqueue = rq;
+                struct thread *current_thread = CPUVAR->current_thread;
                 CPUVAR->current_thread = rq->thread;
-                if (!first_switch) {
-//                    INFO("%s: %d", __func__, rq->thread->tid);
-                    arch_switch(&CPUVAR->current_thread->arch, &rq->thread->arch);
+                CPUVAR->current_runqueue = rq;
+                if (current_thread) {
+                    INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+                    arch_switch(&current_thread->arch, &rq->thread->arch);
                     return;
                 } else {
                     arch_first_switch(&rq->thread->arch);

@@ -6,6 +6,8 @@
 #define DLH 1
 #define LCR 3
 #define FCR 2
+#define LSR 5
+#define TX_READY 0x20
 
 void x64_init_serial(void) {
     int baud = 9600;
@@ -22,6 +24,7 @@ void x64_init_serial(void) {
 
 
 void arch_putchar(char ch) {
+    while ((asm_inb(IOPORT_SERIAL + LSR) & TX_READY) == 0);
 
     asm_outb(IOPORT_SERIAL, ch);
 }

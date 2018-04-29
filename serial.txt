@@ -1,0 +1,4 @@
+Starting Resea...
+x64: starting thread tester
+Kernel initialized.
+PANIC: Exception 14

@@ -7,6 +7,13 @@ static inline void asm_outb(uint16_t port, uint8_t value) {
     INLINE_ASM("outb %0, %1" :: "a"(value), "Nd"(port));
 }
 
+static inline uint8_t asm_inb(uint16_t port) {
+    uint8_t value;
+
+    INLINE_ASM("inb %1, %0" : "=a"(value) : "Nd"(port));
+    return value;
+}
+
 static inline void asm_lgdt(uintptr_t gdtr) {
     INLINE_ASM("lgdt (%%rax)" :: "a"(gdtr));
 }
