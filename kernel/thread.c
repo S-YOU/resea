@@ -39,6 +39,9 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
 
     rq->thread = thread;
     runqueue_list_append(&runqueue, rq);
+
+    DEBUG("kernel: created a thread #%d process=%p, start=%p (%s)",
+        thread->tid, thread->process, start, is_kernel_thread ? "kernel" : "user");
     return thread;
 }
 

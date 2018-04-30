@@ -1,4 +1,5 @@
 #include <resea/types.h>
+#include <string.h>
 #include "gdt.h"
 #include "idt.h"
 #include "tss.h"
@@ -50,7 +51,6 @@ void bin_container(void) {
     );
 }
 
-#include <string.h>
 extern char __bin_start;
 extern char __bin_end;
 paddr_t bin_pager(UNUSED void *arg, uintptr_t addr, size_t length) {
@@ -71,6 +71,7 @@ void thread_tester(void) {
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);
 
+/*
     struct process *user_process = process_create();
     uintptr_t bin_addr = 0x01000000;
     add_vmarea(&user_process->vms, bin_addr, PAGE_SIZE, PAGE_USER,
@@ -79,18 +80,12 @@ void thread_tester(void) {
     struct thread *t_e = thread_create(user_process, bin_addr, 0);
     thread_set_state(t_d, THREAD_RUNNABLE);
     thread_set_state(t_e, THREAD_RUNNABLE);
+*/
 }
 #endif
 
-extern uint8_t __bss_start;
+extern uint8_t __bss;
 extern uint8_t __bss_end;
-
-static inline void clear_bss_section(void) {
-    /* Clear .bss section. */
-    for (uint8_t *p = &__bss_start; p < &__bss_end; p++) {
-        *p = 0;
-    }
-}
 
 void kernel_init(void);
 
@@ -99,7 +94,6 @@ void x64_init(void) {
 
     // Note that the kernel memory allocator is not initialized yet.
     if (!initialized) {
-        clear_bss_section();
         x64_init_serial();
         x64_init_pic();
     }
@@ -108,6 +102,8 @@ void x64_init(void) {
     kernel_init();
 }
 
+extern uint8_t __boot_stack;
+extern uint8_t __boot_stack_end;
 
 void arch_early_init(void) {
     // Now we are able to use kernel memory allocator.
@@ -116,6 +112,9 @@ void arch_early_init(void) {
     // Local APIC.
     INFO("x64: initializing paging");
     x64_init_paging();
+
+    INFO("bss %p %p", &__boot_stack, &__boot_stack_end);
+    INFO("bootstack %p %p", &__boot_stack, &__boot_stack_end);
 
     // Local APIC have to be initialized *just* after page
     // table initialization because CPUVAR uses Local APIC

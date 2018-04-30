@@ -125,8 +125,14 @@ long_mode:
     mov fs, ax
     mov gs, ax
 
-    mov rsp, boot_stack_addr
+    /* Clear .bss section */
+    mov al, 0x00
+    mov rdi, bss_addr
+    mov rcx, bss_end_addr
+    sub rcx, rdi
+    rep stosb
 
+    mov rsp, boot_stack_addr
     mov rax, x64_init_addr
     call rax
 
@@ -137,6 +143,12 @@ halt:
 
 
 .align 8
+
+bss_addr:
+    .quad __bss
+
+bss_end_addr:
+    .quad __bss_end
 
 x64_init_addr:
     .quad x64_init

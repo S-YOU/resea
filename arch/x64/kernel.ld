@@ -28,17 +28,17 @@ SECTIONS {
 
   . = ALIGN(8);
 
-  __bss_start = .;
   .bss :{
+    __bss = .;
     *(.bss);
+    __bss_end = .;
 
     /* The kernel stack used in boot sequence and idle thread. */
     __boot_stack = .;
     . = ALIGN(8);
-    . += 8192;
+    . += 16384;
     __boot_stack_end = .;
   } > ram
-  __bss_end = .;
 
   /DISCARD/ :{
     *(*.eh_frame);

@@ -6,6 +6,7 @@
 #include "cpu.h" // FIXME
 
 paddr_t allocated;
+int used = 0;
 paddr_t alloc_pages(size_t size, UNUSED int flags) {
     size = ROUND_UP(size, PAGE_SIZE);
     paddr_t addr = allocated;
@@ -13,6 +14,10 @@ paddr_t alloc_pages(size_t size, UNUSED int flags) {
 
     // XXX: The page could be not mapped.
     memset(from_paddr(addr), 0, size);
+
+    used += size;
+//    DEBUG("kernel: allocated %d bytes at %p (%dKB used)",
+//        size, addr, used / 1024);
 
     return addr;
 }

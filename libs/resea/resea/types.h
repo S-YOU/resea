@@ -25,6 +25,7 @@ typedef unsigned char bool;
 
 #include <printf.h>
 #define INFO(fmt, ...) printf(fmt "\n", ## __VA_ARGS__)
+#define DEBUG(fmt, ...) printf(fmt "\n", ## __VA_ARGS__)
 #define BUG(fmt, ...) printf("BUG: " fmt "\n", ## __VA_ARGS__)
 #define PANIC(fmt, ...) do { \
         printf("PANIC: " fmt "\n", ## __VA_ARGS__); \
