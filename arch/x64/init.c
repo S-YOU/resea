@@ -114,19 +114,27 @@ void arch_early_init(void) {
 
     // Initialize paging table first: we need mappings to
     // Local APIC.
+    INFO("x64: initializing paging");
     x64_init_paging();
 
     // Local APIC have to be initialized *just* after page
     // table initialization because CPUVAR uses Local APIC
     // internally.
+    INFO("x64: initializing Local APIC");
     x64_init_apic();
 
+    INFO("x64: initializing GDT");
     x64_init_gdt();
+    INFO("x64: initializing TSS");
     x64_init_tss();
+    INFO("x64: initializing IDT");
     x64_init_idt();
 
+    INFO("x64: initializing SMP");
     x64_init_smp();
+    INFO("x64: initializing Local APIC Timer");
     x64_init_apic_timer();
+    INFO("x64: initializing SYSCALL/SYSRET");
     x64_init_syscall();
 }
 

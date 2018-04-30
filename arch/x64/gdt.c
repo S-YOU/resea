@@ -46,9 +46,6 @@ void  x64_init_gdt(void) {
     set_seg_desc(&gdt[GDT_KERNEL_DATA], 0x0000000000000000, 0xffffffffffffffff,
                  GDTTYPE_KERNEL_DATA64, GDT_LIMIT2_MASK_DATA64);
 
-    // 32-bit code segment (user)
-    set_seg_desc(&gdt[GDT_USER_CODE32], 0x0000000000000000, 0xffffffffffffffff,
-                 GDTTYPE_USER_CODE32, GDT_LIMIT2_MASK_CODE32);
     // 64-bit code segment (user)
     set_seg_desc(&gdt[GDT_USER_CODE], 0x0000000000000000, 0xffffffffffffffff,
                  GDTTYPE_USER_CODE64, GDT_LIMIT2_MASK_CODE64);

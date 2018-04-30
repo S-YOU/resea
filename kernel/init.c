@@ -5,12 +5,15 @@
 
 void kernel_init(void) {
     INFO("Starting Resea...");
+    INFO("kernel: initializing memory system");
     memory_init();
     arch_early_init();
+    INFO("kernel: initializing process system");
     process_init();
+    INFO("kernel: initializing thread system");
     thread_init();
     arch_init();
-    INFO("Kernel initialized.");
+    INFO("kernel: initialized the kernel");
 
     if (thread_list_is_empty(&kernel_process->threads)) {
         PANIC("No threads to run.");

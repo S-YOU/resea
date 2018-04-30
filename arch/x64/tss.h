@@ -13,7 +13,7 @@ struct tss {
     uint16_t  iomap;
 } PACKED;
 
-#define INTR_STACK_SIZE (16 * 1024)
+#define INTR_STACK_SIZE 4096
 #define INTR_HANDLER_IST 1
 
 void x64_init_tss(void);

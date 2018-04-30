@@ -5,7 +5,7 @@
 #include "asm.h"
 
 
-void *kernel_pml4 = NULL;
+uint64_t *kernel_pml4 = NULL;
 
 static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool allocate,
                                  int attrs, uint64_t **table, int *index) {
@@ -99,7 +99,7 @@ void x64_init_paging(void) {
     /* Construct kernel space mappings. */
     uint64_t flags = PAGE_PRESENT | PAGE_WRITABLE;
     paddr_t pml4_addr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
-    uint64_t *kernel_pml4 = from_paddr(pml4_addr);
+    kernel_pml4 = from_paddr(pml4_addr);
 
     paddr_t pdpt_addr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
     uint64_t *pdpt = from_paddr(pdpt_addr);

@@ -42,13 +42,15 @@ static inline uint64_t asm_read_cr2(void) {
 }
 
 static inline void asm_wrmsr(uint32_t reg, uint64_t value) {
-    INLINE_ASM("wrmsr" :: "c"(reg), "A"(value));
+    uint32_t low = value & 0xffffffff;
+    uint32_t hi = value >> 32;
+    INLINE_ASM("wrmsr" :: "c"(reg), "a"(low), "d"(hi));
 }
 
 static inline uint64_t asm_rdmsr(uint32_t reg) {
-    uint64_t value;
-    INLINE_ASM("rdmsr" : "=A"(value) : "c"(reg));
-    return value;
+    uint32_t low, high;
+    INLINE_ASM("rdmsr" : "=a"(low), "=d"(high) : "c"(reg));
+    return ((uint64_t) high << 32) | low;
 }
 
 static inline void asm_invlpg(uint64_t vaddr) {
