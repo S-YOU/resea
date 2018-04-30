@@ -6,7 +6,8 @@ default: build
 
 ARCH_DIR = arch/$(ARCH)
 override CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration \
-	-Werror=int-conversion -Werror=incompatible-pointer-types
+	-Werror=int-conversion -Werror=incompatible-pointer-types \
+	-Werror=shift-count-overflow
 override LDFLAGS := $(LDFLAGS)
 
 all_objs :=

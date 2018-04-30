@@ -36,6 +36,50 @@
     pop r15
 .endm
 
+.extern handle_syscall
+.globl x64_syscall_handler
+x64_syscall_handler:
+    /*
+     *  RDI: type
+     *  RSI: a1
+     *  RDX: a2
+     *  RCX: user RIP (to be exchanged with R13)
+     *  R8:  a4
+     *  R9:  a5
+     *  R10: a6
+     *  R11: user RFLAGS (to be exchanged with R14)
+     *  R12: a8
+     *  R13: a3
+     *  R14: a7
+     *
+     */
+
+    /* Switch to the kernel stack. */
+    swapgs
+    mov r15, rsp
+    mov rsp, gs:[0]
+
+    push r11 /* user RFLAGS */
+    push r15 /* user RSP */
+    push rcx /* user RIP */
+    xchg rcx, r13
+    xchg r11, r14
+
+    call handle_syscall
+
+    /* Sanitize caller-saved registers not to leak information to user.
+       Note that RAX holds the return value. */
+    xor rdx, rdx
+    xor r8, r8
+    xor r9, r9
+    xor r10, r10
+
+    pop rcx
+    pop rsp
+    pop r11
+    swapgs
+    sysret
+
 .extern x64_handle_irq
 .macro INTR_HANDLER num
 .align 8

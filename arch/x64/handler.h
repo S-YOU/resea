@@ -1,6 +1,8 @@
 #ifndef __X64_HANDLER_H__
 #define __X64_HANDLER_H__
 
+void x64_syscall_handler(void);
+
 void x64_exp_handler0(void);
 void x64_exp_handler1(void);
 void x64_exp_handler2(void);

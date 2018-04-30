@@ -7,6 +7,7 @@
 #include "paging.h"
 #include "serial.h"
 #include "smp.h"
+#include "syscall.h"
 
 #define X64_THREAD_TESTER
 #ifdef X64_THREAD_TESTER
@@ -126,6 +127,7 @@ void arch_early_init(void) {
 
     x64_init_smp();
     x64_init_apic_timer();
+    x64_init_syscall();
 }
 
 
