@@ -3,8 +3,9 @@
 
 #include "gdt.h"
 
-#define USER_CS   (GDT_USER_CODE * 8)
-#define USER_DS   (GDT_USER_DATA * 8)
+#define KERNEL_DS KERNEL_DATA64_SEG
+#define USER_CS   USER_CODE64_SEG
+#define USER_DS   USER_DATA64_SEG
 #define USER_RPL  3
 
 // IF and reserved bit set.

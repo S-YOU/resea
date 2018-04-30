@@ -88,6 +88,7 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
 
             // A valid page access. Fill and link the page.
             paddr_t paddr = area->pager(area->pager_arg, address, PAGE_SIZE);
+            INFO("Filling %p -> %p",paddr, address);
             if (paddr == 0) {
                 INFO("page fault: pager error");
                 thread_destroy_current();

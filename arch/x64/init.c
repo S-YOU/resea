@@ -40,10 +40,10 @@ void thread_c(void) {
 void bin_container(void) {
     INLINE_ASM(
         ".globl __bin_start\n"
-        "__bin_start:\n"
         "1:\n"
-        "   xchgw %bx,%bx\n"
-        "   movq $0xabcdef, %rax\n"
+        "__bin_start:\n"
+//        "   xchgw %bx,%bx\n"
+        "   movq $0xabcdef, %rdi\n"
         "   syscall\n"
         "   jmp 1b\n"
         ".globl __bin_end\n"
@@ -71,7 +71,6 @@ void thread_tester(void) {
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);
 
-/*
     struct process *user_process = process_create();
     uintptr_t bin_addr = 0x01000000;
     add_vmarea(&user_process->vms, bin_addr, PAGE_SIZE, PAGE_USER,
@@ -80,7 +79,6 @@ void thread_tester(void) {
     struct thread *t_e = thread_create(user_process, bin_addr, 0);
     thread_set_state(t_d, THREAD_RUNNABLE);
     thread_set_state(t_e, THREAD_RUNNABLE);
-*/
 }
 #endif
 

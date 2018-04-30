@@ -14,8 +14,27 @@ enter_userspace:
     /* arch_create_thread() pushed to the kernel stack (current one)
       `arg' and an IRET frame. */
 
-    /* Extract `arg` */
-    pop %rdi
+    pop %rsi /* arch_thread */
+    pop %rdi /* arg */
+
+   /* Set GS base addresses. Note that we're in kernel space; the
+       current GS base will be swapped by SWAPGS in the interrupt
+       handler. */
+    lea 40(%rsi), %rdx
+    mov $MSR_KERNEL_GS_BASE, %ecx
+    mov %edx, %eax
+    shrq $32, %rdx
+    wrmsr
+
+    /* We don't allow using GS register in userspace for now. */
+    mov $MSR_GS_BASE, %ecx
+    xor %eax, %eax
+    xor %edx, %edx
+    wrmsr
+
+    /* Switch GS register. */
+    mov 32(%rsi), %rax
+    mov %ax, %gs
 
     /* Sanitize registers except RDI to prevent information leak. */
     xor %rax, %rax
@@ -34,7 +53,6 @@ enter_userspace:
     xor %r15, %r15
 
     /* TODO: sanitize other registers */
-    xchgw %bx,%bx
     iretq
 
 /* void arch_switch(struct arch_thread *prev, struct arch_thread *next); */
@@ -45,17 +63,23 @@ arch_switch:
     /* Set GS base addresses. Note that we're in kernel space; the
        current GS base will be swapped by SWAPGS in the interrupt
        handler. */
-    lea 32(%rsi), %rdx
-    mov $MSR_GS_BASE, %ecx
+    lea 40(%rsi), %rdx
+    mov $MSR_KERNEL_GS_BASE, %ecx
     mov %edx, %eax
     shrq $32, %rdx
     wrmsr
 
     /* We don't allow using GS register in userspace for now. */
-    mov $MSR_KERNEL_GS_BASE, %ecx
+    mov $MSR_GS_BASE, %ecx
     xor %eax, %eax
     xor %edx, %edx
     wrmsr
+
+    /* Switch GS register. */
+    mov %gs, %ax
+    mov %rax, 32(%rdi)
+    mov 32(%rsi), %rax
+    mov %ax, %gs
 
     /* We have to restore Interrupt Flags properly. */
     pushfq

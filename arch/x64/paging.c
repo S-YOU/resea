@@ -7,14 +7,13 @@
 
 uint64_t *kernel_pml4 = NULL;
 
-static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool allocate,
-                                 int attrs, uint64_t **table, int *index) {
+static void lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool allocate,
+                              int attrs, uint64_t **table, int *index) {
     int idx;
     uint64_t *entries = (uint64_t *) from_paddr((paddr_t) vms->pml4_addr);
 
     for (int i = 4; i > 1; i--) {
         idx = (v >> (((i - 1) * 9) + 12)) & 0x1ff;
-
         if (!entries[idx]) {
             /* the PDPT, PD or PT is not allocated so allocate it */
             if (allocate) {
@@ -22,9 +21,9 @@ static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool all
                 paddr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
                 entries[idx] = paddr | attrs | PAGE_PRESENT;
             } else {
-                BUG("the page does not exist");
                 *table = NULL;
-                return 0;
+                BUG("the page does not exist");
+                return;
             }
         }
 
@@ -32,13 +31,11 @@ static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool all
         entries = (uint64_t *) from_paddr((uint64_t) entries[idx] & 0x7ffffffffffff000);
     }
 
-    /* t is now a pointer to the PT */
+    /* table is now a pointer to the PT */
     idx = (v >> 12) & 0x1ff; // idx in PT
 
     *table = entries;
     *index = idx;
-
-    return (entries[idx] & ~(0xfff));
 }
 
 
@@ -78,7 +75,7 @@ link_to_next_pt:
     lookup_page_entry(vms, vaddr, true, attrs, &table, &idx);
 
     while(num > 0 && idx < PAGE_ENTRY_NUM) {
-        table[idx] = paddr | attrs;
+        table[idx] = paddr | attrs | PAGE_PRESENT;
         asm_invlpg(vaddr);
         num--;
         idx++;

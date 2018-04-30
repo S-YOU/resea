@@ -37,7 +37,8 @@ struct arch_thread {
     uint64_t rsp;          // offset: 8
     uint64_t rflags;       // offset: 16
     uint64_t is_user;      // offset: 24
-    struct gsinfo gsinfo;  // offset: 32
+    uint64_t gs;           // offset: 32
+    struct gsinfo gsinfo;  // offset: 40
 };
 
 struct arch_vmspace {

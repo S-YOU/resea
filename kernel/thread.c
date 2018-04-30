@@ -90,11 +90,12 @@ void thread_switch(void) {
         int state = thread_get_state(rq->thread);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             struct thread *current_thread = CPUVAR->current_thread;
-            CPUVAR->current_thread = rq->thread;
+            struct thread *next_thread = rq->thread;
+            CPUVAR->current_thread = next_thread;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
-            arch_switch_vmspace(&current_thread->process->vms.arch);
-            arch_switch(&current_thread->arch, &rq->thread->arch);
+            arch_switch_vmspace(&next_thread->process->vms.arch);
+            arch_switch(&current_thread->arch, &next_thread->arch);
             return;
         }
 
@@ -106,11 +107,12 @@ void thread_switch(void) {
         int state = thread_get_state(rq->thread);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             struct thread *current_thread = CPUVAR->current_thread;
-            CPUVAR->current_thread = rq->thread;
+            struct thread *next_thread = rq->thread;
+            CPUVAR->current_thread = next_thread;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
-            arch_switch_vmspace(&current_thread->process->vms.arch);
-            arch_switch(&current_thread->arch, &rq->thread->arch);
+            arch_switch_vmspace(&next_thread->process->vms.arch);
+            arch_switch(&current_thread->arch, &next_thread->arch);
             return;
         }
 

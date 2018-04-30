@@ -67,16 +67,11 @@ x64_syscall_handler:
 
     call handle_syscall
 
-    /* Sanitize caller-saved registers not to leak information to user.
-       Note that RAX holds the return value. */
-    xor rdx, rdx
-    xor r8, r8
-    xor r9, r9
-    xor r10, r10
+    /* TODO: Sanitize caller-saved registers not to leak information to user. */
 
     pop rcx
-    pop rsp
     pop r11
+    pop rsp
     swapgs
     sysret
 
@@ -99,6 +94,10 @@ x64_irq_handler\num:
     /* Check CS register in the IRET frame. */
     test qword ptr [rsi + 16], 3
     jz 1f
+
+    /* XXX: dunno why but GS register becomes 0 */
+    mov ax, 16
+    mov gs, ax
 
     /* from user: use dedicated kernel stack */
     swapgs
@@ -144,15 +143,15 @@ x64_exp_handler\num:
 
     /* Get error code from the stack and overwrite by SAVE_REGS. */
     push rax
-    mov  rax, [rsp + 8]
+    mov  rax, [rsp + 8] /* error code */
     mov  [rsp - 112], rax
     pop  rax
     add  rsp, 8
 
     SAVE_REGS
 
-    mov  rsi, [rsp + 120] /* error code */
-    mov  rdi, \num
+    mov rdi, \num
+    mov rsi, [rsp - 8] /* error code */
     call x64_handle_exception
     jmp ret_from_exp
 .endm
