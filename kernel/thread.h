@@ -40,6 +40,7 @@ struct process;
 tid_t allocate_tid(void);
 struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t arg);
 void thread_destroy(struct thread *thread);
+NORETURN void thread_destroy_current(void);
 void thread_switch(void);
 void thread_init(void);
 

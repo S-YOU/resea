@@ -3,6 +3,8 @@
 
 #include <resea/types.h>
 
-void x64_handle_exception(uint8_t exception);
+#define EXP_PAGE_FAULT 14
+
+void x64_handle_exception(uint8_t exception, uint64_t error);
 
 #endif

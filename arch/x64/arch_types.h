@@ -7,6 +7,7 @@
 #define PAGE_SIZE 4096
 #define PAGE_PRESENT  (1 << 0)
 #define PAGE_WRITABLE (1 << 1)
+#define PAGE_USER (1 << 2)
 
 typedef unsigned long long paddr_t;
 typedef unsigned long long uintptr_t;

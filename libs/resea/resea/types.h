@@ -14,7 +14,8 @@ typedef unsigned char bool;
 #define UNUSED __attribute__((unused))
 #define PACKED __attribute__((packed))
 #define NORETURN __attribute__((noreturn))
-#define ROUND_UP(x, size) (((x) + ((size) - 1)) & ~((size) - 1))
+#define ROUND_UP(x, align) (((x) + ((align) - 1)) & ~((align) - 1))
+#define ROUND_DOWN(x, align) ((x) & ~((align) - 1))
 #define INLINE_ASM __asm__ __volatile__
 #define atomic_compare_and_swap  __sync_bool_compare_and_swap
 #define offsetof __builtin_offsetof

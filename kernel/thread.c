@@ -1,5 +1,5 @@
 #include <list.h>
-#include "cpu.h"
+#include "cpu.h" // FIXME
 #include "memory.h"
 #include "thread.h"
 #include "process.h"
@@ -63,6 +63,16 @@ void thread_destroy(struct thread *thread) {
 }
 
 
+NORETURN void thread_destroy_current(void) {
+    struct thread *thread = CPUVAR->current_thread;
+    if (thread == idle_thread) {
+        PANIC("idle thread can't be destroyied");
+    }
+
+    PANIC("%s: not yet implemented", __func__);
+}
+
+
 void thread_switch(void) {
     // Runqueue will never be empty since idle runs forever until
     // is_computer_on() returns true.
@@ -80,6 +90,7 @@ void thread_switch(void) {
             CPUVAR->current_thread = rq->thread;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+            arch_switch_vmspace(&current_thread->process->vms.arch);
             arch_switch(&current_thread->arch, &rq->thread->arch);
             return;
         }
@@ -95,6 +106,7 @@ void thread_switch(void) {
             CPUVAR->current_thread = rq->thread;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
+            arch_switch_vmspace(&current_thread->process->vms.arch);
             arch_switch(&current_thread->arch, &rq->thread->arch);
             return;
         }

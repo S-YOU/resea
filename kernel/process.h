@@ -1,11 +1,13 @@
 #ifndef __PROCESS_H__
 #define __PROCESS_H__
 
+#include "memory.h"
 #include "thread.h"
 
 struct process {
     tid_t pid;
     struct thread *threads;
+    struct vmspace vms;
 };
 
 extern struct process *kernel_process;

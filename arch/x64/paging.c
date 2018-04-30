@@ -1,25 +1,26 @@
 #include <resea/types.h>
 #include <kernel/memory.h>
+#include <string.h>
 #include "paging.h"
 #include "asm.h"
 
 
+void *kernel_pml4 = NULL;
+
 static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool allocate,
                                  int attrs, uint64_t **table, int *index) {
     int idx;
-    uint64_t *t;
+    uint64_t *entries = (uint64_t *) from_paddr((paddr_t) vms->pml4_addr);
 
-    t = (uint64_t *) from_paddr((paddr_t) vms->pml4_addr);
+    for (int i = 4; i > 1; i--) {
+        idx = (v >> (((i - 1) * 9) + 12)) & 0x1ff;
 
-    for (int i=4; i > 1; i--) {
-        idx = (v >> (((i-1) * 9) + 12))  & 0x1ff;
-
-        if (!t[idx]) {
+        if (!entries[idx]) {
             /* the PDPT, PD or PT is not allocated so allocate it */
             if (allocate) {
                 paddr_t paddr;
-                paddr = alloc_pages(PAGE_SIZE * 1, KMALLOC_NORMAL);
-                t[idx] = paddr | attrs | PAGE_PRESENT;
+                paddr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
+                entries[idx] = paddr | attrs | PAGE_PRESENT;
             } else {
                 BUG("the page does not exist");
                 *table = NULL;
@@ -28,56 +29,66 @@ static paddr_t lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool all
         }
 
         /* go into the next level paging table */
-        t = (uint64_t *) from_paddr((uint64_t) t[idx] & 0x7ffffffffffff000);
+        entries = (uint64_t *) from_paddr((uint64_t) entries[idx] & 0x7ffffffffffff000);
     }
 
     /* t is now a pointer to the PT */
     idx = (v >> 12) & 0x1ff; // idx in PT
 
-    if (table)
-        *table = t;
-    if (index)
-        *index = idx;
+    *table = entries;
+    *index = idx;
 
-    return (t[idx] & ~(0xfff));
+    return (entries[idx] & ~(0xfff));
 }
 
 
-void arch_create_vmspace(UNUSED struct arch_vmspace *vms) {
+void arch_create_vmspace(struct arch_vmspace *vms) {
+    size_t pml4_size = PAGE_SIZE;
+    paddr_t pml4_addr = alloc_pages(pml4_size, KMALLOC_NORMAL);
+    uint64_t *pml4 = from_paddr(pml4_addr);
+
+    // Copy kernel space page entries.
+    memcpy(pml4, kernel_pml4, pml4_size);
+
+    vms->pml4_addr = pml4_addr;
 }
 
 
-void arch_remove_vmspace(UNUSED struct arch_vmspace *vms) {
+void arch_destroy_vmspace(UNUSED struct arch_vmspace *vms) {
 }
 
 
 void arch_switch_vmspace(struct arch_vmspace *vms) {
+
     asm_set_cr3(vms->pml4_addr);
 }
 
 
-void arch_link_page(struct arch_vmspace *vms, uintptr_t v, paddr_t p, size_t n,
+void arch_link_page(struct arch_vmspace *vms, uintptr_t vaddr, paddr_t paddr, size_t num,
                     int attrs) {
     int idx;
     uint64_t *table;
 
+link_to_next_pt:
+
     /* pages for the kernel are already mapped */
-    if (v > KERNEL_BASE_ADDR)
+    if (vaddr > KERNEL_BASE_ADDR)
         return;
 
-    lookup_page_entry(vms, v, true, attrs, &table, &idx);
+    lookup_page_entry(vms, vaddr, true, attrs, &table, &idx);
 
-    while(n > 0 && idx < PAGE_ENTRY_NUM) {
-        table[idx] = p | attrs;
-        asm_invlpg(v);
-        n--;
+    while(num > 0 && idx < PAGE_ENTRY_NUM) {
+        table[idx] = paddr | attrs;
+        asm_invlpg(vaddr);
+        num--;
         idx++;
-        p += PAGE_SIZE;
+        paddr += PAGE_SIZE;
     }
 
-    /* pages which belongs to the different PT */
-    if (n > 0)
-        arch_link_page(vms, v, p, n, attrs);
+    // Pages which belongs to the next PT,
+    if (num > 0) {
+        goto link_to_next_pt;
+    }
 }
 
 
@@ -88,7 +99,7 @@ void x64_init_paging(void) {
     /* Construct kernel space mappings. */
     uint64_t flags = PAGE_PRESENT | PAGE_WRITABLE;
     paddr_t pml4_addr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
-    uint64_t *pml4 = from_paddr(pml4_addr);
+    uint64_t *kernel_pml4 = from_paddr(pml4_addr);
 
     paddr_t pdpt_addr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
     uint64_t *pdpt = from_paddr(pdpt_addr);
@@ -108,7 +119,7 @@ void x64_init_paging(void) {
         pdpt[PDPT_INDEX(vaddr)] = pd_addr | flags;
     }
 
-    pml4[PML4_INDEX(KERNEL_BASE_ADDR)] = pdpt_addr |flags;
+    kernel_pml4[PML4_INDEX(KERNEL_BASE_ADDR)] = pdpt_addr |flags;
 
     // Reload the created page table.
     asm_set_cr3(pml4_addr);

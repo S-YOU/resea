@@ -1,18 +1,27 @@
 #include <resea/types.h>
 #include <printf.h>
+#include <kernel/memory.h>
 #include "asm.h"
 #include "exception.h"
 
 void x64_handle_exception(uint8_t exception, uint64_t error) {
 
     switch (exception) {
-        case 14:
-            int  operation = PAGE_WRITE;
-            bool is_user = (error >> 2) & 1;
-            bool is_invalid = error & 1;
-            uintptr_t address = asm_read_cr3();
-            page_fault_handler(operation, address);
+        case EXP_PAGE_FAULT: {
+            uintptr_t address = asm_read_cr2();
+            bool invalid = (error >> 0) & 1;
+            bool write = (error >> 1) & 1;
+            bool user = (error >> 2) & 1;
+            bool rsvd = (error >> 3) & 1;
+            bool exec = (error >> 4) & 1;
+
+            if (rsvd) {
+                BUG("page fault: RSVD bit violation");
+            }
+
+            handle_page_fault(address, invalid, write, user, exec);
             break;
+        }
     }
 
     PANIC("Exception %d", exception);

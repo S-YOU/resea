@@ -16,6 +16,7 @@
         "thread.h": "c",
         "asm.h": "c",
         "printf.h": "c",
-        "switch.h": "c"
+        "switch.h": "c",
+        "exception.h": "c"
     }
 }

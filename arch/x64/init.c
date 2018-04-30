@@ -8,6 +8,7 @@
 #include "serial.h"
 #include "smp.h"
 
+#define X64_THREAD_TESTER
 #ifdef X64_THREAD_TESTER
 #include <kernel/process.h>
 #include <kernel/thread.h>
@@ -34,17 +35,47 @@ void thread_c(void) {
     }
 }
 
+void bin_container(void) {
+    INLINE_ASM(
+        ".globl __bin_start\n"
+        "__bin_start:\n"
+        "1:\n"
+        "   xchgw %bx,%bx\n"
+        "   movq $0xabcdef, %rax\n"
+        "   syscall\n"
+        "   jmp 1b\n"
+        ".globl __bin_end\n"
+        "__bin_end:\n"
+    );
+}
+
+#include <string.h>
+extern char __bin_start;
+extern char __bin_end;
+paddr_t bin_pager(UNUSED void *arg, uintptr_t addr, size_t length) {
+    paddr_t paddr = alloc_pages(length, KMALLOC_NORMAL);
+    void *ptr = from_paddr(paddr);
+    memcpy(ptr, &__bin_start, (uintptr_t) &__bin_end - (uintptr_t) &__bin_start);
+    return paddr;
+
+}
+
+
 void thread_tester(void) {
     INFO("x64: starting thread tester");
-    struct process *user_process = process_create();
     struct thread *t_a = thread_create(kernel_process, (uintptr_t) thread_a, 0);
     struct thread *t_b = thread_create(kernel_process, (uintptr_t) thread_b, 0);
     struct thread *t_c = thread_create(kernel_process, (uintptr_t) thread_c, 0);
-    struct thread *t_d = thread_create(user_process, (uintptr_t) 0x01000000, 0);
-    struct thread *t_e = thread_create(user_process, (uintptr_t) 0x01000000, 0);
     thread_set_state(t_a, THREAD_RUNNABLE);
     thread_set_state(t_b, THREAD_RUNNABLE);
     thread_set_state(t_c, THREAD_RUNNABLE);
+
+    struct process *user_process = process_create();
+    uintptr_t bin_addr = 0x01000000;
+    add_vmarea(&user_process->vms, bin_addr, PAGE_SIZE, PAGE_USER,
+        bin_pager, NULL);
+    struct thread *t_d = thread_create(user_process, bin_addr, 0);
+    struct thread *t_e = thread_create(user_process, bin_addr, 0);
     thread_set_state(t_d, THREAD_RUNNABLE);
     thread_set_state(t_e, THREAD_RUNNABLE);
 }

@@ -14,4 +14,9 @@ void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
 void arch_destroy_thread(struct arch_thread *arch);
 void arch_switch(struct arch_thread *prev, struct arch_thread *next);
 
+void arch_create_vmspace(struct arch_vmspace *vms);
+void arch_destroy_vmspace(struct arch_vmspace *vms);
+void arch_switch_vmspace(struct arch_vmspace *vms);
+void arch_link_page(struct arch_vmspace *vms, uintptr_t vaddr, paddr_t paddr, size_t num,
+                    int attrs);
 #endif
