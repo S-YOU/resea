@@ -111,9 +111,6 @@ void arch_early_init(void) {
     INFO("x64: initializing paging");
     x64_init_paging();
 
-    INFO("bss %p %p", &__boot_stack, &__boot_stack_end);
-    INFO("bootstack %p %p", &__boot_stack, &__boot_stack_end);
-
     // Local APIC have to be initialized *just* after page
     // table initialization because CPUVAR uses Local APIC
     // internally.

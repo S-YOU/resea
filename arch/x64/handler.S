@@ -89,29 +89,34 @@ x64_irq_handler\num:
      */
 
     push rsi
+    push rax
     mov rsi, rsp
 
     /* Check CS register in the IRET frame. */
-    test qword ptr [rsi + 16], 3
+    test qword ptr [rsi + 24], 3
     jz 1f
 
     /* from user: use dedicated kernel stack */
     swapgs
+    /* XXX: It seems that GS is overwritten. Why? */
+    mov ax, 0x10
+    mov gs, ax
     mov rsp, gs:[0] /* Extract RSP from gsinfo. */
-
+    jmp 2f
 1:
     /* from kernel: use current stack (assuming Red Zone is disabled) */
-    mov rsp, [rsp + 32] /* Extract RSP from the IRET frame */
+    mov rsp, [rsp + 40] /* Extract RSP from the IRET frame */
     jmp 2f
 
 2:
     /* Copy IRET frame. */
-    push [rsi + 40]    /* SS */
-    push [rsi + 32]    /* RSP */
-    push [rsi + 24]    /* RFLAGS */
-    push [rsi + 16]    /* CS */
-    push [rsi + 8]     /* RIP */
-    mov rsi, [rsi + 0] /* Restore RSI. */
+    push [rsi + 48]    /* SS */
+    push [rsi + 40]    /* RSP */
+    push [rsi + 32]    /* RFLAGS */
+    push [rsi + 24]    /* CS */
+    push [rsi + 16]     /* RIP */
+    mov rsi, [rsi + 8] /* Restore RSI. */
+    mov rax, [rsi + 0] /* Restore RAX. */
     SAVE_REGS
 
     mov rdi, \num

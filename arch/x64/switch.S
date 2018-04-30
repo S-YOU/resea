@@ -14,27 +14,7 @@ enter_userspace:
     /* arch_create_thread() pushed to the kernel stack (current one)
       `arg' and an IRET frame. */
 
-    pop %rsi /* arch_thread */
     pop %rdi /* arg */
-
-   /* Set GS base addresses. Note that we're in kernel space; the
-       current GS base will be swapped by SWAPGS in the interrupt
-       handler. */
-    lea 40(%rsi), %rdx
-    mov $MSR_KERNEL_GS_BASE, %ecx
-    mov %edx, %eax
-    shrq $32, %rdx
-    wrmsr
-
-    /* We don't allow using GS register in userspace for now. */
-    mov $MSR_GS_BASE, %ecx
-    xor %eax, %eax
-    xor %edx, %edx
-    wrmsr
-
-    /* Switch GS register. */
-    mov 32(%rsi), %rax
-    mov %ax, %gs
 
     /* Sanitize registers except RDI to prevent information leak. */
     xor %rax, %rax
@@ -52,6 +32,9 @@ enter_userspace:
     xor %r14, %r14
     xor %r15, %r15
 
+    /* Current GS base is kernel one. Swap as the timer ISR does. */
+//    swapgs
+
     /* TODO: sanitize other registers */
     iretq
 
@@ -64,20 +47,22 @@ arch_switch:
        current GS base will be swapped by SWAPGS in the interrupt
        handler. */
     lea 40(%rsi), %rdx
-    mov $MSR_KERNEL_GS_BASE, %ecx
+    mov $MSR_GS_BASE, %ecx
     mov %edx, %eax
     shrq $32, %rdx
     wrmsr
 
     /* We don't allow using GS register in userspace for now. */
-    mov $MSR_GS_BASE, %ecx
+    mov $MSR_KERNEL_GS_BASE, %ecx
     xor %eax, %eax
     xor %edx, %edx
     wrmsr
 
     /* Switch GS register. */
-    mov %gs, %ax
-    mov %rax, 32(%rdi)
+    /* XXX: GS is overwritten by someone else.
+       mov %gs, %ax
+       mov %rax, 32(%rdi)
+    */
     mov 32(%rsi), %rax
     mov %ax, %gs
 

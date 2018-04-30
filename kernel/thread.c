@@ -96,6 +96,7 @@ void thread_switch(void) {
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch_vmspace(&next_thread->process->vms.arch);
             arch_switch(&current_thread->arch, &next_thread->arch);
+            INFO("%s: ret %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             return;
         }
 
@@ -113,6 +114,7 @@ void thread_switch(void) {
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch_vmspace(&next_thread->process->vms.arch);
             arch_switch(&current_thread->arch, &next_thread->arch);
+            INFO("%s: ret %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             return;
         }
 
