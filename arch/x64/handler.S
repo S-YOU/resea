@@ -95,10 +95,6 @@ x64_irq_handler\num:
     test qword ptr [rsi + 16], 3
     jz 1f
 
-    /* XXX: dunno why but GS register becomes 0 */
-    mov ax, 16
-    mov gs, ax
-
     /* from user: use dedicated kernel stack */
     swapgs
     mov rsp, gs:[0] /* Extract RSP from gsinfo. */

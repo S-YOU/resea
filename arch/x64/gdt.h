@@ -6,17 +6,19 @@
 #define GDT_NULL        0
 #define GDT_KERNEL_CODE 1
 #define GDT_KERNEL_DATA 2
-#define GDT_USER_CODE   3
+#define GDT_USER_CODE32 3
 #define GDT_USER_DATA   4
-#define GDT_TSS         5 // Note: a TSS descriptor is twice as large as
+#define GDT_USER_CODE   5
+#define GDT_TSS         6 // Note: a TSS descriptor is twice as large as
                           //       a code segment descriptor.
-#define GDT_DESC_NUM    7
+#define GDT_DESC_NUM    8
 
 #define KERNEL_NULL_SEG    0
 #define KERNEL_CODE64_SEG  (GDT_KERNEL_CODE * 8)
 #define KERNEL_DATA64_SEG  (GDT_KERNEL_DATA * 8)
-#define USER_DATA64_SEG    (GDT_USER_DATA * 8)
+#define USER_CODE32_SEG    (GDT_USER_CODE32 * 8)
 #define USER_CODE64_SEG    (GDT_USER_CODE * 8)
+#define USER_DATA64_SEG    (GDT_USER_DATA * 8)
 #define KERNEL_DATA64_SEG  (GDT_KERNEL_DATA * 8)
 #define GDT_TSS_SEG        (GDT_TSS * 8)
 

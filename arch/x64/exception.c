@@ -24,6 +24,6 @@ void x64_handle_exception(uint8_t exception, uint64_t error) {
             break;
         }
         default:
-           PANIC("Exception %d", exception);
+            PANIC("Exception %d", exception);
     }
 }

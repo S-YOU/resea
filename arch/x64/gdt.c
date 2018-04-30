@@ -38,6 +38,7 @@ void  x64_init_gdt(void) {
 
     // NULL
     set_seg_desc(&gdt[GDT_NULL], 0, 0, 0, 0);
+    set_seg_desc(&gdt[GDT_USER_CODE32], 0, 0, 0, 0);
 
     // 64-bit code segment (kernel)
     set_seg_desc(&gdt[GDT_KERNEL_CODE], 0x0000000000000000, 0xffffffffffffffff,
