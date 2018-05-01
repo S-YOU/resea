@@ -24,6 +24,7 @@ type_t ipc_send(
 ){
     type_t ret;
 
+    /* TODO */
     return ret;
 }
 
@@ -129,16 +130,20 @@ type_t ipc_replyrecv(
 
 
 type_t ipc_discard(payload_t ool0, payload_t ool1, payload_t ool2, payload_t ool3){
+    /* TODO */
 }
 
 
 type_t ipc_link(channel_t ch0, channel_t ch1){
+    /* TODO */
 }
 
 
 type_t ipc_transfer(channel_t ch, channel_t dest){
+    /* TODO */
 }
 
 
 channel_t ipc_connect(channel_t server){
+    /* TODO */
 }
