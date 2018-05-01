@@ -1,10 +1,13 @@
 ARCH ?= x64
 SERVERS ?=
 COMMON_MK = $(shell pwd)/mk/common.mk
+SERVER_MK = $(shell pwd)/mk/server.mk
 
-.PHONY: default build clean run test setup
+.PHONY: default build clean run test
 default: build
 
+KFS_DIR = kernel/kfs
+LIBS_DIR = libs
 ARCH_DIR = kernel/arch/$(ARCH)
 override CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration \
 	-Werror=int-conversion -Werror=incompatible-pointer-types \
@@ -12,10 +15,15 @@ override CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration \
 override LDFLAGS := $(LDFLAGS)
 
 all_kfs_files :=
+
+# Load server rules.
+include $(foreach server, $(SERVERS), servers/$(server)/Makefile)
+
+# Load kernel rules.
+included_subdirs :=
 all_objs :=
 all_libs :=
 all_include_dirs := .
-
 include kernel/build.mk $(ARCH_DIR)/build.mk
 include $(foreach lib, $(all_libs), libs/$(lib)/build.mk)
 
@@ -47,13 +55,14 @@ clean:
 		*/*.elf */*/*.elf */*/*/*.elf \
 		*/*.img */*/*.img */*/*/*.img \
 		*/*.tmp */*/*.tmp */*/*/*.tmp \
-		*/*.bin */*/*.bin */*/*/*.bin
+		*/*.bin */*/*.bin */*/*/*.bin \
+		kernel/kfs.tar
+	rm -rf kernel/kfs
 
 kernel/kfs.o: kernel/kfs.tar
 kernel/kfs.tar: $(all_kfs_files)
 	$(PROGRESS) TAR $@
-	pwd
-	$(TAR) cf $@ --strip-components=1 kernel/kfs
+	$(TAR) cf $@ --strip-components=1 $(KFS_DIR)
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
 	$(PROGRESS) LD $@
