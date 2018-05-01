@@ -3,7 +3,7 @@
 
 #include <kernel/types.h>
 
-#define KFS_MAGIC "\x0f\x0bKFS!" // terminated by null character
+#define KFS_MAGIC "\xf\xbKFS!" // terminated by null character
 
 struct kfs_header {
     char magic[8];

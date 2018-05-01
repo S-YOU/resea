@@ -4,24 +4,16 @@
 #include "types.h"
 #include "memory.h"
 
-enum elf_archtype{
-  ELF_ARCH_X86_64
-};
-
-#define EI_NIDENT   16
-#define EI_MAG0     0x7f
-#define EI_MAG1     'E'
-#define EI_MAG2     'L'
-#define EI_MAG3     'F'
-#define ELFCLASS64  2
-#define EM_X86_64   62
-#define PT_LOAD     1
-#define PF_R        4
-#define PF_W        2
-#define PF_X        1
+#define ELF_MAGIC "\x7f" "ELF"
+#define ELFCLASS64 2
+#define EM_X86_64 62
+#define PT_LOAD 1
+#define PF_R 4
+#define PF_W 2
+#define PF_X 1
 
 struct elf64_ehdr{
-  uint8_t  e_ident[EI_NIDENT];
+  uint8_t  e_ident[16];
   uint16_t e_type;
   uint16_t e_machine;
   uint32_t e_version;
