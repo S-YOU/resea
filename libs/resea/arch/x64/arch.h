@@ -5,5 +5,6 @@ typedef uint64_t uintptr_t;
 typedef uint64_t uintmax_t;
 typedef uint64_t channel_t;
 typedef uint64_t payload_t;
+typedef uint64_t type_t;
 
 #endif

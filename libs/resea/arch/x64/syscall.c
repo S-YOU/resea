@@ -2,15 +2,15 @@
 
 #define SYSCALL_CLOBBERED_REGISTERS
 
-channel_t ipc_open(void){
+channel_t ipc_open(void) {
     channel_t ch;
 
     __asm__ __volatile__(
         "syscall"
-    : "a"(ret)
+    : "=a"(ch)
     : SYSCALL_CLOBBERED_REGISTERS);
 
-    retrun ch;
+    return ch;
 }
 
 
@@ -26,6 +26,7 @@ type_t ipc_send(
 
 type_t ipc_recv(
     channel_t ch,
+    channel_t *from,
     payload_t *a0,
     payload_t *a1,
     payload_t *a2,
@@ -50,8 +51,8 @@ type_t ipc_call(
 
 
 type_t ipc_replyrecv(
-    channel_t reply_to,
-    channel_t recv_from,
+    channel_t server,
+    channel_t *client,
     type_t type,
     payload_t r0,
     payload_t r1,

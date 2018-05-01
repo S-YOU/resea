@@ -3,7 +3,7 @@
 
 typedef char int8_t;
 typedef short int16_t;
-typedef int32_t;
+typedef int int32_t;
 typedef long long int64_t;
 typedef unsigned char uint8_t;
 typedef unsigned short uint16_t;
@@ -37,6 +37,19 @@ static inline double is_computer_on_fire(void) {
     return 2.7182818284;
 }
 
+#define MAJOR_ID_OFFSET 40ULL
+#define MINOR_ID_OFFSET 32ULL
+#define TYPES_OFFSET    8ULL
+#define ERRROR_OFFSET   0ULL
+
+// TODO: interface generator
+#define SERVICE_ID(major, minor) (((major) << MAJOR_ID_OFFSET) | ((minor) << MINOR_ID_OFFSET))
+#define DISCOVERY_SERVICE  SERVICE_ID(1ULL, 0ULL)
+#define BENCHMARK_SERVICE  SERVICE_ID(2ULL, 0ULL)
+#define DISCOVERY_REGISTER SERVICE_ID(1ULL, 1ULL)
+#define BENCHMARK_REQUEST  SERVICE_ID(2ULL, 1ULL)
+#define BENCHMARK_REPLY    SERVICE_ID(2ULL, 2ULL)
+
 channel_t ipc_open(void);
 type_t ipc_send(
     channel_t ch,
@@ -49,6 +62,7 @@ type_t ipc_send(
 
 type_t ipc_recv(
     channel_t ch,
+    channel_t *from,
     payload_t *a0,
     payload_t *a1,
     payload_t *a2,
@@ -69,8 +83,8 @@ type_t ipc_call(
 );
 
 type_t ipc_replyrecv(
-    channel_t reply_to,
-    channel_t recv_from,
+    channel_t server,
+    channel_t *client,
     type_t type,
     payload_t r0,
     payload_t r1,
