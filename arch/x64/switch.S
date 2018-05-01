@@ -33,7 +33,7 @@ enter_userspace:
     xor %r15, %r15
 
     /* Current GS base is kernel one. Swap as the timer ISR does. */
-//    swapgs
+    swapgs
 
     /* TODO: sanitize other registers */
     iretq
@@ -42,6 +42,10 @@ enter_userspace:
 .globl arch_switch
 arch_switch:
     /* TODO: save and restore FPU registers and debug registers. */
+
+    /* Switch GS register. TODO: save GS register. */
+    mov 32(%rsi), %rax
+    mov %ax, %gs
 
     /* Set GS base addresses. Note that we're in kernel space; the
        current GS base will be swapped by SWAPGS in the interrupt
@@ -57,14 +61,6 @@ arch_switch:
     xor %eax, %eax
     xor %edx, %edx
     wrmsr
-
-    /* Switch GS register. */
-    /* XXX: GS is overwritten by someone else.
-       mov %gs, %ax
-       mov %rax, 32(%rdi)
-    */
-    mov 32(%rsi), %rax
-    mov %ax, %gs
 
     /* We have to restore Interrupt Flags properly. */
     pushfq

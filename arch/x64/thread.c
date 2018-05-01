@@ -42,7 +42,7 @@ void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
         arch->rip = (uint64_t) enter_userspace;
         arch->rsp = (uint64_t) rsp0;
         arch->rflags = ENTER_USERSPACE_DEFAULT_RFLAGS;
-        arch->gs = KERNEL_DS;
+        arch->gs = USER_DS | USER_RPL;
         arch->is_user = true;
     }
 }
