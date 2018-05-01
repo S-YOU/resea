@@ -40,20 +40,17 @@
 .globl x64_syscall_handler
 x64_syscall_handler:
     /*
-     *  RDI: a0
-     *  RSI: a1
-     *  RDX: a2
-     *  RCX: user RIP (to be exchanged with R13)
-     *  R8:  a4
-     *  R9:  a5
-     *  R10: a6
-     *  R11: user RFLAGS (to be exchanged with R14)
-     *  R12: a8
-     *  R13: a3
-     *  R14: a7
-     *  R15: a8
-     *  RAX: a9
-     *  RBX: a10
+     *  RDI: 1st argument
+     *  RSI: 2nd argument
+     *  RDX: 3rd argument
+     *  RCX: user RIP
+     *  R8:  5th arugment
+     *  R9:  6th arugment
+     *  R10: 7th arugment
+     *  R11: user RFLAGS
+     *  R12: 4th argument
+     *  R14: syscall number
+     *  R15: user RSP
      *
      */
 
@@ -62,15 +59,31 @@ x64_syscall_handler:
     mov r15, rsp
     mov rsp, gs:[0]
 
+    /* TODO: save callee saved registers  */
+
     push r11 /* user RFLAGS */
     push r15 /* user RSP */
     push rcx /* user RIP */
-    xchg rcx, r13
-    xchg r11, r14
+    xchg rcx, rbx
 
     call handle_syscall
+    /*
+     * It returns these registers:
+     *
+     * RAX: type
+     * R8: 1st return value
+     * R9: 2nd return value
+     * R10: 3rd return value
+     * R11: (unused)
+     * R12: 4th return value
+     * R13: 5th return value
+     *
+     */
 
-    /* TODO: Sanitize caller-saved registers not to leak information to user. */
+    /* Sanitize callee-saved registers not to leak information to user. */
+    xor rdi, rdi
+    xor rsi, rsi
+    xor rdx, rdx
 
     pop rcx
     pop r11

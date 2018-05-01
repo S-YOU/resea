@@ -50,6 +50,16 @@ static inline double is_computer_on_fire(void) {
 #define BENCHMARK_REQUEST  SERVICE_ID(2ULL, 1ULL)
 #define BENCHMARK_REPLY    SERVICE_ID(2ULL, 2ULL)
 
+#define SYSCALL_OPEN 1
+#define SYSCALL_CLOSE 2
+#define SYSCALL_SEND 3
+#define SYSCALL_RECV 4
+#define SYSCALL_CALL 5
+#define SYSCALL_REPLYRECV 6
+#define SYSCALL_LINK 7
+#define SYSCALL_TRANSFER 8
+#define SYSCALL_CONNECT 9
+
 channel_t ipc_open(void);
 type_t ipc_send(
     channel_t ch,
