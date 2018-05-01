@@ -40,7 +40,7 @@
 .globl x64_syscall_handler
 x64_syscall_handler:
     /*
-     *  RDI: type
+     *  RDI: a0
      *  RSI: a1
      *  RDX: a2
      *  RCX: user RIP (to be exchanged with R13)
@@ -51,6 +51,9 @@ x64_syscall_handler:
      *  R12: a8
      *  R13: a3
      *  R14: a7
+     *  R15: a8
+     *  RAX: a9
+     *  RBX: a10
      *
      */
 
