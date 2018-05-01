@@ -14,6 +14,8 @@ typedef unsigned char bool;
 #define UNUSED __attribute__((unused))
 #define PACKED __attribute__((packed))
 #define NORETURN __attribute__((noreturn))
+#define DEPRECATED __attribute__((deprecated))
+#define UNREACHABLE __builtin_unreachable()
 #define ROUND_UP(x, align) (((x) + ((align) - 1)) & ~((align) - 1))
 #define ROUND_DOWN(x, align) ((x) & ~((align) - 1))
 #define INLINE_ASM __asm__ __volatile__

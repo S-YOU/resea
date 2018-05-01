@@ -7,3 +7,6 @@
 *.lock
 *.tmp
 *.map
+kfs
+!kfs/.gitkeep
+kernel/kfs.tar

@@ -133,7 +133,7 @@ long_mode:
     rep stosb
 
     mov rsp, boot_stack_addr
-    mov rax, x64_init_addr
+    mov rax, x64_init_bsp_addr
     call rax
 
 
@@ -150,8 +150,8 @@ bss_addr:
 bss_end_addr:
     .quad __bss_end
 
-x64_init_addr:
-    .quad x64_init
+x64_init_bsp_addr:
+    .quad x64_init_bsp
 
 boot_stack_addr:
     .quad __boot_stack_end

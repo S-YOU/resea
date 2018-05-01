@@ -9,7 +9,7 @@ MEMORY {
 
 SECTIONS {
   .startup : {
-    arch/x64/startup.o(.text);
+    kernel/arch/x64/startup.o(.text);
   } > startup
 
   .text : AT(0x00011000) {

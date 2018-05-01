@@ -1,20 +1,22 @@
 ARCH ?= x64
+SERVERS ?=
 COMMON_MK = $(shell pwd)/mk/common.mk
 
 .PHONY: default build clean run test setup
 default: build
 
-ARCH_DIR = arch/$(ARCH)
+ARCH_DIR = kernel/arch/$(ARCH)
 override CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration \
 	-Werror=int-conversion -Werror=incompatible-pointer-types \
 	-Werror=shift-count-overflow -Werror=shadow
 override LDFLAGS := $(LDFLAGS)
 
+all_kfs_files :=
 all_objs :=
 all_libs :=
 all_include_dirs := .
 
-include kernel/build.mk arch/$(ARCH)/build.mk
+include kernel/build.mk $(ARCH_DIR)/build.mk
 include $(foreach lib, $(all_libs), libs/$(lib)/build.mk)
 
 # Set `y' to suppress annoying build messages.
@@ -26,11 +28,13 @@ CC = clang
 LD = ld
 OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
 DD = dd
+TAR = tar
 
 ifeq ($(shell uname), Darwin)
 CC = /usr/local/opt/llvm/bin/clang
 LD = sh -c 'exec -a ld.lld /usr/local/opt/llvm/bin/lld $$*'
 DD = gdd
+TAR = gtar
 TOOLCHAIN_PREFIX = g
 endif
 
@@ -45,8 +49,11 @@ clean:
 		*/*.tmp */*/*.tmp */*/*/*.tmp \
 		*/*.bin */*/*.bin */*/*/*.bin
 
-setup:
-	brew install coreutils llvm binutils qemu mtools
+kernel/kfs.o: kernel/kfs.tar
+kernel/kfs.tar: $(all_kfs_files)
+	$(PROGRESS) TAR $@
+	pwd
+	$(TAR) cf $@ --strip-components=1 kernel/kfs
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
 	$(PROGRESS) LD $@

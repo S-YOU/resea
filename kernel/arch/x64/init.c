@@ -1,5 +1,6 @@
 #include <resea/types.h>
 #include <string.h>
+#include <kernel/init.h>
 #include "gdt.h"
 #include "idt.h"
 #include "tss.h"
@@ -82,12 +83,9 @@ void thread_tester(void) {
 }
 #endif
 
-extern uint8_t __bss;
-extern uint8_t __bss_end;
 
-void kernel_init(void);
-
-void x64_init(void) {
+/* The bootstarap processor (the first processor) initialization. */
+void x64_init_bsp(void) {
     static bool initialized = false;
 
     // Note that the kernel memory allocator is not initialized yet.
@@ -100,9 +98,8 @@ void x64_init(void) {
     kernel_init();
 }
 
-extern uint8_t __boot_stack;
-extern uint8_t __boot_stack_end;
 
+/* The bootstarap processor run this once. */
 void arch_early_init(void) {
     // Now we are able to use kernel memory allocator.
 
@@ -133,6 +130,7 @@ void arch_early_init(void) {
 }
 
 
+/* The bootstarap processor run this once. */
 void arch_init(void) {
     // All kernel components are initialized.
 
