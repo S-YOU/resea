@@ -1,7 +1,7 @@
 #ifndef __X64_IDT_H__
 #define __X64_IDT_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define IDT_DESC_NUM    256
 #define IDT_LENGTH      ((IDT_DESC_NUM * sizeof(struct intr_desc)) + 1)

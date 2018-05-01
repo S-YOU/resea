@@ -1,4 +1,4 @@
-#include <resea/types.h>
+#include <kernel/types.h>
 #include <string.h>
 #include <kernel/init.h>
 #include "gdt.h"

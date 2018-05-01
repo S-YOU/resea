@@ -6,7 +6,7 @@
                 "${workspaceFolder}/libs/string",
                 "${workspaceFolder}/libs/printf",
                 "${workspaceFolder}/libs/list",
-                "${workspaceFolder}/libs/resea",
+                "${workspaceFolder}/libs/resea/include",
                 "${workspaceFolder}/kernel/arch/x64",
                 "${workspaceFolder}"
             ],
@@ -16,7 +16,7 @@
                 "path": [
                     "${workspaceFolder}/libs/string",
                     "${workspaceFolder}/libs/printf",
-                    "${workspaceFolder}/libs/resea",
+                    "${workspaceFolder}/libs/resea/include",
                     "${workspaceFolder}/kernel/arch/x64"
                 ],
                 "limitSymbolsToIncludedHeaders": true,

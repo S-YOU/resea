@@ -1,5 +1,5 @@
 name := benchmark-server
 objs := main.o
-libs := user
+libs := resea compiler
 
 include $(SERVER_MK)

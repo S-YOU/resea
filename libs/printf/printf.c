@@ -1,6 +1,4 @@
-#include <stdarg.h>
-#include <resea/types.h>
-#include "printf.h"
+#include <kernel/types.h>
 
 #define abs(x) ((x < 0)? -x : x)
 

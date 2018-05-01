@@ -1,4 +1,4 @@
-#include <resea/types.h>
+#include <kernel/types.h>
 #include "syscall.h"
 #include "gdt.h"
 #include "msr.h"

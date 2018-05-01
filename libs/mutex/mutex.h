@@ -1,7 +1,7 @@
 #ifndef __MUTEX_H__
 #define __MUTEX_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define MUTEX_UNLOCKED 0
 #define MUTEX_LOCKED 1

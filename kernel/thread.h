@@ -1,7 +1,7 @@
 #ifndef __THREAD_H__
 #define __THREAD_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 #include <list.h>
 
 typedef uint32_t tid_t;

@@ -65,19 +65,19 @@ kernel/kfs.tar: $(all_kfs_files)
 	$(TAR) cf $@ --strip-components=1 $(KFS_DIR)
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
-	$(PROGRESS) LD $@
+	$(PROGRESS) "LD(K)" $@
 	$(LD) $(LDFLAGS) --Map=kernel/kernel.map --script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
 
 %.o: %.S Makefile
-	$(PROGRESS) CC $@
+	$(PROGRESS) "CC(K)" $@
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 %.deps: %.c Makefile
-	$(PROGRESS) GENDEPS $@
+	$(PROGRESS) "GENDEPS(K)" $@
 	$(CC) $(CFLAGS) $(addprefix -I, $(all_include_dirs)) -MF $@ -MT $(<:.c=.o) -MM $<
 
 %.o: %.c Makefile
-	$(PROGRESS) CC $@
+	$(PROGRESS) "CC(K)" $@
 	$(CC) $(CFLAGS) $(addprefix -I, $(all_include_dirs)) -c -o $@ $<
 
 -include $(all_objs:.o=.deps)

@@ -1,7 +1,7 @@
 #ifndef __X64_EXCEPTION_H__
 #define __X64_EXCEPTION_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define EXP_PAGE_FAULT 14
 

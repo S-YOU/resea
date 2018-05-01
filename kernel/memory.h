@@ -1,7 +1,7 @@
 #ifndef __MEMORY_H__
 #define __MEMORY_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 #include <list.h>
 
 #define KMALLOC_ZEROED 1

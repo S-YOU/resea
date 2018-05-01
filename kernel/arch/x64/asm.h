@@ -1,7 +1,7 @@
 #ifndef __X64_ASM_H__
 #define __X64_ASM_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 static inline void asm_outb(uint16_t port, uint8_t value) {
     INLINE_ASM("outb %0, %1" :: "a"(value), "Nd"(port));

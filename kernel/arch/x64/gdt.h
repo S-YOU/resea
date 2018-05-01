@@ -1,7 +1,7 @@
 #ifndef __X64_GDT_H__
 #define __X64_GDT_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define GDT_NULL        0
 #define GDT_KERNEL_CODE 1

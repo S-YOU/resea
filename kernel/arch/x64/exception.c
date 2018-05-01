@@ -1,4 +1,4 @@
-#include <resea/types.h>
+#include <kernel/types.h>
 #include <printf.h>
 #include <kernel/memory.h>
 #include "asm.h"

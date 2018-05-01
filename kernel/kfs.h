@@ -1,7 +1,7 @@
 #ifndef __KFS_H__
 #define __KFS_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 struct kfs_dir {
     struct tar_ *current;

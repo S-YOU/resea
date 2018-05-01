@@ -1,4 +1,4 @@
-#include <resea/types.h>
+#include <kernel/types.h>
 #include <kernel/memory.h>
 #include <string.h>
 #include "paging.h"

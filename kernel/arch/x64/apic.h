@@ -1,7 +1,7 @@
 #ifndef __X64_APIC_H__
 #define __X64_APIC_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define APIC_REG_ID            0xfee00020
 #define APIC_REG_VERSION       0xfee00030

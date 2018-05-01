@@ -1,7 +1,7 @@
 #ifndef __X64_IOAPIC_H__
 #define __X64_IOAPIC_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define IOAPIC_IOREGSEL_OFFSET  0x00
 #define IOAPIC_IOWIN_OFFSET     0x10

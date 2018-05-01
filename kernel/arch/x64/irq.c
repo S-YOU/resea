@@ -1,4 +1,4 @@
-#include <resea/types.h>
+#include <kernel/types.h>
 #include "apic.h"
 #include "irq.h"
 #include <kernel/thread.h>

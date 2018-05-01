@@ -1,7 +1,7 @@
 #ifndef __X64_SMP_H__
 #define __X64_SMP_H__
 
-#include <resea/types.h>
+#include <kernel/types.h>
 
 #define MP_BASETABLE_PROCESSOR_ENTRY        0
 #define MP_BASETABLE_BUS_ENTRY              1
