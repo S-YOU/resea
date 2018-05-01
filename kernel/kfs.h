@@ -3,19 +3,31 @@
 
 #include <kernel/types.h>
 
+#define KFS_MAGIC "\x0f\x0bKFS!" // terminated by null character
+
+struct kfs_header {
+    char magic[8];
+};
+
+struct kfs_file_header {
+    const char name[128]; // terminated by null character
+    uint32_t length;
+};
+
 struct kfs_dir {
-    struct tar_ *current;
+    struct kfs_file_header *current;
 };
 
 struct kfs_file {
-    struct tar_ *tarfile;
     const char *name;
-    const void *data;
     size_t length;
+    const void *data;
+    struct kfs_file_header *pager_arg;
 };
 
 void kfs_init(void);
 void kfs_opendir(struct kfs_dir *dir);
-void kfs_readdir(struct kfs_file *file);
+paddr_t kfs_pager(void *arg, uintptr_t addr, size_t length);
+struct kfs_file *kfs_readdir(struct kfs_dir *dir, struct kfs_file *file);
 
 #endif

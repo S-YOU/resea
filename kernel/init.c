@@ -1,6 +1,9 @@
 #include "memory.h"
 #include "process.h"
 #include "thread.h"
+#include "kfs.h"
+#include "elf.h"
+#include <string.h>
 
 
 void kernel_init(void) {
@@ -12,8 +15,21 @@ void kernel_init(void) {
     process_init();
     INFO("kernel: initializing thread system");
     thread_init();
+    INFO("kernel: initializing kfs system");
+    kfs_init();
     arch_init();
     INFO("kernel: initialized the kernel");
+
+    INFO("kernel: lauching servers in kfs");
+    struct kfs_dir dir;
+    struct kfs_file file;
+    kfs_opendir(&dir);
+    while (kfs_readdir(&dir, &file) != NULL) {
+        if (!strncmp("/servers/", file.name, 9)) {
+            elf_create_process(file.data, file.length, kfs_pager, file.pager_arg);
+        }
+    }
+
 
     if (thread_list_is_empty(&kernel_process->threads)) {
         PANIC("No threads to run.");

@@ -4,7 +4,7 @@ objs := startup.o init.o thread.o serial.o gdt.o idt.o tss.o paging.o \
 	idle.o syscall.o
 
 BOCHS ?= bochs
-override CFLAGS += -O2 -Wall -g3 --target=x86_64
+override CFLAGS += -O2 -g3 --target=x86_64
 override CFLAGS += -ffreestanding -fno-builtin -nostdinc -nostdlib -mcmodel=large
 override CFLAGS += -mno-red-zone -mno-mmx -mno-sse -mno-sse2 -mno-avx -mno-avx2
 override LDFLAGS +=

@@ -7,6 +7,7 @@
 #define KMALLOC_ZEROED 1
 #define KMALLOC_PANIC_ON_FAIL 2
 #define KMALLOC_NORMAL (KMALLOC_ZEROED | KMALLOC_PANIC_ON_FAIL)
+typedef paddr_t pager_t(void *arg, uintptr_t addr, size_t length);
 
 struct vmspace;
 struct vmarea {
@@ -14,7 +15,7 @@ struct vmarea {
     uintptr_t offset;
     size_t length;
     int flags;
-    paddr_t (*pager)(void *arg, uintptr_t addr, size_t length);
+    pager_t *pager;
     void *pager_arg;
 };
 
@@ -34,7 +35,7 @@ void add_vmarea(
     uintptr_t address,
     size_t length,
     int flags,
-    paddr_t (*pager)(void *arg, uintptr_t addr, size_t length),
+    pager_t *pager,
     void *pager_arg
 );
 void memory_create_vmspace(struct vmspace *vms);

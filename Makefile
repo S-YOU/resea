@@ -9,10 +9,15 @@ default: build
 KFS_DIR = kernel/kfs
 LIBS_DIR = libs
 ARCH_DIR = kernel/arch/$(ARCH)
-override CFLAGS := $(CFLAGS) -Werror=implicit-function-declaration \
-	-Werror=int-conversion -Werror=incompatible-pointer-types \
-	-Werror=shift-count-overflow -Werror=shadow
 override LDFLAGS := $(LDFLAGS)
+override CFLAGS := $(CFLAGS) \
+    -Wall \
+	-Wextra \
+	-Werror=implicit-function-declaration \
+	-Werror=int-conversion \
+	-Werror=incompatible-pointer-types \
+	-Werror=shift-count-overflow \
+	-Werror=shadow
 
 all_kfs_files :=
 
@@ -59,10 +64,10 @@ clean:
 		kernel/kfs.tar
 	rm -rf kernel/kfs
 
-kernel/kfs.o: kernel/kfs.tar
-kernel/kfs.tar: $(all_kfs_files)
-	$(PROGRESS) TAR $@
-	$(TAR) cf $@ --strip-components=1 $(KFS_DIR)
+kernel/kfs.o: kernel/kfs.bin
+kernel/kfs.bin: $(all_kfs_files)
+	$(PROGRESS) MKKFS $@
+	./tools/mkkfs $@ $(KFS_DIR)
 
 kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
 	$(PROGRESS) "LD(K)" $@
