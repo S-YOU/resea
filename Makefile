@@ -1,5 +1,5 @@
 ARCH ?= x64
-SERVERS ?=
+KERNEL_SERVERS ?=
 
 .PHONY: default build clean run test
 default: build
@@ -17,7 +17,8 @@ override CFLAGS := $(CFLAGS) \
 all_kfs_files :=
 
 # Load server rules.
-include $(foreach server, $(SERVERS), servers/$(server)/build.mk)
+server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
+include $(foreach dir, $(server_dirs), $(dir)/build.mk)
 
 # Load kernel rules.
 include kernel/kernel.mk

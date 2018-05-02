@@ -2,5 +2,5 @@
     "cquery.launch.command": "bin/cquery",
     "cquery.launch.workingDirectory": "/usr/local/opt/cquery",
     "cquery.codeLens.renderInline": false,
-    "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery"
+    "cquery.cacheDirectory": "${env.PATH.HOME}/.cache/cquery"
 }
