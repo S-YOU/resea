@@ -1,10 +1,19 @@
 lang: c
+dist: trusty
+sudo: false
+
+notifications:
+  on_success: change
+  on_failure: change
 
 addons:
   apt:
     packages:
       - qemu-system
       - mtools
+
+before_script:
+  - pyenv global 3.6.4
 
 script:
   - make -j2
