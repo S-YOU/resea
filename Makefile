@@ -1,5 +1,9 @@
 ARCH ?= x64
-KERNEL_SERVERS ?=
+
+server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
+ifeq ($(KERNEL_SERVERS),all)
+override KERNEL_SERVERS := $(notdir $(server_dirs))
+endif
 
 .PHONY: default build clean run test
 default: build
@@ -17,7 +21,6 @@ override CFLAGS := $(CFLAGS) \
 all_kfs_files :=
 
 # Load server rules.
-server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
 include $(foreach dir, $(server_dirs), $(dir)/build.mk)
 
 # Load kernel rules.
