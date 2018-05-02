@@ -39,7 +39,6 @@ paddr_t kfs_pager(void *arg, uintptr_t addr, size_t length) {
 
 void kfs_init(void) {
     struct kfs_header *header = (struct kfs_header *) &__kfs;
-    INFO("__kfs: %p", header);
 
     MAGICBREAK
     if (strcmp(KFS_MAGIC, (const char *) &header->magic) != 0) {

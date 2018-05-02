@@ -26,6 +26,7 @@ void kernel_init(void) {
     kfs_opendir(&dir);
     while (kfs_readdir(&dir, &file) != NULL) {
         if (!strncmp("/servers/", file.name, 9)) {
+            INFO("kernel: starting %s", file.name);
             elf_create_process(file.data, file.length, kfs_pager, file.pager_arg);
         }
     }

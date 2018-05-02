@@ -11,7 +11,7 @@
 #include "smp.h"
 #include "syscall.h"
 
-#define X64_THREAD_TESTER
+//#define X64_THREAD_TESTER
 #ifdef X64_THREAD_TESTER
 #include <kernel/process.h>
 #include <kernel/thread.h>
