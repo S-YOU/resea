@@ -1,4 +1,5 @@
 ARCH ?= x64
+KERNEL_SERVERS ?=
 
 server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
 ifeq ($(KERNEL_SERVERS),all)
