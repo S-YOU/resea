@@ -1,4 +1,4 @@
-mkfiles := $(filter-out %/common.mk, $(MAKEFILE_LIST))
+mkfiles := $(filter-out %/lib.mk, $(MAKEFILE_LIST))
 build_mk := $(word $(words $(mkfiles)), $(mkfiles))
 current_dir := $(dir $(build_mk))
 

@@ -1,14 +1,9 @@
 ARCH ?= x64
 SERVERS ?=
-COMMON_MK = $(shell pwd)/mk/common.mk
-SERVER_MK = $(shell pwd)/mk/server.mk
 
 .PHONY: default build clean run test
 default: build
 
-KFS_DIR = kernel/kfs
-LIBS_DIR = libs
-ARCH_DIR = kernel/arch/$(ARCH)
 override LDFLAGS := $(LDFLAGS)
 override CFLAGS := $(CFLAGS) \
     -Wall \
@@ -22,15 +17,10 @@ override CFLAGS := $(CFLAGS) \
 all_kfs_files :=
 
 # Load server rules.
-include $(foreach server, $(SERVERS), servers/$(server)/Makefile)
+include $(foreach server, $(SERVERS), servers/$(server)/build.mk)
 
 # Load kernel rules.
-included_subdirs :=
-all_objs :=
-all_libs :=
-all_include_dirs := .
-include kernel/build.mk $(ARCH_DIR)/build.mk
-include $(foreach lib, $(all_libs), libs/$(lib)/build.mk)
+include kernel/kernel.mk
 
 # Set `y' to suppress annoying build messages.
 V =
@@ -63,26 +53,3 @@ clean:
 		*/*.bin */*/*.bin */*/*/*.bin \
 		kernel/kfs.tar
 	rm -rf kernel/kfs
-
-kernel/kfs.o: kernel/kfs.bin
-kernel/kfs.bin: $(all_kfs_files) tools/mkkfs
-	$(PROGRESS) MKKFS $@
-	./tools/mkkfs $@ $(KFS_DIR)
-
-kernel/kernel.elf: $(all_objs) $(ARCH_DIR)/kernel.ld
-	$(PROGRESS) "LD(K)" $@
-	$(LD) $(LDFLAGS) --Map=kernel/kernel.map --script $(ARCH_DIR)/kernel.ld -o $@ $(all_objs)
-
-%.o: %.S Makefile
-	$(PROGRESS) "CC(K)" $@
-	$(CC) $(CFLAGS) -c -o $@ $<
-
-%.deps: %.c Makefile
-	$(PROGRESS) "GENDEPS(K)" $@
-	$(CC) $(CFLAGS) $(addprefix -I, $(all_include_dirs)) -MF $@ -MT $(<:.c=.o) -MM $<
-
-%.o: %.c Makefile
-	$(PROGRESS) "CC(K)" $@
-	$(CC) $(CFLAGS) $(addprefix -I, $(all_include_dirs)) -c -o $@ $<
-
--include $(all_objs:.o=.deps)

@@ -1,5 +1,5 @@
-include_dirs := .
-objs := startup.o init.o thread.o serial.o gdt.o idt.o tss.o paging.o \
+arch_include_dirs := .
+arch_objs := startup.o init.o thread.o serial.o gdt.o idt.o tss.o paging.o \
 	smp.o apic.o ioapic.o cpu.o handler.o irq.o exception.o pic.o switch.o \
 	idle.o syscall.o
 
@@ -38,5 +38,3 @@ $(ARCH_DIR)/disk.img: $(ARCH_DIR)/boot/mbr.bin kernel/kernel.elf
 	mcopy -i $@.tmp kernel/kernel.elf ::/kernel.elf
 	$(PROGRESS) CAT $@
 	cat $(ARCH_DIR)/boot/mbr.bin $@.tmp > $@
-
-include $(COMMON_MK)
