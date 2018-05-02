@@ -1,0 +1,8 @@
+%clang
+%c -std=c11
+-I./libs/string
+-I./libs/printf
+-I./libs/list
+-I./libs/resea/include
+-I./kernel/arch/x64
+-I./

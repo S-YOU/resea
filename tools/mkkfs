@@ -26,5 +26,7 @@ def main():
                             os.path.getsize(filepath)))
                 f.write(open(os.path.join(dirpath, filename), 'rb').read())
 
+        f.write(struct.pack("B", 0x00))
+
 if __name__ == "__main__":
     main()

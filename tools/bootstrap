@@ -1,2 +1,3 @@
 #!/bin/bash
-brew install coreutils gnu-tar python3 llvm binutils qemu bochs mtools
+brew install coreutils gnu-tar python3 llvm binutils \
+    qemu bochs mtools cquery

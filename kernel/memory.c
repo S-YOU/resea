@@ -40,7 +40,7 @@ void add_vmarea(
     void *pager_arg
 ) {
     struct vmarea *area = kmalloc(sizeof(*area), KMALLOC_NORMAL);
-    area->offset = address;
+    area->address = address;
     area->length = length;
     area->flags = flags;
     area->pager = pager;
@@ -75,7 +75,7 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
 
     struct vmspace *vms = &CPUVAR->current_thread->process->vms;
     for (struct vmarea *area = vms->vma; area != NULL; area = area->next) {
-        if (area->offset <= address && address < area->offset + area->length) {
+        if (area->address <= address && address < area->address + area->length) {
             int requested = 0;
             requested |= user ? PAGE_USER : 0;
             requested |= write ? PAGE_WRITABLE : 0;
@@ -87,7 +87,8 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
             }
 
             // A valid page access. Fill and link the page.
-            paddr_t paddr = area->pager(area->pager_arg, address, PAGE_SIZE);
+            off_t offset = address - area->address;
+            paddr_t paddr = area->pager(area->pager_arg, offset, PAGE_SIZE);
             INFO("Filling %p -> %p",paddr, address);
             if (paddr == 0) {
                 INFO("page fault: pager error");

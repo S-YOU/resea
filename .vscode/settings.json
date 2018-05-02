@@ -1,22 +1,6 @@
 {
-    "files.associations": {
-        "types.h": "c",
-        "gdt.h": "c",
-        "cpu.h": "c",
-        "paging.h": "c",
-        "serial.h": "c",
-        "memory.h": "c",
-        "string.h": "c",
-        "idt.h": "c",
-        "tss.h": "c",
-        "apic.h": "c",
-        "list.h": "c",
-        "arch.h": "c",
-        "arch_types.h": "c",
-        "thread.h": "c",
-        "asm.h": "c",
-        "printf.h": "c",
-        "switch.h": "c",
-        "exception.h": "c"
-    }
+    "cquery.launch.command": "bin/cquery",
+    "cquery.launch.workingDirectory": "/usr/local/opt/cquery",
+    "cquery.codeLens.renderInline": false,
+    "cquery.cacheDirectory": "${workspaceFolder}/.vscode/cquery"
 }

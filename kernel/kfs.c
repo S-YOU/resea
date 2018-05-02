@@ -11,6 +11,7 @@ void kfs_opendir(struct kfs_dir *dir) {
 
 
 struct kfs_file *kfs_readdir(struct kfs_dir *dir, struct kfs_file *file) {
+    INFO("dir: %s", dir->current->name);
     if (dir->current->name[0] == '\0') {
         return NULL;
     }
@@ -26,9 +27,9 @@ struct kfs_file *kfs_readdir(struct kfs_dir *dir, struct kfs_file *file) {
 }
 
 
-paddr_t kfs_pager(void *arg, uintptr_t addr, size_t length) {
+paddr_t kfs_pager(void *arg, off_t offset, size_t length) {
     struct kfs_file_header *header = arg;
-    void *data = (void *) ((uintptr_t) arg + sizeof(struct kfs_file_header));
+    void *data = (void *) ((uintptr_t) arg + sizeof(struct kfs_file_header) + offset);
     paddr_t paddr = alloc_pages(length, KMALLOC_NORMAL);
     void *ptr = from_paddr(paddr);
 

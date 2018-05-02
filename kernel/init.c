@@ -25,6 +25,7 @@ void kernel_init(void) {
     struct kfs_file file;
     kfs_opendir(&dir);
     while (kfs_readdir(&dir, &file) != NULL) {
+        INFO(">>> %s", file.name);
         if (!strncmp("/servers/", file.name, 9)) {
             INFO("kernel: starting %s", file.name);
             elf_create_process(file.data, file.length, kfs_pager, file.pager_arg);

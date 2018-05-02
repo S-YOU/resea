@@ -45,7 +45,7 @@ TAR = tar
 
 ifeq ($(shell uname), Darwin)
 CC = /usr/local/opt/llvm/bin/clang
-LD = sh -c 'exec -a ld.lld /usr/local/opt/llvm/bin/lld $$*'
+LD = /usr/local/opt/llvm/bin/ld.lld
 DD = gdd
 TAR = gtar
 TOOLCHAIN_PREFIX = g
@@ -65,7 +65,7 @@ clean:
 	rm -rf kernel/kfs
 
 kernel/kfs.o: kernel/kfs.bin
-kernel/kfs.bin: $(all_kfs_files)
+kernel/kfs.bin: $(all_kfs_files) tools/mkkfs
 	$(PROGRESS) MKKFS $@
 	./tools/mkkfs $@ $(KFS_DIR)
 
