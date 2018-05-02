@@ -2,7 +2,8 @@
 #include "kfs.h"
 #include <string.h>
 
-extern char __kfs;
+extern char __kfs[];
+
 
 void kfs_opendir(struct kfs_dir *dir) {
     dir->current = (struct kfs_file_header *) ((uintptr_t) &__kfs + sizeof(struct kfs_header));
@@ -38,9 +39,20 @@ paddr_t kfs_pager(void *arg, uintptr_t addr, size_t length) {
 
 void kfs_init(void) {
     struct kfs_header *header = (struct kfs_header *) &__kfs;
+    INFO("__kfs: %p", header);
 
     MAGICBREAK
     if (strcmp(KFS_MAGIC, (const char *) &header->magic) != 0) {
         PANIC("kfs: invalid magic");
     }
+}
+
+
+void kfs_container(void) {
+    INLINE_ASM(".pushsection .kfs          \n");
+    INLINE_ASM(".align 8                   \n");
+    INLINE_ASM(".globl __kfs               \n");
+    INLINE_ASM("__kfs:                     \n");
+    INLINE_ASM(".incbin \"kernel/kfs.bin\" \n");
+    INLINE_ASM(".popsection                \n");
 }

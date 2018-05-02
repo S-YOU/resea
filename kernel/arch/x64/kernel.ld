@@ -26,9 +26,7 @@ SECTIONS {
 
     .kfs :{
         . = ALIGN(8);
-        __kfs = .;
         *(.kfs);
-        __kfs_end = .;
     } > kernel
 
     .bss :{
