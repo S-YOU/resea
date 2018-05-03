@@ -24,11 +24,6 @@ SECTIONS {
         *(.rodata*);
     } > kernel
 
-    .kfs :{
-        . = ALIGN(8);
-        *(.kfs);
-    } > kernel
-
     .bss :{
         __bss = .;
         *(.bss);
