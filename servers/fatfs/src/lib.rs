@@ -1,4 +1,5 @@
 #![no_std]
 
-pub fn hello() {
+#[no_mangle]
+pub fn main() {
 }
