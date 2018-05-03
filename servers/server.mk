@@ -30,18 +30,24 @@ all_objs := $(addprefix $(build_dir)/, $(all_objs))
 server_include_dirs += $(all_include_dirs)
 
 ifeq ($(lang), rust)
+rlibs := libs/rust/libstd/libstd.rlib
 all_objs += $(server_dir)$(server_name).o
 
-$(server_dir)$(server_name).o:
+libs/rust/libstd/libstd.rlib:
+	cd libs/rust/libstd && \
+	RUST_TARGET_PATH=../targets xargo rustc \
+		--target $(ARCH)
+
+$(executable): $(rlibs)
 	cd $(server_dir) && \
 	RUST_TARGET_PATH=../../libs/rust/targets xargo rustc \
-		--quiet --lib --target $(ARCH) \
-		-- --emit obj=../../$@
-endif
+		--target $(ARCH) -- -o ../../$@
+else
 
 $(executable): $(server_objs) $(all_objs)
 	$(PROGRESS) LD $@
 	$(LD) $(LDFLAGS) --script $(LIBS_DIR)/resea/arch/$(ARCH)/app.ld -o $@ $^
+endif
 
 $(server_objs): %.o: %.c
 	$(PROGRESS) CC $@
