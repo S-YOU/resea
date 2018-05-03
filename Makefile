@@ -1,9 +1,9 @@
 ARCH ?= x64
-KERNEL_SERVERS ?=
+SERVERS ?=
 
 server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
-ifeq ($(KERNEL_SERVERS),all)
-override KERNEL_SERVERS := $(notdir $(server_dirs))
+ifeq ($(SERVERS),all)
+override SERVERS := $(notdir $(server_dirs))
 endif
 
 .PHONY: default build clean run test

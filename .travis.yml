@@ -16,4 +16,4 @@ before_script:
   - pyenv global 3.6.3
 
 script:
-  - make -j2 KERNEL_SERVERS=all
+  - make -j2 SERVERS=all

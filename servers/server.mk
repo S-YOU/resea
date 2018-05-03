@@ -46,7 +46,7 @@ $(KFS_DIR)/servers/$(server_name): $(executable)
 	cp $< $@
 
 # Add to kfs the executable.
-ifeq ($(filter $(server_name),$(KERNEL_SERVERS)),$(server_name))
+ifeq ($(filter $(server_name),$(SERVERS)),$(server_name))
 all_kfs_files += $(KFS_DIR)/servers/$(server_name)
 endif
 
