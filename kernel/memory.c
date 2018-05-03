@@ -34,9 +34,10 @@ void kfree(UNUSED void *ptr) {
 void add_vmarea(
     struct vmspace *vms,
     uintptr_t address,
+    uintptr_t pager_offset,
     size_t length,
     int flags,
-    paddr_t (*pager)(void *arg, uintptr_t addr, size_t length),
+    paddr_t (*pager)(void *arg, uintptr_t offset, size_t length),
     void *pager_arg
 ) {
     struct vmarea *area = kmalloc(sizeof(*area), KMALLOC_NORMAL);
@@ -44,6 +45,7 @@ void add_vmarea(
     area->length = length;
     area->flags = flags;
     area->pager = pager;
+    area->pager_offset = pager_offset;
     area->pager_arg = pager_arg;
     vmarea_list_append(&vms->vma, area);
 }
@@ -87,9 +89,9 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
             }
 
             // A valid page access. Fill and link the page.
-            off_t offset = address - area->address;
+            off_t offset = address - area->address + area->pager_offset;
             paddr_t paddr = area->pager(area->pager_arg, offset, PAGE_SIZE);
-            INFO("Filling %p -> %p",paddr, address);
+            INFO("Filling %p (%p) -> %p", paddr, offset, address);
             if (paddr == 0) {
                 INFO("page fault: pager error");
                 thread_destroy_current();
@@ -101,7 +103,7 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
     }
 
 invalid_access:
-    INFO("page fault: invalid page access: %p, address");
+    INFO("page fault: invalid page access");
     thread_destroy_current();
 }
 

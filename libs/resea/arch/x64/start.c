@@ -1,6 +1,11 @@
 void main(void);
 
-void start(void) {
+void __start(void) {
+    __asm__ __volatile__(
+        ".globl start; start:\n"
+        "xchg %bx,%bx\n"
+        "pushq $123\n"
+    );
     main();
 
     /* TODO: graceful termination */

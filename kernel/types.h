@@ -25,6 +25,13 @@ typedef unsigned char bool;
 #define va_start(ap, param) __builtin_va_start(ap, param)
 #define va_end(ap) __builtin_va_end(ap)
 #define va_arg(ap, type) __builtin_va_arg(ap, type)
+#define min(x, y)              \
+    ({                         \
+        __typeof__(x) _x = x;  \
+        __typeof__(y) _y = y;  \
+        _x > _y ? _y : _x;     \
+    })
+
 
 #include <arch_types.h>
 typedef uintmax_t size_t;

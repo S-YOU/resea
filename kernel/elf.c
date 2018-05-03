@@ -26,13 +26,14 @@ void elf_create_process(const void *image, UNUSED size_t length, pager_t *pager,
     for (int i = 0; i < ehdr->e_phnum; i++) {
         struct elf64_phdr * phdr = (struct elf64_phdr *) ((uintptr_t) image + ehdr->e_phoff + (ehdr->e_phentsize * i));
         if (phdr->p_type == PT_LOAD) {
-            INFO("#%d: loading a segment addr=%p, size=%dKB",
-                process->pid, phdr->p_vaddr, phdr->p_filesz);
+            INFO("#%d: loading a segment addr=%p, file_offset=%p, size=%dKB",
+                process->pid, phdr->p_vaddr, phdr->p_offset, phdr->p_filesz);
 
             int flags = PAGE_USER;
             flags |= (phdr->p_flags & PF_W)? PAGE_WRITABLE : 0;
 
-            add_vmarea(&process->vms, phdr->p_vaddr, phdr->p_filesz, flags, pager, pager_arg);
+            add_vmarea(&process->vms, phdr->p_vaddr, phdr->p_offset,
+                phdr->p_filesz, flags, pager, pager_arg);
         }
     }
 

@@ -32,7 +32,7 @@ paddr_t kfs_pager(void *arg, off_t offset, size_t length) {
     paddr_t paddr = alloc_pages(length, KMALLOC_NORMAL);
     void *ptr = from_paddr(paddr);
 
-    memcpy(ptr, data, header->length);
+    memcpy(ptr, data, min(length, header->length));
     return paddr;
 }
 
@@ -40,7 +40,6 @@ paddr_t kfs_pager(void *arg, off_t offset, size_t length) {
 void kfs_init(void) {
     struct kfs_header *header = (struct kfs_header *) &__kfs;
 
-    MAGICBREAK
     if (strcmp(KFS_MAGIC, (const char *) &header->magic) != 0) {
         PANIC("kfs: invalid magic");
     }

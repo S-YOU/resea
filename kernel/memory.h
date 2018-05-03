@@ -16,6 +16,7 @@ struct vmarea {
     size_t length;
     int flags;
     pager_t *pager;
+    off_t pager_offset;
     void *pager_arg;
 };
 
@@ -33,6 +34,7 @@ void kfree(void *ptr);
 void add_vmarea(
     struct vmspace *vms,
     uintptr_t address,
+    off_t pager_offset,
     size_t length,
     int flags,
     pager_t *pager,
