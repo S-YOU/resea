@@ -1,9 +1,8 @@
 [package]
-name = "resea-libstd"
+name = "std"
 version = "0.0.1"
 authors = ["Seiya Nuta <nuta@seiya.me>"]
 
 [lib]
 name = "std"
 path = "src/lib.rs"
-crate-type = ["rlib"]

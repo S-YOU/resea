@@ -9,3 +9,7 @@
 *.map
 kfs
 kernel/kfs.tar
+libs/rust/*/targets
+libs/rust/*/target
+server/*/target
+server/*/targets
