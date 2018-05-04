@@ -2,6 +2,7 @@
 
 
 void main(void) {
+    for(;;);
     channel_t server = ipc_open();
     ipc_call(1, DISCOVERY_REGISTER, BENCHMARK_SERVICE, server, 0, 0, 0, 0, 0, 0);
 

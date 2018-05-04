@@ -22,7 +22,7 @@ def main():
 
                 f.write(struct.pack("<128sI",
                             bytes("/" + filepath, encoding="utf-8"),
-                            os.path.getsize(filepath)))
+                            os.path.getsize(os.path.join(dirpath, filename))))
                 f.write(open(os.path.join(dirpath, filename), 'rb').read())
 
         f.write(struct.pack("B", 0x00))

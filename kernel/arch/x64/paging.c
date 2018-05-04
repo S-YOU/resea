@@ -19,7 +19,6 @@ static void lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool alloca
             if (allocate) {
                 paddr_t paddr;
                 paddr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
-                INFO("link: %p   ", paddr | attrs);
                 entries[idx] = paddr;
             } else {
                 *table = NULL;
@@ -79,7 +78,6 @@ link_to_next_pt:
 
     while(num > 0 && idx < PAGE_ENTRY_NUM) {
         table[idx] = paddr | attrs | PAGE_PRESENT;
-        INFO("tabl: %p   ", paddr | attrs);
         asm_invlpg(vaddr);
         num--;
         idx++;

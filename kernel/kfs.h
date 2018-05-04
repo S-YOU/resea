@@ -7,12 +7,12 @@
 
 struct kfs_header {
     char magic[8];
-};
+} PACKED;
 
 struct kfs_file_header {
     const char name[128]; // terminated by null character
     uint32_t length;
-};
+} PACKED;
 
 struct kfs_dir {
     struct kfs_file_header *current;
