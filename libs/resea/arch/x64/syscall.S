@@ -28,6 +28,7 @@ ipc_open:
     syscall
     pop r14
     ret
+
 /*
     channel_t ch;
 
@@ -107,6 +108,7 @@ ipc_recv:
  */
 .globl ipc_call
 ipc_call:
+    xchg bx,bx
     ret
 /*
     mov $5, %%r14
