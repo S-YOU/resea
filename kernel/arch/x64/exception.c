@@ -11,7 +11,6 @@ void x64_handle_exception(uint8_t exception, uint64_t error) {
     switch (exception) {
         case EXP_PAGE_FAULT: {
             uintptr_t address = asm_read_cr2();
-            bool invalid = (error >> 0) & 1;
             bool write = (error >> 1) & 1;
             bool user = (error >> 2) & 1;
             bool rsvd = (error >> 3) & 1;
@@ -22,7 +21,7 @@ void x64_handle_exception(uint8_t exception, uint64_t error) {
             }
 
             INFO("x64: #PG at %p (err=%#x)", address, error);
-            handle_page_fault(address, invalid, user, write, exec);
+            handle_page_fault(address, user, write, exec);
             break;
         }
         default:

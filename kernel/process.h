@@ -4,8 +4,11 @@
 #include "memory.h"
 #include "thread.h"
 
+#define STACK_ADDR 0xc0000000
+
 struct process {
     tid_t pid;
+    uintptr_t next_stack_start;
     struct thread *threads;
     struct vmspace vms;
 };

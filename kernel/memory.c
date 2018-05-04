@@ -63,13 +63,13 @@ void memory_destroy_vmspace(UNUSED struct vmspace *vms) {
     PANIC("%s: not yet implemented", __func__);
 }
 
+paddr_t zeroed_pager(void *arg, off_t offset, size_t length) {
+    return alloc_pages(length, KMALLOC_NORMAL);
+}
 
-void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, UNUSED bool exec) {
+
+void handle_page_fault(uintptr_t address, bool user, bool write, UNUSED bool exec) {
     address = ROUND_DOWN(address, PAGE_SIZE);
-
-    if (invalid) {
-        goto invalid_access;
-    }
 
     if (!user) {
         PANIC("page fault in kernel: %p", address);
@@ -77,6 +77,7 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
 
     struct vmspace *vms = &CPUVAR->current_thread->process->vms;
     for (struct vmarea *area = vms->vma; area != NULL; area = area->next) {
+        INFO("area %p %p %p", area->address, address, area->length);
         if (area->address <= address && address < area->address + area->length) {
             int requested = 0;
             requested |= user ? PAGE_USER : 0;
@@ -91,13 +92,13 @@ void handle_page_fault(uintptr_t address, bool invalid, bool user, bool write, U
             // A valid page access. Fill and link the page.
             off_t offset = address - area->address + area->pager_offset;
             paddr_t paddr = area->pager(area->pager_arg, offset, PAGE_SIZE);
-            INFO("Filling %p (%p) -> %p", paddr, offset, address);
-            if (paddr == 0) {
+            if (!paddr) {
                 INFO("page fault: pager error");
                 thread_destroy_current();
             }
 
-            arch_link_page(&vms->arch, address, paddr, 1, requested);
+            arch_link_page(&vms->arch, address, paddr, 1, area->flags);
+            INFO("Filling %p (%p) -> %p", paddr, offset, address);
             return;
         }
     }

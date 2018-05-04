@@ -26,8 +26,12 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
         stack_size = 0x1000;
         stack = (uintptr_t) kmalloc(stack_size, KMALLOC_NORMAL);
     } else {
-        stack_size = 64 * 1024;
-        stack = 0xc0000000;
+        stack = process->next_stack_start;
+        stack_size = 4 * PAGE_SIZE;
+
+        process->next_stack_start = stack + stack_size;
+        add_vmarea(&process->vms, stack, 0, stack_size,
+            PAGE_USER | PAGE_WRITABLE, zeroed_pager, NULL);
     }
 
     thread->process = process;

@@ -142,7 +142,6 @@ ret_from_irq:
     /* Check CS register in the IRET frame. */
     test qword ptr [rsp + 8], 3
     jz 1f
-    xchg bx,bx
     swapgs
 1:
     iretq

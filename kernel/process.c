@@ -7,6 +7,7 @@ struct process *process_create(void) {
     struct process *process = kmalloc(sizeof(*process), KMALLOC_NORMAL);
 
     process->pid = allocate_tid();
+    process->next_stack_start = STACK_ADDR;
     thread_list_init(&process->threads);
     memory_create_vmspace(&process->vms);
 

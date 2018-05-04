@@ -19,13 +19,16 @@ static void lookup_page_entry(struct arch_vmspace *vms, uintptr_t v, bool alloca
             if (allocate) {
                 paddr_t paddr;
                 paddr = alloc_pages(PAGE_SIZE, KMALLOC_NORMAL);
-                entries[idx] = paddr | attrs | PAGE_PRESENT;
+                INFO("link: %p   ", paddr | attrs);
+                entries[idx] = paddr;
             } else {
                 *table = NULL;
                 BUG("the page does not exist");
                 return;
             }
         }
+
+        entries[idx] = (entries[idx] & ~PAGE_ATTRS) | attrs | PAGE_PRESENT;
 
         /* go into the next level paging table */
         entries = (uint64_t *) from_paddr((uint64_t) entries[idx] & 0x7ffffffffffff000);
@@ -76,6 +79,7 @@ link_to_next_pt:
 
     while(num > 0 && idx < PAGE_ENTRY_NUM) {
         table[idx] = paddr | attrs | PAGE_PRESENT;
+        INFO("tabl: %p   ", paddr | attrs);
         asm_invlpg(vaddr);
         num--;
         idx++;

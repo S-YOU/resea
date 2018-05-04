@@ -7,6 +7,7 @@ void __start(void) {
         "pushq $123\n"
     );
     main();
+    for(;;);
 
     /* TODO: graceful termination */
     __asm__ __volatile__("int $3");

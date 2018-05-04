@@ -30,12 +30,9 @@ paddr_t kfs_pager(void *arg, off_t offset, size_t length) {
     struct kfs_file_header *header = arg;
     void *data = (void *) ((uintptr_t) arg + sizeof(struct kfs_file_header) + offset);
     paddr_t paddr = alloc_pages(length, KMALLOC_NORMAL);
-    INFO("pager: %s %p %d (%p %p)", header->name, paddr, length, arg, data);
     void *ptr = from_paddr(paddr);
 
     memcpy(ptr, data, min(length, header->length));
-    MAGICBREAK
-    __asm__ __volatile__("nop");
     return paddr;
 }
 
