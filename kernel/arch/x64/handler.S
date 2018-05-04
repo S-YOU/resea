@@ -64,7 +64,6 @@ x64_syscall_handler:
     push r13 /* user RSP */
     push r11 /* user RFLAGS */
     push rcx /* user RIP */
-    push rbx /* user RBX (callee-saved) */
     push r12 /* user R12 (callee-saved) */
     xchg rcx, r12
 
@@ -119,7 +118,6 @@ return_from_syscall:
      */
 
     pop r12
-    pop rbx
     pop rcx
     pop r11
     pop rsp

@@ -126,8 +126,8 @@ ipc_call:
 ipc_replyrecv:
     push rbp
     mov rbp, rsp
-    push r13
     push r14
+    push r13
     push r12
     push rsi
 
@@ -142,8 +142,8 @@ ipc_replyrecv:
     mov r13, [rbp + 40]
 
     pop r12
-    pop r14
     pop r13
+    pop r14
     pop rbp
     ret
 
