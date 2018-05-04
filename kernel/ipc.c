@@ -114,7 +114,6 @@ type_t ipc_call(
         return ERR_INVALID_CH;
     }
 
-    INFO(">>> %p", src->linked_to);
     struct channel *dst = src->linked_to;
     if (!dst) {
         DEBUG("ipc_call: @%d not linked", ch);

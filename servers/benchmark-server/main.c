@@ -3,7 +3,13 @@
 
 void main(void) {
     channel_t server = ipc_open();
-    ipc_call(1, DISCOVERY_REGISTER, BENCHMARK_SERVICE, server, 0, 0, 0, 0, 0, 0);
+    payload_t r;
+    ipc_call(
+        1,
+        DISCOVERY_REGISTER | BENCHMARK_SERVICE,
+        server, 0, 0, 0,
+        &r, &r, &r, &r
+    );
 
     payload_t r0 = 0xabcdef000000004;
     payload_t r1 = 0xabcdef000000001;

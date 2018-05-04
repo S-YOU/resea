@@ -118,6 +118,7 @@ return_from_syscall:
     pop r11
     pop rsp
     swapgs
+    xchg bx,bx
     sysret
 
 .extern x64_handle_irq

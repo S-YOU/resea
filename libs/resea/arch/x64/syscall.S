@@ -1,4 +1,4 @@
-#include <resea.h>
+.intel_syntax noprefix
 
 #define STUB \
     __asm__ __volatile__( \
@@ -20,7 +20,15 @@
     );
 #define STUB_END __asm__ __volatile__("xchg %bx,%bx; nop");
 
-channel_t ipc_open(void) {
+/* channel_t ipc_open(void) */
+.globl ipc_open
+ipc_open:
+    push r14
+    mov r14, 1
+    syscall
+    pop r14
+    ret
+/*
     channel_t ch;
 
     __asm__ __volatile__(
@@ -32,31 +40,37 @@ channel_t ipc_open(void) {
 
     return ch;
 }
+*/
 
+/*
+ *  type_t ipc_send(
+ *      channel_t ch,
+ *      type_t type,
+ *      payload_t a0,
+ *      payload_t a1,
+ *      payload_t a2,
+ *      payload_t a3
+ *  );
+ */
+.globl ipc_send
+ipc_send:
+    ret
 
-type_t ipc_send(
-    channel_t ch,
-    type_t type,
-    payload_t a0,
-    payload_t a1,
-    payload_t a2,
-    payload_t a3
-){
-    type_t ret;
-
-    /* TODO */
-    return ret;
-}
-
-type_t ipc_recv(
-    channel_t ch,
-    channel_t *from,
-    payload_t *a0,
-    payload_t *a1,
-    payload_t *a2,
-    payload_t *a3
-){
-    type_t ret;
+/*
+ *  type_t ipc_recv(
+ *      channel_t ch,
+ *      channel_t *from,
+ *      payload_t *a0,
+ *      payload_t *a1,
+ *      payload_t *a2,
+ *      payload_t *a3
+ *  );
+ */
+ .globl ipc_recv
+ipc_recv:
+    ret
+/*
+       type_t ret;
 
     STUB
     __asm__ __volatile__(
@@ -75,58 +89,60 @@ type_t ipc_recv(
 
     return ret;
 }
+*/
 
+/*
+ *  type_t ipc_call(
+ *      channel_t ch,
+ *      type_t type,
+ *      payload_t a0,
+ *      payload_t a1,
+ *      payload_t a2,
+ *      payload_t a3,
+ *      payload_t *r0,
+ *      payload_t *r1,
+ *      payload_t *r2,
+ *      payload_t *r3
+ *  );
+ */
+.globl ipc_call
+ipc_call:
+    ret
+/*
+    mov $5, %%r14
+    mov %5, %%rdi
+    mov %6, %%rsi
+    mov %7, %%rdx
+    mov %8, %%rbx
+    mov %9, %%r8
+    mov %10, %%r9
+    syscall
+    mov %%r8, %1
+    mov %%r9, %2
+    mov %%r10, %3
+    mov %%r12, %4
+    ret
+*/
 
-type_t ipc_call(
-    channel_t ch,
-    type_t type,
-    payload_t a0,
-    payload_t a1,
-    payload_t a2,
-    payload_t a3,
-    payload_t *r0,
-    payload_t *r1,
-    payload_t *r2,
-    payload_t *r3
-){
-    type_t ret;
-
-    STUB_END
-    __asm__ __volatile__(
-        "mov $5, %%r14  \n"
-        "mov %5, %%rdi  \n"
-        "mov %6, %%rsi  \n"
-        "mov %7, %%rdx  \n"
-        "mov %8, %%rbx  \n"
-        "mov %9, %%r8   \n"
-        "mov %10, %%r9  \n"
-        "syscall        \n"
-        "mov %%r8, %1   \n"
-        "mov %%r9, %2   \n"
-        "mov %%r10, %3  \n"
-        "mov %%r12, %4  \n"
-    : "=a"(ret), "=m"(*r0), "=m"(*r1), "=m"(*r2), "=m"(*r3)
-    : "r"(ch), "r"(type), "r"(a0), "r"(a1), "r"(a2), "r"(a3)
-    : "%r14");
-    STUB_END
-
-    return ret;
-}
-
-
-type_t ipc_replyrecv(
-    channel_t server,
-    channel_t *client,
-    type_t type,
-    payload_t r0,
-    payload_t r1,
-    payload_t r2,
-    payload_t r3,
-    payload_t *a0,
-    payload_t *a1,
-    payload_t *a2,
-    payload_t *a3
-){
+/*
+ *  type_t ipc_replyrecv(
+ *      channel_t server,
+ *      channel_t *client,
+ *      type_t type,
+ *      payload_t r0,
+ *      payload_t r1,
+ *      payload_t r2,
+ *      payload_t r3,
+ *      payload_t *a0,
+ *      payload_t *a1,
+ *      payload_t *a2,
+ *      payload_t *a3
+ *
+ */
+ .globl ipc_replyrecv
+ipc_replyrecv:
+    ret
+/*
     channel_t reply_to = *client;
     type_t ret;
 
@@ -151,23 +167,24 @@ type_t ipc_replyrecv(
 
     return ret;
 }
+*/
 
+/* type_t ipc_discard(payload_t ool0, payload_t ool1, payload_t ool2, payload_t ool3); */
+.globl ipc_discard
+ipc_discard:
+    ret
 
-type_t ipc_discard(payload_t ool0, payload_t ool1, payload_t ool2, payload_t ool3){
-    /* TODO */
-}
+/* type_t ipc_link(channel_t ch0, channel_t ch1); */
+.globl ipc_link
+ipc_link:
+    ret
 
+/* type_t ipc_transfer(channel_t ch, channel_t dest); */
+.globl ipc_transfer
+ipc_transfer:
+    ret
 
-type_t ipc_link(channel_t ch0, channel_t ch1){
-    /* TODO */
-}
-
-
-type_t ipc_transfer(channel_t ch, channel_t dest){
-    /* TODO */
-}
-
-
-channel_t ipc_connect(channel_t server){
-    /* TODO */
-}
+/* channel_t ipc_connect(channel_t server); */
+.globl ipc_connect
+ipc_connect:
+    ret
