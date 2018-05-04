@@ -4,6 +4,17 @@
 #include "ipc.h"
 
 
+static inline void link_channels(struct channel *ch1, struct channel *ch2) {
+    ch1->linked_to = ch2;
+    ch2->linked_to = ch1;
+}
+
+
+static inline void transfer_to(struct channel *from, struct channel *to) {
+    from->transfer_to = to;
+}
+
+
 static inline struct channel *get_channel_by_id(channel_t ch) {
     size_t channels_max = CPUVAR->current_process->channels_max;
     struct channel **channels = (struct channel **) &CPUVAR->current_process->channels;
@@ -171,19 +182,19 @@ type_t ipc_replyrecv(
 ) {
     struct channel *src = get_channel_by_id(client);
     if (!src) {
-        DEBUG("ipc_call: @%d no such channel", client);
+        DEBUG("ipc_replyrecv: @%d no such channel", client);
         return ERR_INVALID_CH;
     }
 
     struct channel *dst = src->linked_to;
     if (!dst) {
-        DEBUG("ipc_call: @%d not linked", client);
+        DEBUG("ipc_replyrecv: @%d not linked", client);
         return ERR_CH_NOT_LINKED;
     }
 
     struct channel *server = src->transfer_to;
     if (!server) {
-        DEBUG("ipc_call: @%d is not transfered to a server", client);
+        DEBUG("ipc_replyrecv: @%d is not transfered to a server", client);
         return ERR_CH_NOT_TRANSFERED;
     }
 
@@ -250,13 +261,13 @@ type_t ipc_recv(
 ) {
     struct channel *src = get_channel_by_id(ch);
     if (!src) {
-        DEBUG("ipc_call: @%d no such channel", ch);
+        DEBUG("ipc_recv: @%d no such channel", ch);
         return ERR_INVALID_CH;
     }
 
     struct channel *dst = src->linked_to;
     if (!dst) {
-        DEBUG("ipc_call: @%d not linked", ch);
+        DEBUG("ipc_recv: @%d not linked", ch);
         return ERR_CH_NOT_LINKED;
     }
 
@@ -287,6 +298,20 @@ type_t ipc_recv(
     *a1 = src->buffer[1];
     *a2 = src->buffer[2];
     *a3 = src->buffer[3];
+}
+
+
+channel_t ipc_connect(channel_t server) {
+    struct channel *ch = get_channel_by_id(server);
+    if (!ch) {
+        DEBUG("ipc_connect: @%d no such channel", server);
+        return ERR_INVALID_CH;
+    }
+
+    struct channel *server_side = open_channel_by(ch->process);
+    struct channel *client_side = open_channel_by(CPUVAR->current_process);
+    link_channels(server_side, client_side);
+    transfer_to(server_side, ch);
 }
 
 
