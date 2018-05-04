@@ -49,21 +49,23 @@ x64_syscall_handler:
      *  R10: 7th arugment
      *  R11: user RFLAGS
      *  R12: 4th argument
+     *  R13: user RSP
      *  R14: syscall number
-     *  R15: user RSP
      *
      */
 
     /* Switch to the kernel stack. */
     swapgs
-    mov r15, rsp
+    mov r13, rsp
     mov rsp, gs:[0]
 
     /* TODO: save callee saved registers  */
 
-    push r15 /* user RSP */
+    push r13 /* user RSP */
     push r11 /* user RFLAGS */
     push rcx /* user RIP */
+    push rbx /* user RBX (callee-saved) */
+    push r12 /* user R12 (callee-saved) */
     xchg rcx, r12
 
 5:
@@ -92,7 +94,14 @@ x64_syscall_handler:
     jne 2f
     call ipc_open
     jmp return_from_syscall
+2:
+1:
+    cmp r14, 9
+    jne invalid
+    call ipc_connect
+    jmp return_from_syscall
 
+invalid:
     call invalid_syscall
 
 return_from_syscall:
@@ -109,16 +118,12 @@ return_from_syscall:
      *
      */
 
-    /* Sanitize callee-saved registers not to leak information to user. */
-    xor rdi, rdi
-    xor rsi, rsi
-    xor rdx, rdx
-
+    pop r12
+    pop rbx
     pop rcx
     pop r11
     pop rsp
     swapgs
-    xchg bx,bx
     sysret
 
 .extern x64_handle_irq

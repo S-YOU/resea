@@ -40,7 +40,7 @@ $(server_c_objs): $(build_dir)/%.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(addprefix -I, $(server_include_dirs)) -c -o $@ $<
 
-$(server_s_objs): $(build_dir)/%.o: $%.S
+$(server_s_objs): $(build_dir)/%.o: %.S
 	$(PROGRESS) CC $@
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(addprefix -I, $(server_include_dirs)) -c -o $@ $<

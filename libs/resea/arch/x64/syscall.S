@@ -16,32 +16,25 @@
         "movabs $0xabcdef0123456789, %r12\n" \
         "movabs $0xabcdef0123456789, %r13\n" \
         "movabs $0xabcdef0123456789, %r14\n" \
-        "movabs $0xabcdef0123456789, %r15\n" \
+        "movabs $0xabcdef0123456789, %r13\n" \
     );
 #define STUB_END __asm__ __volatile__("xchg %bx,%bx; nop");
 
 /* channel_t ipc_open(void) */
 .globl ipc_open
 ipc_open:
+    push r13
     push r14
+    push r12
+
     mov r14, 1
     syscall
+
+    pop r12
     pop r14
+    pop r13
     ret
 
-/*
-    channel_t ch;
-
-    __asm__ __volatile__(
-        "mov $1, %%r14  \n"
-        "syscall"
-    : "=a"(ch)
-    :
-    : "%r12", "%r14", "%r15");
-
-    return ch;
-}
-*/
 
 /*
  *  type_t ipc_send(
@@ -108,23 +101,25 @@ ipc_recv:
  */
 .globl ipc_call
 ipc_call:
-    xchg bx,bx
-    ret
-/*
-    mov $5, %%r14
-    mov %5, %%rdi
-    mov %6, %%rsi
-    mov %7, %%rdx
-    mov %8, %%rbx
-    mov %9, %%r8
-    mov %10, %%r9
+    push rbp
+    mov rbp, rsp
+    push r13
+    push r14
+    push r12
+
+    mov r14, 5
     syscall
-    mov %%r8, %1
-    mov %%r9, %2
-    mov %%r10, %3
-    mov %%r12, %4
+
+    mov r8, [rbp + 16]
+    mov r9, [rbp + 24]
+    mov r10, [rbp + 32]
+    mov r12, [rbp + 40]
+
+    pop r12
+    pop r14
+    pop r13
+    pop rbp
     ret
-*/
 
 /*
  *  type_t ipc_replyrecv(
@@ -143,33 +138,28 @@ ipc_call:
  */
  .globl ipc_replyrecv
 ipc_replyrecv:
+    push rbp
+    mov rbp, rsp
+    push r13
+    push r14
+    push r12
+    push rsi
+
+    mov r14, 6
+    syscall
+
+    pop rsi
+    mov r8, [rsi]
+    mov r9, [rbp + 16]
+    mov r10, [rbp + 24]
+    mov r12, [rbp + 32]
+    mov r13, [rbp + 40]
+
+    pop r12
+    pop r14
+    pop r13
+    pop rbp
     ret
-/*
-    channel_t reply_to = *client;
-    type_t ret;
-
-    __asm__ __volatile__(
-        "mov $6, %%r14  \n"
-        "mov %6, %%rdi  \n"
-        "mov %7, %%rsi  \n"
-        "mov %8, %%rdx  \n"
-        "mov %9, %%rbx  \n"
-        "mov %10, %%r8  \n"
-        "mov %11, %%r9  \n"
-        "mov %12, %%r10 \n"
-        "syscall        \n"
-        "mov %%r8, %1   \n"
-        "mov %%r9, %2   \n"
-        "mov %%r10, %3  \n"
-        "mov %%r12, %4  \n"
-        "mov %%r13, %5  \n"
-    : "=a"(ret), "=m"(*client), "=m"(*a0), "=m"(*a1), "=m"(*a2), "=m"(*a3)
-    : "r"(server), "r"(reply_to), "r"(type), "r"(r0), "r"(r1), "r"(r2), "r"(r3)
-    : "%r14");
-
-    return ret;
-}
-*/
 
 /* type_t ipc_discard(payload_t ool0, payload_t ool1, payload_t ool2, payload_t ool3); */
 .globl ipc_discard
@@ -189,4 +179,14 @@ ipc_transfer:
 /* channel_t ipc_connect(channel_t server); */
 .globl ipc_connect
 ipc_connect:
+    push r13
+    push r14
+    push r12
+
+    mov r14, 9
+    syscall
+
+    pop r12
+    pop r14
+    pop r13
     ret
