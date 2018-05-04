@@ -66,11 +66,33 @@ x64_syscall_handler:
     push rcx /* user RIP */
     xchg rcx, r12
 
-    cmp r14, 1
+5:
+    cmp r14, 5
+    jne 6f
+    sub rsp, 8 * 5 /* recvfrom, a0, a1, a2, and a3 */
+    call ipc_replyrecv
+    pop r8
+    pop r9
+    pop r10
+    pop r12
+    pop r13
+    jmp return_from_syscall
+6:
+    cmp r14, 6
     jne 1f
-    call ipc_open
+    sub rsp, 8 * 4 /* r0, r1, r2, and r3 */
+    call ipc_replyrecv
+    pop r8
+    pop r9
+    pop r10
+    pop r12
+    pop r13
     jmp return_from_syscall
 1:
+    cmp r14, 1
+    jne 2f
+    call ipc_open
+    jmp return_from_syscall
 
     call invalid_syscall
 

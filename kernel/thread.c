@@ -18,7 +18,7 @@ tid_t allocate_tid(void) {
 struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t arg) {
     bool is_kernel_thread = process == kernel_process;
     struct thread *thread = kmalloc(sizeof(*thread), KMALLOC_NORMAL);
-    struct runqueue *rq = kmalloc(sizeof(*runqueue), KMALLOC_NORMAL);
+    struct runqueue *rq = kmalloc(sizeof(*rq), KMALLOC_NORMAL);
 
     uintptr_t stack;
     size_t stack_size;
@@ -79,6 +79,14 @@ NORETURN void thread_destroy_current(void) {
     PANIC("%s: not yet implemented", __func__);
 }
 
+void thread_switch_to(struct thread *next) {
+    struct thread *current = CPUVAR->current_thread;
+    CPUVAR->current_thread = next;
+    CPUVAR->current_process = next->process;
+    arch_switch_vmspace(&next->process->vms.arch);
+    arch_switch(&current->arch, &next->arch);
+}
+
 
 void thread_switch(void) {
     // Runqueue will never be empty since idle runs forever until
@@ -93,14 +101,9 @@ void thread_switch(void) {
     while (rq) {
         int state = thread_get_state(rq->thread);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
-            struct thread *current_thread = CPUVAR->current_thread;
-            struct thread *next_thread = rq->thread;
-            CPUVAR->current_thread = next_thread;
-            CPUVAR->current_process = next_thread->process;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
-            arch_switch_vmspace(&next_thread->process->vms.arch);
-            arch_switch(&current_thread->arch, &next_thread->arch);
+            thread_switch_to(rq->thread);
             return;
         }
 
@@ -111,14 +114,9 @@ void thread_switch(void) {
     while (rq) {
         int state = thread_get_state(rq->thread);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
-            struct thread *current_thread = CPUVAR->current_thread;
-            struct thread *next_thread = rq->thread;
-            CPUVAR->current_thread = next_thread;
-            CPUVAR->current_process = next_thread->process;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
-            arch_switch_vmspace(&next_thread->process->vms.arch);
-            arch_switch(&current_thread->arch, &next_thread->arch);
+            thread_switch_to(rq->thread);
             return;
         }
 

@@ -42,6 +42,7 @@ struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t
 void thread_destroy(struct thread *thread);
 NORETURN void thread_destroy_current(void);
 void thread_switch(void);
+void thread_switch_to(struct thread *thread);
 void thread_init(void);
 
 #endif
