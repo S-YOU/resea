@@ -69,18 +69,17 @@ x64_syscall_handler:
 5:
     cmp r14, 5
     jne 6f
-    sub rsp, 8 * 5 /* recvfrom, a0, a1, a2, and a3 */
-    call ipc_replyrecv
+    sub rsp, 8 * 4 /* r0, r1, r2, and r3 */
+    call ipc_call
     pop r8
     pop r9
     pop r10
     pop r12
-    pop r13
     jmp return_from_syscall
 6:
     cmp r14, 6
     jne 1f
-    sub rsp, 8 * 4 /* r0, r1, r2, and r3 */
+    sub rsp, 8 * 5 /* recvfrom, a0, a1, a2, and a3 */
     call ipc_replyrecv
     pop r8
     pop r9

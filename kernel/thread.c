@@ -83,6 +83,7 @@ void thread_switch_to(struct thread *next) {
     struct thread *current = CPUVAR->current_thread;
     CPUVAR->current_thread = next;
     CPUVAR->current_process = next->process;
+    INFO(">>> %d.%d", next->process->pid, next->tid);
     arch_switch_vmspace(&next->process->vms.arch);
     arch_switch(&current->arch, &next->arch);
 }
@@ -102,7 +103,6 @@ void thread_switch(void) {
         int state = thread_get_state(rq->thread);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             CPUVAR->current_runqueue = rq;
-            INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             thread_switch_to(rq->thread);
             return;
         }
@@ -115,7 +115,6 @@ void thread_switch(void) {
         int state = thread_get_state(rq->thread);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             CPUVAR->current_runqueue = rq;
-            INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             thread_switch_to(rq->thread);
             return;
         }

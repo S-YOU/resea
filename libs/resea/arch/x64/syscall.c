@@ -30,8 +30,6 @@ channel_t ipc_open(void) {
     :
     : "%r12", "%r14", "%r15");
 
-    STUB_END
-
     return ch;
 }
 
@@ -93,7 +91,7 @@ type_t ipc_call(
 ){
     type_t ret;
 
-    STUB
+    STUB_END
     __asm__ __volatile__(
         "mov $5, %%r14  \n"
         "mov %5, %%rdi  \n"

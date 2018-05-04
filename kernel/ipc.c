@@ -15,11 +15,16 @@ static inline void transfer_to(struct channel *from, struct channel *to) {
 }
 
 
-static inline struct channel *get_channel_by_id(channel_t ch) {
+static inline struct channel *get_channel_by_id(channel_t cid) {
     size_t channels_max = CPUVAR->current_process->channels_max;
-    struct channel **channels = (struct channel **) &CPUVAR->current_process->channels;
+    struct channel *channels = (struct channel *) &CPUVAR->current_process->channels;
 
-    return (ch > channels_max) ? NULL : channels[ch - 1];
+    if (cid > channels_max) {
+        return NULL;
+    }
+
+    struct channel *ch = &channels[cid - 1];
+    return (ch->flags == 0) ? NULL : ch;
 }
 
 static struct channel *open_channel_by(struct process *process) {
@@ -109,6 +114,7 @@ type_t ipc_call(
         return ERR_INVALID_CH;
     }
 
+    INFO(">>> %p", src->linked_to);
     struct channel *dst = src->linked_to;
     if (!dst) {
         DEBUG("ipc_call: @%d not linked", ch);
