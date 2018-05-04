@@ -8,6 +8,14 @@ struct process *process_create(void) {
 
     process->pid = allocate_tid();
     process->next_stack_start = STACK_ADDR;
+    process->channels_max = DEFAULT_CHANNELS_NUM;
+
+    for (size_t i = 0; i < DEFAULT_CHANNELS_NUM; i++) {
+        process->channels[i].flags = 0;
+   }
+
+
+    kmutex_init(&process->lock, KMUTEX_UNLOCKED);
     thread_list_init(&process->threads);
     memory_create_vmspace(&process->vms);
 

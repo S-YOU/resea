@@ -77,7 +77,6 @@ void handle_page_fault(uintptr_t address, bool user, bool write, UNUSED bool exe
 
     struct vmspace *vms = &CPUVAR->current_thread->process->vms;
     for (struct vmarea *area = vms->vma; area != NULL; area = area->next) {
-        INFO("area %p %p %p", area->address, address, area->length);
         if (area->address <= address && address < area->address + area->length) {
             int requested = 0;
             requested |= user ? PAGE_USER : 0;
@@ -98,7 +97,6 @@ void handle_page_fault(uintptr_t address, bool user, bool write, UNUSED bool exe
             }
 
             arch_link_page(&vms->arch, address, paddr, 1, area->flags);
-            INFO("Filling %p (%p) -> %p", paddr, offset, address);
             return;
         }
     }

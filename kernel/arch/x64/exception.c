@@ -20,7 +20,7 @@ void x64_handle_exception(uint8_t exception, uint64_t error) {
                 BUG("page fault: RSVD bit violation");
             }
 
-            INFO("x64: #PG at %p (err=%#x)", address, error);
+            INFO("x64: #PF at %p (err=%#x)", address, error);
             handle_page_fault(address, user, write, exec);
             break;
         }

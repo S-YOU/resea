@@ -11,9 +11,6 @@ void kfs_opendir(struct kfs_dir *dir) {
 
 
 struct kfs_file *kfs_readdir(struct kfs_dir *dir, struct kfs_file *file) {
-    INFO("kfs: '%s' %p", dir->current->name, dir->current);
-    MAGICBREAK
-
     if (dir->current->name[0] == '\0') {
         return NULL;
     }

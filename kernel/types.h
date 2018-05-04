@@ -32,7 +32,6 @@ typedef unsigned char bool;
         _x > _y ? _y : _x;     \
     })
 
-
 #include <arch_types.h>
 typedef uintmax_t size_t;
 typedef uintmax_t off_t;

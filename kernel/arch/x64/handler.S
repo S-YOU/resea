@@ -61,12 +61,20 @@ x64_syscall_handler:
 
     /* TODO: save callee saved registers  */
 
-    push r11 /* user RFLAGS */
     push r15 /* user RSP */
+    push r11 /* user RFLAGS */
     push rcx /* user RIP */
-    xchg rcx, rbx
+    xchg rcx, r12
 
-    call handle_syscall
+    cmp r14, 1
+    jne 1f
+    call ipc_open
+    jmp return_from_syscall
+1:
+
+    call invalid_syscall
+
+return_from_syscall:
     /*
      * It returns these registers:
      *

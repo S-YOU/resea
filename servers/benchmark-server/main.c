@@ -2,8 +2,8 @@
 
 
 void main(void) {
-    for(;;);
     channel_t server = ipc_open();
+    for(;;);
     ipc_call(1, DISCOVERY_REGISTER, BENCHMARK_SERVICE, server, 0, 0, 0, 0, 0, 0);
 
     payload_t r0 = 0xabcdef000000004;

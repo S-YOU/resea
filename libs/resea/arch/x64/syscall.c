@@ -1,5 +1,25 @@
 #include <resea.h>
 
+#define STUB \
+    __asm__ __volatile__( \
+        "movabs $0xabcdef0123456789, %rax\n" \
+        "movabs $0xabcdef0123456789, %rbx\n" \
+        "movabs $0xabcdef0123456789, %rcx\n" \
+        "movabs $0xabcdef0123456789, %rdx\n" \
+        "movabs $0xabcdef0123456789, %rdi\n" \
+        "movabs $0xabcdef0123456789, %rsi\n" \
+        "movabs $0xabcdef0123456789, %rbp\n" \
+        "movabs $0xabcdef0123456789, %r8\n" \
+        "movabs $0xabcdef0123456789, %r9\n" \
+        "movabs $0xabcdef0123456789, %r10\n" \
+        "movabs $0xabcdef0123456789, %r11\n" \
+        "movabs $0xabcdef0123456789, %r12\n" \
+        "movabs $0xabcdef0123456789, %r13\n" \
+        "movabs $0xabcdef0123456789, %r14\n" \
+        "movabs $0xabcdef0123456789, %r15\n" \
+    );
+#define STUB_END __asm__ __volatile__("xchg %bx,%bx; nop");
+
 channel_t ipc_open(void) {
     channel_t ch;
 
@@ -8,7 +28,9 @@ channel_t ipc_open(void) {
         "syscall"
     : "=a"(ch)
     :
-    : "%r14");
+    : "%r12", "%r14", "%r15");
+
+    STUB_END
 
     return ch;
 }
@@ -38,6 +60,7 @@ type_t ipc_recv(
 ){
     type_t ret;
 
+    STUB
     __asm__ __volatile__(
         "mov $4, %%r14  \n"
         "mov %6, %%rdi  \n"
@@ -50,6 +73,7 @@ type_t ipc_recv(
     : "=a"(ret), "=m"(*from), "=m"(*a0), "=m"(*a1), "=m"(*a2), "=m"(*a3)
     : "r"(ch)
     : "%r14");
+    STUB_END
 
     return ret;
 }
@@ -69,6 +93,7 @@ type_t ipc_call(
 ){
     type_t ret;
 
+    STUB
     __asm__ __volatile__(
         "mov $5, %%r14  \n"
         "mov %5, %%rdi  \n"
@@ -85,6 +110,7 @@ type_t ipc_call(
     : "=a"(ret), "=m"(*r0), "=m"(*r1), "=m"(*r2), "=m"(*r3)
     : "r"(ch), "r"(type), "r"(a0), "r"(a1), "r"(a2), "r"(a3)
     : "%r14");
+    STUB_END
 
     return ret;
 }

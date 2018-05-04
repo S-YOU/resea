@@ -2,7 +2,24 @@
 #define __IPC_H__
 
 #include <kernel/types.h>
+#include "thread.h"
 
-void handle_syscall(uint64_t type, uint64_t a1, uint64_t a2, uint64_t a3, uint64_t a4, uint64_t a5);
+typedef uintmax_t channel_t;
+typedef uintmax_t type_t;
+typedef uintmax_t payload_t;
+
+struct waitqueue {
+    struct waitqueue *next;
+    struct thread *thread;
+};
+
+struct channel {
+    int flags;
+    struct channel *linked_to;
+    struct channel *transfer_to;
+    struct thread *receiver;
+    struct thread *sender;
+    struct waitqueue *wq;
+};
 
 #endif

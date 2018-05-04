@@ -96,11 +96,11 @@ void thread_switch(void) {
             struct thread *current_thread = CPUVAR->current_thread;
             struct thread *next_thread = rq->thread;
             CPUVAR->current_thread = next_thread;
+            CPUVAR->current_process = next_thread->process;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch_vmspace(&next_thread->process->vms.arch);
             arch_switch(&current_thread->arch, &next_thread->arch);
-            INFO("%s: ret %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             return;
         }
 
@@ -114,11 +114,11 @@ void thread_switch(void) {
             struct thread *current_thread = CPUVAR->current_thread;
             struct thread *next_thread = rq->thread;
             CPUVAR->current_thread = next_thread;
+            CPUVAR->current_process = next_thread->process;
             CPUVAR->current_runqueue = rq;
             INFO("%s: %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             arch_switch_vmspace(&next_thread->process->vms.arch);
             arch_switch(&current_thread->arch, &next_thread->arch);
-            INFO("%s: ret %d RIP=%p RSP=%p", __func__, rq->thread->tid, rq->thread->arch.rip, rq->thread->arch.rsp);
             return;
         }
 
@@ -134,6 +134,7 @@ void thread_switch(void) {
     // to the idle thread.
     struct thread *current_thread = CPUVAR->current_thread;
     CPUVAR->current_thread = runqueue->thread;
+    CPUVAR->current_process = runqueue->thread->process;
     CPUVAR->current_runqueue = runqueue;
     arch_switch(&current_thread->arch, &runqueue->thread->arch);
 
@@ -148,6 +149,7 @@ void thread_init(void) {
     // Create an idle thread. We specify NULL as handler because it won't
     // be used.
     idle_thread = thread_create(kernel_process, (uintptr_t) NULL, 0);
+    CPUVAR->current_process = kernel_process;
     CPUVAR->current_thread = idle_thread;
     CPUVAR->current_runqueue = runqueue;
 }

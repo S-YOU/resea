@@ -12,7 +12,6 @@ default: build
 override LDFLAGS := $(LDFLAGS)
 override CFLAGS := $(CFLAGS) \
     -Wall \
-	-Wextra \
 	-Werror=implicit-function-declaration \
 	-Werror=int-conversion \
 	-Werror=incompatible-pointer-types \
