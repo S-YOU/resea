@@ -20,12 +20,17 @@ struct list {
         list_append((struct list **) list, e);                      \
     }                                                               \
                                                                     \
+    static inline type *name##_list_pop(type **list) {              \
+        return list_pop((struct list **) list);                     \
+    }                                                               \
+                                                                    \
     static inline void name##_list_remove(type **list, type *e) {   \
         list_remove((struct list **) list, e);                      \
     }
 
 void list_init(struct list **list);
 void list_append(struct list **list, void *e);
+void *list_pop(struct list **list);
 void list_remove(struct list **list, void *e);
 
 #endif

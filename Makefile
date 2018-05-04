@@ -11,6 +11,7 @@ default: build
 
 override LDFLAGS := $(LDFLAGS)
 override CFLAGS := $(CFLAGS) \
+	-std=c11 \
     -Wall \
 	-Werror=implicit-function-declaration \
 	-Werror=int-conversion \

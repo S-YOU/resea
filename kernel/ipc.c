@@ -240,6 +240,57 @@ type_t ipc_replyrecv(
 }
 
 
+type_t ipc_recv(
+    channel_t ch,
+    channel_t *from,
+    payload_t *a0,
+    payload_t *a1,
+    payload_t *a2,
+    payload_t *a3
+) {
+    struct channel *src = get_channel_by_id(ch);
+    if (!src) {
+        DEBUG("ipc_call: @%d no such channel", ch);
+        return ERR_INVALID_CH;
+    }
+
+    struct channel *dst = src->linked_to;
+    if (!dst) {
+        DEBUG("ipc_call: @%d not linked", ch);
+        return ERR_CH_NOT_LINKED;
+    }
+
+    // Try to get the receiver right.
+    struct thread *current_thread = CPUVAR->current_thread;
+    if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
+        return ERR_CH_IN_USE;
+    }
+
+    thread_set_state(current_thread, THREAD_BLOCKED);
+
+    // Resume a thread in the wait queue.
+    struct waitqueue *wq = waitqueue_list_pop(&src->wq);
+    if (wq != NULL) {
+        struct thread *sender = wq->thread;
+        kfree(wq);
+        thread_set_state(sender, THREAD_RUNNABLE);
+        thread_switch_to(sender);
+    } else {
+        // No threads in the queue.
+        thread_switch();
+    }
+
+    // Receiver sent a reply message and resumed the sender thread. Do recv
+    // work.
+    type_t reply_type = src->type;
+    *a0 = src->buffer[0];
+    *a1 = src->buffer[1];
+    *a2 = src->buffer[2];
+    *a3 = src->buffer[3];
+}
+
+
+
 type_t invalid_syscall(void) {
     INFO("invalid syscall");
     return 0;

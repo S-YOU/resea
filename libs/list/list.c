@@ -24,6 +24,19 @@ void list_append(struct list **list, void *e) {
 
 
 /* Caller have to lock a mutex. */
+void *list_pop(struct list **list) {
+
+    if (*list) {
+        struct list *e = *list;
+        *list = e->next;
+        return e;
+    }
+
+    return NULL;
+}
+
+
+/* Caller have to lock a mutex. */
 void list_remove(struct list **list, void *e) {
 
     while (*list) {
