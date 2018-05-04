@@ -1,38 +1,18 @@
 .intel_syntax noprefix
 
-#define STUB \
-    __asm__ __volatile__( \
-        "movabs $0xabcdef0123456789, %rax\n" \
-        "movabs $0xabcdef0123456789, %rbx\n" \
-        "movabs $0xabcdef0123456789, %rcx\n" \
-        "movabs $0xabcdef0123456789, %rdx\n" \
-        "movabs $0xabcdef0123456789, %rdi\n" \
-        "movabs $0xabcdef0123456789, %rsi\n" \
-        "movabs $0xabcdef0123456789, %rbp\n" \
-        "movabs $0xabcdef0123456789, %r8\n" \
-        "movabs $0xabcdef0123456789, %r9\n" \
-        "movabs $0xabcdef0123456789, %r10\n" \
-        "movabs $0xabcdef0123456789, %r11\n" \
-        "movabs $0xabcdef0123456789, %r12\n" \
-        "movabs $0xabcdef0123456789, %r13\n" \
-        "movabs $0xabcdef0123456789, %r14\n" \
-        "movabs $0xabcdef0123456789, %r13\n" \
-    );
-#define STUB_END __asm__ __volatile__("xchg %bx,%bx; nop");
-
 /* channel_t ipc_open(void) */
 .globl ipc_open
 ipc_open:
-    push r13
     push r14
+    push r13
     push r12
 
     mov r14, 1
     syscall
 
     pop r12
-    pop r14
     pop r13
+    pop r14
     ret
 
 
@@ -62,28 +42,34 @@ ipc_send:
  */
  .globl ipc_recv
 ipc_recv:
+    push rbp
+    mov rbp, rsp
+    push r14
+    push r13
+    push r12
+
+    push rsi
+    push rdx
+    push rcx
+    push r8
+
+    mov r14, 5
+    syscall
+
+    pop r11
+    pop rcx
+    pop rdx
+    pop rsi
+    mov r8, [rsi]
+    mov r9, [rdx]
+    mov r10, [rcx]
+    mov r12, [r11]
+
+    pop r12
+    pop r13
+    pop r14
+    pop rbp
     ret
-/*
-       type_t ret;
-
-    STUB
-    __asm__ __volatile__(
-        "mov $4, %%r14  \n"
-        "mov %6, %%rdi  \n"
-        "syscall        \n"
-        "mov %%r8, %1   \n"
-        "mov %%r9, %2   \n"
-        "mov %%r10, %3  \n"
-        "mov %%r12, %4  \n"
-        "mov %%r13, %5  \n"
-    : "=a"(ret), "=m"(*from), "=m"(*a0), "=m"(*a1), "=m"(*a2), "=m"(*a3)
-    : "r"(ch)
-    : "%r14");
-    STUB_END
-
-    return ret;
-}
-*/
 
 /*
  *  type_t ipc_call(
@@ -103,8 +89,8 @@ ipc_recv:
 ipc_call:
     push rbp
     mov rbp, rsp
-    push r13
     push r14
+    push r13
     push r12
 
     mov r14, 5
@@ -116,8 +102,8 @@ ipc_call:
     mov r12, [rbp + 40]
 
     pop r12
-    pop r14
     pop r13
+    pop r14
     pop rbp
     ret
 
