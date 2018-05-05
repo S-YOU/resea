@@ -101,11 +101,9 @@ void thread_switch(void) {
     // call because the current context will become its context.
     //
     struct runqueue *rq = CPUVAR->current_runqueue->next;
-    INFO("picking...");
     // XXX: lock
     while (rq != NULL) {
         int state = thread_get_state(rq->thread);
-        INFO("rq: %d state=%d", rq->thread->tid, state);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             CPUVAR->current_runqueue = rq;
             thread_switch_to(rq->thread);

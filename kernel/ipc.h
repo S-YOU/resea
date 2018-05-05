@@ -59,7 +59,7 @@ struct channel {
     struct thread *receiver;
     struct thread *sender;
     struct waitqueue *wq;
-    payload_t sent_from, type, buffer[5];
+    payload_t sent_from, header, buffer[5];
 };
 
 struct channel *channel_create(struct process *process);
