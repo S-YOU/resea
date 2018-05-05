@@ -30,7 +30,7 @@ static inline error_t handle_logging_emit(channel_t from, string_t str, usize_t 
 
 
 static inline error_t handle_discovery_register(channel_t from, u32_t service_type, channel_t server) {
-    DEBUG("discovery.register: service=%d", service_type);
+    DEBUG("discovery.register: service=%d (%d)", service_type, server);
 
     struct service *service = kmalloc(sizeof(*service), KMALLOC_NORMAL);
     service->service_type = service_type;
@@ -107,7 +107,7 @@ void kernel_server_mainloop(channel_t server) {
             header = ipc_recv(server, &from, &a0, &a1, &a2, &a3);
             INFO("recved %p", header);
         } else {
-            header = ipc_replyrecv(from, header, r0, r1, r2, r3, &from, &a0, &a1, &a2, &a3);
+            header = ipc_replyrecv(&from, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
             INFO("replyed %p", header);
         }
     }

@@ -93,6 +93,7 @@ ipc_call:
     push r13
     push r12
 
+    xchg rcx, r12
     mov r14, 5
     syscall
 
@@ -109,13 +110,12 @@ ipc_call:
 
 /*
  *  header_t ipc_replyrecv(
- *      channel_t server,
+ *      channel_t *from,
  *      header_t type,
  *      payload_t r0,
  *      payload_t r1,
  *      payload_t r2,
  *      payload_t r3,
- *      channel_t *client,
  *      payload_t *a0,
  *      payload_t *a1,
  *      payload_t *a2,
@@ -129,15 +129,19 @@ ipc_replyrecv:
     push r14
     push r13
     push r12
+    push rdi
 
+    mov rdi, [rdi]
+    xchg rcx, r12
     mov r14, 6
     syscall
 
-    mov r8, [rbp + 16]
-    mov r9, [rbp + 24]
-    mov r10, [rbp + 32]
-    mov r12, [rbp + 40]
-    mov r13, [rbp + 48]
+    pop rdi
+    mov r8, [rdi]
+    mov r9, [rbp + 16]
+    mov r10, [rbp + 24]
+    mov r12, [rbp + 32]
+    mov r13, [rbp + 40]
 
     pop r12
     pop r13

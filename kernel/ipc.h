@@ -15,7 +15,8 @@ typedef u8_t * buffer_t;
 
 #define PAYLOAD_TYPE(type, n) (((type) >> (3 * (n))) & 0x3)
 #define PAYLOAD_INLINE  0
-#define PAYLOAD_CHANNEL 1
+#define PAYLOAD_OOL     1
+#define PAYLOAD_CHANNEL 2
 
 #define TYPES_OFFSET   0ULL
 #define ERROR_OFFSET    24ULL
@@ -149,19 +150,18 @@ static inline header_t ipc_call(
 }
 
 static inline header_t ipc_replyrecv(
-    channel_t server,
+    channel_t *client,
     header_t type,
     payload_t r0,
     payload_t r1,
     payload_t r2,
     payload_t r3,
-    channel_t *client,
     payload_t *a0,
     payload_t *a1,
     payload_t *a2,
     payload_t *a3
 ) {
-    return sys_replyrecv(server, type, r0, r1, r2, r3, client, a0, a1, a2, a3);
+    return sys_replyrecv(*client, type, r0, r1, r2, r3, client, a0, a1, a2, a3);
 }
 
 static inline channel_t ipc_connect(channel_t server) {

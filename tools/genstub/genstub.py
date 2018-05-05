@@ -124,7 +124,7 @@ def generate_stub(service):
                 params += ", 0"
             else:
                 type_id = get_type_id_by_name(type_)
-                header += f" | ({type_id} << {8 + i * 3}ULL)"
+                header += f" | ({type_id} << {i * 3}ULL)"
                 args += f", {type_}_t {name}"
                 params += f", (payload_t) {name}"
                 server_params += f", ({type_}_t) a{i}"
@@ -137,7 +137,7 @@ def generate_stub(service):
                 params += ", &__unused"
             else:
                 type_id = get_type_id_by_name(type_)
-                reply_header += f" | ({type_id} << {8 + i * 3}ULL)"
+                reply_header += f" | ({type_id} << {i * 3}ULL)"
                 args += f", {type_}_t *{name}"
                 params += f", (payload_t *) {name}"
                 server_params += f", ({type_}_t *) &r{i}"

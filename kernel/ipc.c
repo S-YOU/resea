@@ -19,7 +19,7 @@ static inline struct channel *get_channel_by_id(channel_t cid) {
     size_t channels_max = CPUVAR->current_process->channels_max;
     struct channel *channels = (struct channel *) &CPUVAR->current_process->channels;
 
-    if (cid > channels_max) {
+    if (cid == 0 || cid > channels_max) {
         return NULL;
     }
 
@@ -77,15 +77,30 @@ static payload_t copy_payload(
             return payload;
         case PAYLOAD_CHANNEL: {
             struct channel *ch = get_channel_by_id(payload);
-            struct channel *new_ch = channel_create(dst);
+            DEBUG("OPENING %d %p <<<<<<", payload, ch);
+            if (!ch) {
+                DEBUG("copy_payload: invalid ch %d", payload);
+                return 0; // TODO: return error
+            }
 
+            struct channel *new_ch = channel_create(dst);
+            if (!new_ch) {
+                DEBUG("copy_payload: failed to create channel");
+                return 0;
+            }
+            DEBUG("CREATED %p <<<<<<", ch);
             if (ch->linked_to) {
+                DEBUG("copy_payload: link %d %d", ch->linked_to->cid, new_ch->cid);
+                new_ch->linked_to = ch->linked_to;
                 ch->linked_to->linked_to = new_ch;
                 close_channel(ch);
             } else {
+                DEBUG("copy_payload: link %d %d", ch->cid, new_ch->cid);
+                new_ch->linked_to = ch;
                 ch->linked_to = new_ch;
             }
 
+            DEBUG("RETURN %p <<<<<<", new_ch->cid);
             return new_ch->cid;
         }
     }
@@ -118,76 +133,13 @@ header_t sys_call(
     payload_t *r2,
     payload_t *r3
 ) {
-    struct channel *src = get_channel_by_id(ch);
-    if (!src) {
-        DEBUG("sys_call: @%d no such channel", ch);
-        return ERROR_INVALID_CH;
+    header_t error = sys_send(ch, type, a0, a1, a2, a3);
+    if (error != ERROR_NONE) {
+        return error;
     }
 
-    struct channel *dst = src->linked_to;
-    if (!dst) {
-        DEBUG("sys_call: @%d not linked", ch);
-        return ERROR_CH_NOT_LINKED;
-    }
-
-    // Try to get the receiver right.
-    struct thread *current_thread = CPUVAR->current_thread;
-    if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
-        return ERROR_CH_IN_USE;
-    }
-
-    struct channel *real_dst = (dst->transfer_to) ? dst->transfer_to : dst;
-    DEBUG("sys_call: @%d.%d -> @%d.%d (type=%d.%d)",
-        src->process->pid, src->cid, real_dst->process->pid, real_dst->cid,
-        MSG_SERVICE_ID(type), MSG_ID(type));
-
-    while (true) {
-        // Try to get the sender right.
-        if (atomic_compare_and_swap(&real_dst->sender, NULL, current_thread)) {
-            // Now we have a sender right (real_dst->sender == current_thread).
-            break;
-        }
-
-        // XXX: lock the wait queue or current thread will never wake up
-
-        // Another thread is sending to the destination. Add current thread
-        // to wait queue. A receiver thread will resume it.
-        struct waitqueue *wq = kmalloc(sizeof(*wq), KMALLOC_NORMAL);
-        wq->thread = current_thread;
-
-        waitqueue_list_append(&real_dst->wq, wq);
-        thread_set_state(current_thread, THREAD_BLOCKED);
-        thread_set_state(real_dst->receiver, THREAD_RUNNABLE);
-        thread_switch();
-    }
-
-    // Copy payloads.
-    struct process *src_process = CPUVAR->current_process;
-    struct process *dst_process = dst->process;
-    real_dst->sent_from = dst->cid;
-    real_dst->type = type;
-    real_dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0);
-    real_dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
-    real_dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
-    real_dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3);
-
-    // Perform a context switch to the destination.
-    thread_set_state(current_thread, THREAD_BLOCKED);
-    thread_set_state(real_dst->receiver, THREAD_RUNNABLE);
-    thread_switch_to(real_dst->receiver);
-
-    // Receiver sent a reply message and resumed the sender thread. Do recv
-    // work.
-    header_t reply_type = src->type;
-    *r0 = src->buffer[0];
-    *r1 = src->buffer[1];
-    *r2 = src->buffer[2];
-    *r3 = src->buffer[3];
-    src->receiver = NULL;
-    real_dst->sender = NULL;
-    thread_set_state(real_dst->sender, THREAD_RUNNABLE);
-
-    return reply_type;
+    channel_t from;
+    return sys_recv(ch, &from, r0, r1, r2, r3);
 }
 
 
@@ -204,40 +156,56 @@ header_t sys_replyrecv(
     payload_t *a2,
     payload_t *a3
 ) {
-    struct channel *src = get_channel_by_id(client);
+    header_t error = sys_send(client, type, r0, r1, r2, r3);
+    if (error == ERROR_NONE) {
+        return error;
+    }
+
+    struct channel *server = get_channel_by_id(client)->transfer_to;
+    if (!server) {
+        return ERROR_CH_NOT_TRANSFERED;
+    }
+
+    return sys_recv(server->cid, sent_from, a0, a1, a2, a3);
+}
+
+
+header_t sys_send(
+    channel_t ch,
+    header_t type,
+    payload_t a0,
+    payload_t a1,
+    payload_t a2,
+    payload_t a3
+) {
+    struct channel *src = get_channel_by_id(ch);
     if (!src) {
-        DEBUG("sys_replyrecv: @%d no such channel", client);
+        DEBUG("sys_recv: @%d no such channel", ch);
         return ERROR_INVALID_CH;
     }
 
-    struct channel *dst = src->linked_to;
-    if (!dst) {
-        DEBUG("sys_replyrecv: @%d not linked", client);
+    struct channel *linked_to = src->linked_to;
+    if (!linked_to) {
+        DEBUG("sys_recv: @%d not linked", ch);
         return ERROR_CH_NOT_LINKED;
-    }
-
-    struct channel *server = src->transfer_to;
-    if (!server) {
-        DEBUG("sys_replyrecv: @%d is not transfered to a server", client);
-        return ERROR_CH_NOT_TRANSFERED;
     }
 
     // Try to get the receiver right.
     struct thread *current_thread = CPUVAR->current_thread;
-    if (!atomic_compare_and_swap(&server->receiver, NULL, current_thread)) {
+    if (!atomic_compare_and_swap(&linked_to->receiver, NULL, current_thread)) {
         return ERROR_CH_IN_USE;
     }
 
-    struct channel *real_dst = (dst->transfer_to) ? dst->transfer_to : dst;
+    struct channel *dst = (linked_to->transfer_to) ? linked_to->transfer_to : linked_to;
 
-    DEBUG("sys_replyto: @%d.%d -> @%d.%d (type=%d.%d)",
-        src->process->pid, src->cid, real_dst->process->pid, real_dst->cid,
+    DEBUG("sys_send: @%d.%d -> @%d.%d (type=%d.%d)",
+        src->process->pid, src->cid, dst->process->pid, dst->cid,
         MSG_SERVICE_ID(type), MSG_ID(type));
 
     while (true) {
         // Try to get the sender right.
-        if (atomic_compare_and_swap(&real_dst->sender, NULL, current_thread)) {
-            // Now we have a sender right (real_dst->sender == current_thread).
+        if (atomic_compare_and_swap(&dst->sender, NULL, current_thread)) {
+            // Now we have a sender right (dst->sender == current_thread).
             break;
         }
 
@@ -248,7 +216,7 @@ header_t sys_replyrecv(
         struct waitqueue *wq = kmalloc(sizeof(*wq), KMALLOC_NORMAL);
         wq->thread = current_thread;
 
-        waitqueue_list_append(&real_dst->wq, wq);
+        waitqueue_list_append(&dst->wq, wq);
         thread_set_state(current_thread, THREAD_BLOCKED);
         thread_switch();
     }
@@ -256,30 +224,15 @@ header_t sys_replyrecv(
     // Copy payloads.
     struct process *src_process = CPUVAR->current_process;
     struct process *dst_process = dst->process;
-    real_dst->sent_from = dst->cid;
-    real_dst->type = type;
-    real_dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, r0);
-    real_dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, r1);
-    real_dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, r2);
-    real_dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, r3);
+    dst->sent_from = linked_to->cid;
+    dst->type = type;
+    dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0);
+    dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
+    dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
+    dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3);
+    thread_set_state(dst->receiver, THREAD_RUNNABLE);
 
-    // Perform a context switch to the destination.
-    thread_set_state(current_thread, THREAD_BLOCKED);
-    thread_switch_to(real_dst->receiver);
-
-    // Receiver sent a reply message and resumed the sender thread. Do recv
-    // work.
-    header_t reply_type = server->type;
-    *sent_from = server->sent_from;
-    *a0 = server->buffer[0];
-    *a1 = server->buffer[1];
-    *a2 = server->buffer[2];
-    *a3 = server->buffer[3];
-    src->receiver = NULL;
-    real_dst->sender = NULL;
-    thread_set_state(real_dst->sender, THREAD_RUNNABLE);
-
-    return reply_type;
+    return ERROR_NONE;
 }
 
 
@@ -299,6 +252,7 @@ header_t sys_recv(
 
     // Try to get the receiver right.
     struct thread *current_thread = CPUVAR->current_thread;
+    DEBUG("$$$$$$$$$$ locking %p %d.%d", &src->receiver, src->process->pid, src->cid);
     if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
         return ERROR_CH_IN_USE;
     }
@@ -327,79 +281,12 @@ header_t sys_recv(
     *a2 = src->buffer[2];
     *a3 = src->buffer[3];
     src->receiver = NULL;
-    thread_set_state(src->sender, THREAD_RUNNABLE);
+    DEBUG("$$$$$$$$$$ release %p %d.%d", &src->receiver, src->process->pid, src->cid);
+    src->sender = NULL;
 
     return reply_type;
 }
 
-header_t sys_send(
-    channel_t ch,
-    header_t type,
-    payload_t a0,
-    payload_t a1,
-    payload_t a2,
-    payload_t a3
-) {
-
-    struct channel *src = get_channel_by_id(ch);
-    if (!src) {
-        DEBUG("sys_call: @%d no such channel", ch);
-        return ERROR_INVALID_CH;
-    }
-
-    struct channel *dst = src->linked_to;
-    if (!dst) {
-        DEBUG("sys_call: @%d not linked", ch);
-        return ERROR_CH_NOT_LINKED;
-    }
-
-    // Try to get the receiver right.
-    struct thread *current_thread = CPUVAR->current_thread;
-    if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
-        return ERROR_CH_IN_USE;
-    }
-
-    struct channel *real_dst = (dst->transfer_to) ? dst->transfer_to : dst;
-
-    DEBUG("sys_send: @%d.%d -> @%d.%d (type=%d.%d)",
-        src->process->pid, src->cid, real_dst->process->pid, real_dst->cid,
-        MSG_SERVICE_ID(type), MSG_ID(type));
-
-    while (true) {
-        // Try to get the sender right.
-        if (atomic_compare_and_swap(&real_dst->sender, NULL, current_thread)) {
-            // Now we have a sender right (real_dst->sender == current_thread).
-            break;
-        }
-
-        // XXX: lock the wait queue or current thread will never wake up
-
-        // Another thread is sending to the destination. Add current thread
-        // to wait queue. A receiver thread will resume it.
-        struct waitqueue *wq = kmalloc(sizeof(*wq), KMALLOC_NORMAL);
-        wq->thread = current_thread;
-
-        waitqueue_list_append(&real_dst->wq, wq);
-        thread_set_state(current_thread, THREAD_BLOCKED);
-        thread_switch();
-    }
-
-    // Copy payloads.
-    struct process *src_process = CPUVAR->current_process;
-    struct process *dst_process = dst->process;
-    real_dst->sent_from = dst->cid;
-    real_dst->type = type | 0xaaaaaaaa;
-    real_dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0);
-    real_dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
-    real_dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
-    real_dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3);
-
-    // Perform a context switch to the destination.
-    thread_set_state(current_thread, THREAD_BLOCKED);
-    thread_set_state(real_dst->receiver, THREAD_RUNNABLE);
-    thread_switch_to(real_dst->receiver);
-    real_dst->sender = NULL;
-}
 
 channel_t sys_connect(channel_t server) {
     struct channel *ch = get_channel_by_id(server);
