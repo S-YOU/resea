@@ -6,14 +6,9 @@ notifications:
   on_success: change
   on_failure: change
 
-addons:
-  apt:
-    packages:
-      - qemu-system
-      - mtools
-
 before_script:
   - pyenv global 3.6.3
+  - ./bootstrap
 
 script:
   - make -j2 SERVERS=all
