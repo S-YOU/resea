@@ -22,15 +22,24 @@ typedef u8_t * buffer_t;
 #define MINOR_ID_OFFSET 32ULL
 #define MAJOR_ID_OFFSET 40ULL
 #define MSGTYPE(header) ((header) >> MINOR_ID_OFFSET)
-#define ERRTYPE(header) (((header) >> MAJOR_ID_OFFSET) & 0xff)
+#define ERRTYPE(header) (((header) >> ERROR_OFFSET) & 0xff)
+#define MSG_SERVICE_ID(header) (((header) >> MAJOR_ID_OFFSET) & 0xffff)
+#define MSG_ID(header) (((header) >> MINOR_ID_OFFSET) & 0xff)
 
 enum {
+    /* Errors returned from the app. */
     ERROR_NONE = 0,
-    ERROR_NO_MEMORY = 1,
-    ERROR_INVALID_CH = 2,
-    ERROR_CH_NOT_LINKED = 3,
-    ERROR_CH_NOT_TRANSFERED = 4,
-    ERROR_CH_IN_USE = 5,
+    ERROR_UNKNOWN_MSG = 1,
+
+    /* errors returned by kernel */
+    ERROR_NO_MEMORY = 200,
+    ERROR_INVALID_CH = 201,
+    ERROR_CH_NOT_LINKED = 202,
+    ERROR_CH_NOT_TRANSFERED = 203,
+    ERROR_CH_IN_USE = 204,
+
+    /* Internally used in the server. */
+    ERROR_DONT_REPLY = 255,
 };
 
 struct waitqueue {
@@ -55,6 +64,14 @@ struct channel {
 struct channel *channel_create(struct process *process);
 error_t channel_connect(struct channel *server, struct process *client);
 
+header_t sys_send(
+    channel_t ch,
+    header_t type,
+    payload_t a0,
+    payload_t a1,
+    payload_t a2,
+    payload_t a3
+);
 
 header_t sys_recv(
     channel_t ch,
@@ -103,6 +120,17 @@ static inline header_t ipc_recv(
     payload_t *a3
 ) {
     return sys_recv(ch, from, a0, a1, a2, a3);
+}
+
+static inline header_t ipc_send(
+    channel_t ch,
+    header_t type,
+    payload_t a0,
+    payload_t a1,
+    payload_t a2,
+    payload_t a3
+) {
+    return sys_send(ch, type, a0, a1, a2, a3);
 }
 
 static inline header_t ipc_call(

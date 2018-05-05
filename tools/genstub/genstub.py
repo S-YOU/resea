@@ -108,10 +108,9 @@ def generate_stub(service):
 
     # RPCs.
     client_stub += "\n"
-    msg_id = 0
+    msg_id = 1
     for call in service["calls"]:
         call_name = call["name"]
-        msg_id += 2 # request & reply messages
         header = "0"
         reply_header = "0"
         args = ""
@@ -151,7 +150,7 @@ def generate_stub(service):
 #define {msg_name}       ({service_name.upper()}_SERVICE | {msg_id}ULL)
 #define {reply_msg_name} ({service_name.upper()}_SERVICE | {msg_id + 1}ULL)
 #define {header_name} (({msg_name} << 32ULL) | ({header}))
-#define {reply_header_name} (({msg_name} << 32ULL) | ({reply_header}))
+#define {reply_header_name} (({reply_msg_name} << 32ULL) | ({reply_header}))
 static inline header_t call_{service_name}_{call_name}(channel_t __server{args}) {{
     payload_t __unused;
 
@@ -175,6 +174,7 @@ static inline error_t handle_{service_name}_{call_name}(channel_t from{args}) {{
                 header = {reply_msg_name} | error;
                 break;
 """
+        msg_id += 2 # request & reply messages
 
     # Enclose by a include guard.
     client_stub = f"""\
