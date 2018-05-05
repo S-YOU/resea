@@ -1,14 +1,14 @@
 #ifndef __TYPES_H__
 #define __TYPES_H__
 
-typedef char int8_t;
-typedef short int16_t;
-typedef int int32_t;
-typedef long long int64_t;
-typedef unsigned char uint8_t;
-typedef unsigned short uint16_t;
-typedef unsigned uint32_t;
-typedef unsigned long long uint64_t;
+typedef char i8_t;
+typedef short i16_t;
+typedef int i32_t;
+typedef long long i64_t;
+typedef unsigned char u8_t;
+typedef unsigned short u16_t;
+typedef unsigned u32_t;
+typedef unsigned long long u64_t;
 typedef unsigned char bool;
 
 #define NULL ((void *) 0)
@@ -37,23 +37,23 @@ typedef unsigned char bool;
     })
 
 #include <arch_types.h>
-typedef uintmax_t size_t;
-typedef uintmax_t off_t;
+typedef umax_t size_t;
+typedef umax_t off_t;
 
 void arch_init(void);
 void arch_early_init(void);
 void arch_putchar(char ch);
 void arch_idle(void);
 void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
-                    uintptr_t start, uintmax_t arg,
-                    uintptr_t stack, size_t stack_size);
+                    uptr_t start, umax_t arg,
+                    uptr_t stack, size_t stack_size);
 void arch_destroy_thread(struct arch_thread *arch);
 void arch_switch(struct arch_thread *prev, struct arch_thread *next);
 
 void arch_create_vmspace(struct arch_vmspace *vms);
 void arch_destroy_vmspace(struct arch_vmspace *vms);
 void arch_switch_vmspace(struct arch_vmspace *vms);
-void arch_link_page(struct arch_vmspace *vms, uintptr_t vaddr, paddr_t paddr, size_t num,
+void arch_link_page(struct arch_vmspace *vms, uptr_t vaddr, paddr_t paddr, size_t num,
                     int attrs);
 
 #include <printf.h>

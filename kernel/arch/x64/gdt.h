@@ -34,28 +34,28 @@
 #define GDT_LIMIT2_MASK_DATA64    0x80
 
 struct seg_desc {
-    uint16_t limit1;
-    uint16_t base1;
-    uint8_t  base2;
-    uint8_t  type;
-    uint8_t  limit2;
-    uint8_t  base3;
+    u16_t limit1;
+    u16_t base1;
+    u8_t  base2;
+    u8_t  type;
+    u8_t  limit2;
+    u8_t  base3;
 } PACKED;
 
 struct tss_desc {
-    uint16_t limit1;
-    uint16_t base1;
-    uint8_t  base2;
-    uint8_t  type;
-    uint8_t  limit2;
-    uint8_t  base3;
-    uint32_t base4;
-    uint32_t reserved;
+    u16_t limit1;
+    u16_t base1;
+    u8_t  base2;
+    u8_t  type;
+    u8_t  limit2;
+    u8_t  base3;
+    u32_t base4;
+    u32_t reserved;
 } PACKED;
 
 struct gdtr {
-    uint16_t length;
-    uint64_t address;
+    u16_t length;
+    u64_t address;
 } PACKED;
 
 void x64_init_gdt(void);

@@ -33,11 +33,11 @@ void kfree(UNUSED void *ptr) {
 
 void add_vmarea(
     struct vmspace *vms,
-    uintptr_t address,
-    uintptr_t pager_offset,
+    uptr_t address,
+    uptr_t pager_offset,
     size_t length,
     int flags,
-    paddr_t (*pager)(void *arg, uintptr_t offset, size_t length),
+    paddr_t (*pager)(void *arg, uptr_t offset, size_t length),
     void *pager_arg
 ) {
     struct vmarea *area = kmalloc(sizeof(*area), KMALLOC_NORMAL);
@@ -68,7 +68,7 @@ paddr_t zeroed_pager(void *arg, off_t offset, size_t length) {
 }
 
 
-void handle_page_fault(uintptr_t address, bool user, bool write, UNUSED bool exec) {
+void handle_page_fault(uptr_t address, bool user, bool write, UNUSED bool exec) {
     address = ROUND_DOWN(address, PAGE_SIZE);
 
     if (!user) {

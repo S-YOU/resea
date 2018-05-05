@@ -3,6 +3,6 @@
 
 #include <kernel/types.h>
 
-void x64_handle_irq(uint8_t vector);
+void x64_handle_irq(u8_t vector);
 
 #endif

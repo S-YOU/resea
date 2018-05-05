@@ -8,21 +8,21 @@
 #define IDT_INT_HANDLER 0x8e
 
 struct intr_desc {
-    uint16_t offset1;
-    uint16_t seg;
-    uint8_t  ist;
-    uint8_t  info;
-    uint16_t offset2;
-    uint32_t offset3;
-    uint32_t reserved;
+    u16_t offset1;
+    u16_t seg;
+    u8_t  ist;
+    u8_t  info;
+    u16_t offset2;
+    u32_t offset3;
+    u32_t reserved;
 } PACKED;
 
 struct idtr {
-    uint16_t length;
-    uint64_t address;
+    u16_t length;
+    u64_t address;
 } PACKED;
 
 void x64_init_idt(void);
-void x64_set_intr_desc(struct intr_desc *desc, uint8_t ist, uint16_t seg, paddr_t offset);
+void x64_set_intr_desc(struct intr_desc *desc, u8_t ist, u16_t seg, paddr_t offset);
 
 #endif

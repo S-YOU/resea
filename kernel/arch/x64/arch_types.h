@@ -10,14 +10,14 @@
 #define PAGE_USER (1 << 2)
 
 typedef unsigned long long paddr_t;
-typedef unsigned long long uintptr_t;
-typedef unsigned long long uintmax_t;
+typedef unsigned long long uptr_t;
+typedef unsigned long long umax_t;
 
 /* TODO: lock-free! */
 #define KMUTEX_UNLOCKED 0
 #define KMUTEX_LOCKED 1
-typedef uint32_t kmutex_t;
-typedef uint64_t kmutex_state_t;
+typedef u32_t kmutex_t;
+typedef u64_t kmutex_state_t;
 
 static inline void kmutex_init(kmutex_t *lock, int init) {
     *lock = init;
@@ -55,7 +55,7 @@ static inline void *from_paddr(paddr_t addr) {
 }
 
 static inline paddr_t to_paddr(void *addr) {
-    return ((uintptr_t) addr & ~KERNEL_BASE_ADDR);
+    return ((uptr_t) addr & ~KERNEL_BASE_ADDR);
 }
 
 // Don't forget to update hardcoded offsets in switch.S and
@@ -63,18 +63,18 @@ static inline paddr_t to_paddr(void *addr) {
 struct gsinfo {
     // A pointer to the dedicated kernel stack. This value
     // is used by only userspace threads.
-    uint64_t rsp0; // kstack + sizeof(kstack)
-    uint64_t kstack;
+    u64_t rsp0; // kstack + sizeof(kstack)
+    u64_t kstack;
 };
 
 // Don't forget to update hardcoded offsets in switch.S!
 struct arch_thread {
     // IRET frame.
-    uint64_t rip;          // offset: 0
-    uint64_t rsp;          // offset: 8
-    uint64_t rflags;       // offset: 16
-    uint64_t is_user;      // offset: 24
-    uint64_t gs;           // offset: 32
+    u64_t rip;          // offset: 0
+    u64_t rsp;          // offset: 8
+    u64_t rflags;       // offset: 16
+    u64_t is_user;      // offset: 24
+    u64_t gs;           // offset: 32
     struct gsinfo gsinfo;  // offset: 40
 };
 

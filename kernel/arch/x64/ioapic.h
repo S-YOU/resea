@@ -11,6 +11,6 @@
 #define IOAPIC_REG_NTH_IOREDTBL_HIGH(n) (0x10 + (n * 2) + 1)
 
 void x64_init_ioapic(paddr_t mmio);
-void x64_ioapic_enable_irq(uint8_t vector, uint8_t irq);
+void x64_ioapic_enable_irq(u8_t vector, u8_t irq);
 
 #endif

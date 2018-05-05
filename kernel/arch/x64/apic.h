@@ -20,15 +20,15 @@
 #define APIC_REG_TIMER_CURRENT 0xfee00390
 #define APIC_REG_TIMER_DIV     0xfee003e0
 
-static inline uint32_t x64_read_apic(paddr_t addr) {
+static inline u32_t x64_read_apic(paddr_t addr) {
 
-    return *((volatile uint32_t *) from_paddr(addr));
+    return *((volatile u32_t *) from_paddr(addr));
 }
 
 
-static inline void x64_write_apic(paddr_t addr, uint32_t data) {
+static inline void x64_write_apic(paddr_t addr, u32_t data) {
 
-    *((volatile uint32_t *) from_paddr(addr)) = data;
+    *((volatile u32_t *) from_paddr(addr)) = data;
     return;
 }
 

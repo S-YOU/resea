@@ -14,7 +14,7 @@ void x64_ack_interrupt(void) {
 
 
 void x64_init_apic_timer(void) {
-    uint8_t vector = 32;
+    u8_t vector = 32;
     x64_ioapic_enable_irq(vector, 0);
     x64_write_apic(APIC_REG_TIMER_INITCNT, 10000);
     x64_write_apic(APIC_REG_LVT_TIMER, vector | 0x20000);

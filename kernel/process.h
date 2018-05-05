@@ -10,7 +10,7 @@
 
 struct process {
     tid_t pid;
-    uintptr_t next_stack_start;
+    uptr_t next_stack_start;
     struct thread *threads;
     struct vmspace vms;
     struct channel channels[DEFAULT_CHANNELS_NUM];

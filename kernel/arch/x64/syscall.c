@@ -12,8 +12,8 @@ void x64_init_syscall(void) {
      */
     STATIC_ASSERT(USER_CODE32_SEG + 16 == USER_CODE64_SEG, "SYSRET constraint");
 
-    asm_wrmsr(MSR_STAR, ((uint64_t) USER_CODE32_SEG << 48) | ((uint64_t) KERNEL_CODE64_SEG << 32));
-    asm_wrmsr(MSR_LSTAR, (uintptr_t) x64_syscall_handler);
+    asm_wrmsr(MSR_STAR, ((u64_t) USER_CODE32_SEG << 48) | ((u64_t) KERNEL_CODE64_SEG << 32));
+    asm_wrmsr(MSR_LSTAR, (uptr_t) x64_syscall_handler);
 
     // RIP for compatibility mode. We don't support it for now.
     asm_wrmsr(MSR_CSTAR, 0);

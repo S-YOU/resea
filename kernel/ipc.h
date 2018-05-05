@@ -4,20 +4,12 @@
 #include <kernel/types.h>
 #include "thread.h"
 
-typedef uintmax_t channel_t;
-typedef uintmax_t header_t;
-typedef uintmax_t payload_t;
-typedef uintmax_t header_t;
+typedef umax_t channel_t;
+typedef umax_t header_t;
+typedef umax_t payload_t;
+typedef umax_t header_t;
 typedef header_t error_t;
-typedef uintmax_t usize_t;
-typedef uint8_t u8_t;
-typedef uint16_t u16_t;
-typedef uint32_t u32_t;
-typedef uint64_t u64_t;
-typedef int8_t i8_t;
-typedef int16_t i16_t;
-typedef int32_t i32_t;
-typedef int64_t i64_t;
+typedef umax_t usize_t;
 typedef char * string_t;
 typedef u8_t * buffer_t;
 
@@ -100,6 +92,8 @@ header_t sys_replyrecv(
     payload_t *a3
 );
 
+channel_t sys_connect(channel_t server);
+
 static inline header_t ipc_recv(
     channel_t ch,
     channel_t *from,
@@ -140,6 +134,10 @@ static inline header_t ipc_replyrecv(
     payload_t *a3
 ) {
     return sys_replyrecv(server, type, r0, r1, r2, r3, client, a0, a1, a2, a3);
+}
+
+static inline channel_t ipc_connect(channel_t server) {
+    return sys_connect(server);
 }
 
 #endif

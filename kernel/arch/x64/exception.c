@@ -4,13 +4,13 @@
 #include "asm.h"
 #include "exception.h"
 
-void x64_handle_exception(uint8_t exception, uint64_t error) {
+void x64_handle_exception(u8_t exception, u64_t error) {
 
     /* We're using IST0's stack. Context switches in an exception
        handling context are prohibited. */
     switch (exception) {
         case EXP_PAGE_FAULT: {
-            uintptr_t address = asm_read_cr2();
+            uptr_t address = asm_read_cr2();
             bool write = (error >> 1) & 1;
             bool user = (error >> 2) & 1;
             bool rsvd = (error >> 3) & 1;

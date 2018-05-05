@@ -12,7 +12,7 @@ void x64_init_tss(void) {
     memset(&CPUVAR->tss, 0, sizeof(CPUVAR->tss));
 
     // Interrupt/Exception kernel stack.
-    tss->ist[INTR_HANDLER_IST - 1] = ((uintptr_t) stack) + INTR_STACK_SIZE;
+    tss->ist[INTR_HANDLER_IST - 1] = ((uptr_t) stack) + INTR_STACK_SIZE;
 
     // Disable I/O permission map.
     tss->iomap = sizeof(struct tss);

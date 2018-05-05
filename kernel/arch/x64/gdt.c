@@ -6,10 +6,10 @@
 
 
 static void set_seg_desc(struct seg_desc *desc, paddr_t base, paddr_t limit,
-                         uint8_t type, uint8_t limit2_mask) {
+                         u8_t type, u8_t limit2_mask) {
 
     desc->limit1  = limit & 0xffff;
-    desc->limit2  = (uint8_t) ((limit >> 16) & 0x0f) | limit2_mask;
+    desc->limit2  = (u8_t) ((limit >> 16) & 0x0f) | limit2_mask;
     desc->base1   = base & 0xffff;
     desc->base2   = (base >> 16) & 0xff;
     desc->base3   = (base >> 24) & 0xff;
@@ -25,7 +25,7 @@ static void set_tss_desc(struct tss_desc *desc, paddr_t base) {
     desc->base2    = (base >> 16) & 0xff;
     desc->base3    = (base >> 24) & 0xff;
     desc->type     = GDTTYPE_TSS;
-    desc->base4    = (uint32_t) (base >> 32) & 0xffffffff;
+    desc->base4    = (u32_t) (base >> 32) & 0xffffffff;
     desc->reserved = 0;
 }
 
@@ -55,10 +55,10 @@ void  x64_init_gdt(void) {
                  GDTTYPE_USER_DATA64, GDT_LIMIT2_MASK_DATA64);
 
     // TSS
-    set_tss_desc((struct tss_desc *) &gdt[GDT_TSS], (uintptr_t) &CPUVAR->tss);
+    set_tss_desc((struct tss_desc *) &gdt[GDT_TSS], (uptr_t) &CPUVAR->tss);
 
     // Update GDTR
     CPUVAR->gdtr.length = GDT_LENGTH;
-    CPUVAR->gdtr.address = (uintptr_t) gdt;
-    asm_lgdt((uintptr_t) &CPUVAR->gdtr);
+    CPUVAR->gdtr.address = (uptr_t) gdt;
+    asm_lgdt((uptr_t) &CPUVAR->gdtr);
 }

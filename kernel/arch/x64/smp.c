@@ -9,7 +9,7 @@ void x64_init_smp(void) {
     void *entry_ptr;
 
     // look for MP Floating Pointer Table
-    uint8_t *p = from_paddr(0xf0000);
+    u8_t *p = from_paddr(0xf0000);
     for (int i = 0x10000; i > 0; i--) {
         if (p[0]=='_' && p[1] == 'M' && p[2] == 'P' && p[3]=='_') {
             mpfltptr = (struct mp_float_ptr *) p;
@@ -38,7 +38,7 @@ void x64_init_smp(void) {
 
     for (int i=0; i < mptblhdr->entry_count; i++) {
         size_t size;
-        switch(*((uint8_t *) entry_ptr)) {
+        switch(*((u8_t *) entry_ptr)) {
             case MP_BASETABLE_IOAPIC_ENTRY:
                 ioapic_entry = (struct mp_ioapic_entry *) entry_ptr;
                 size = sizeof(struct mp_ioapic_entry);

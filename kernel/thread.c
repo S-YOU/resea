@@ -15,16 +15,16 @@ tid_t allocate_tid(void) {
 }
 
 
-struct thread *thread_create(struct process *process, uintptr_t start, uintptr_t arg) {
+struct thread *thread_create(struct process *process, uptr_t start, uptr_t arg) {
     bool is_kernel_thread = process == kernel_process;
     struct thread *thread = kmalloc(sizeof(*thread), KMALLOC_NORMAL);
     struct runqueue *rq = kmalloc(sizeof(*rq), KMALLOC_NORMAL);
 
-    uintptr_t stack;
+    uptr_t stack;
     size_t stack_size;
     if (is_kernel_thread) {
         stack_size = 0x1000;
-        stack = (uintptr_t) kmalloc(stack_size, KMALLOC_NORMAL);
+        stack = (uptr_t) kmalloc(stack_size, KMALLOC_NORMAL);
     } else {
         stack = process->next_stack_start;
         stack_size = 4 * PAGE_SIZE;
@@ -145,7 +145,7 @@ void thread_init(void) {
 
     // Create an idle thread. We specify NULL as handler because it won't
     // be used.
-    idle_thread = thread_create(kernel_process, (uintptr_t) NULL, 0);
+    idle_thread = thread_create(kernel_process, (uptr_t) NULL, 0);
     CPUVAR->current_process = kernel_process;
     CPUVAR->current_thread = idle_thread;
     CPUVAR->current_runqueue = runqueue;

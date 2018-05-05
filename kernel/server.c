@@ -1,6 +1,5 @@
 #include "types.h"
 #include "ipc.h"
-#include <list.h>
 #include <resea/discovery.h>
 #include "thread.h"
 #include "process.h"
@@ -11,17 +10,23 @@
 struct channel *kernel_channel;
 struct service *services;
 
-static inline error_t handle_discovery_register(channel_t from, u32_t msg_type, channel_t server) {
-    /* TODO */
-
-    rq->thread = thread;
-    runqueue_list_append(&runqueue, rq);
+static inline error_t handle_discovery_register(channel_t from, u32_t service_type, channel_t server) {
+    struct service *service = kmalloc(sizeof(*service), KMALLOC_NORMAL);
+    service->service_type = service_type;
+    service->server = server;
+    service_list_append(&services, service);
     return ERROR_NONE;
 }
 
 
-static inline error_t handle_discovery_connect(channel_t from, u32_t msg_type, channel_t *client) {
-    /* TODO */
+static inline error_t handle_discovery_connect(channel_t from, u32_t service_type, channel_t *client) {
+
+    for (struct service *service = services; service != NULL; service = service->next) {
+        if (service->service_type == service_type) {
+            *client = ipc_connect(service->server);
+        }
+    }
+
     return ERROR_NONE;
 }
 
@@ -35,11 +40,11 @@ void kernel_server_mainloop(channel_t server) {
         error_t error;
         switch (MSGTYPE(header)) {
             case DISCOVERY_REGISTER_MSG:
-                error = handle_discovery_register(from, (string_t) a0, (usize_t) a1, (channel_t) a2);
+                error = handle_discovery_register(from, (u32_t) a0, (channel_t) a2);
                 header = DISCOVERY_REGISTER_REPLY_MSG | error;
                 break;
             case DISCOVERY_CONNECT_MSG:
-                error = handle_discovery_connect(from, (string_t) a0, (usize_t) a1, (channel_t *) &r0);
+                error = handle_discovery_connect(from, (u32_t) a0, (channel_t *) &r0);
                 header = DISCOVERY_CONNECT_REPLY_MSG | error;
                 break;
 
@@ -59,9 +64,11 @@ void kernel_server(void) {
 
 
 void kernel_server_init(void) {
+    service_list_init(&services);
+
     kernel_channel = channel_create(kernel_process);
     thread_set_state(
-        thread_create(kernel_process, (uintptr_t) kernel_server, 0),
+        thread_create(kernel_process, (uptr_t) kernel_server, 0),
         THREAD_RUNNABLE
     );
 }

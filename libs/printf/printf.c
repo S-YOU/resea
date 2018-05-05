@@ -10,12 +10,12 @@ static void print_str(const char *s) {
 }
 
 
-static void print_int(uintmax_t base, uintmax_t v, uintmax_t len,
+static void print_int(umax_t base, umax_t v, umax_t len,
                       bool sign, bool alt, bool pad, bool sep) {
 
     static const char *nchars = "0123456789abcdef";
     char buf[20];
-    uintmax_t i;
+    umax_t i;
 
     /*
      *  -567
@@ -39,9 +39,9 @@ static void print_int(uintmax_t base, uintmax_t v, uintmax_t len,
      *    ^^^^
      */
     if (pad) {
-        uintmax_t order, _v;
-        for (order=1, _v=(uintmax_t) v; _v /= (uintmax_t) base; order++);
-        for (uintmax_t j=order; j < len*2; j++) {
+        umax_t order, _v;
+        for (order=1, _v=(umax_t) v; _v /= (umax_t) base; order++);
+        for (umax_t j=order; j < len*2; j++) {
             arch_putchar('0');
             if (sep && j == len+1)
                 arch_putchar('_');
@@ -57,9 +57,9 @@ static void print_int(uintmax_t base, uintmax_t v, uintmax_t len,
     i = sizeof(buf) - 2;
 
     do {
-        uintmax_t index;
-        index  = ((uintmax_t) v % (uintmax_t) base);
-        v     /= (uintmax_t) base;
+        umax_t index;
+        index  = ((umax_t) v % (umax_t) base);
+        v     /= (umax_t) base;
         buf[i--] = nchars[index];
         if (sep && i == len+2)
             buf[i--] = '_';
@@ -77,7 +77,7 @@ void vprintf(const char *fmt, va_list vargs) {
             bool alt = false;
             bool pad = false;
             char specifier;
-            uintmax_t len = sizeof(uintmax_t); // 1: char, 2: short, 4: unsigned, ...
+            umax_t len = sizeof(umax_t); // 1: char, 2: short, 4: unsigned, ...
 
             for (;;) {
                 i++;
@@ -99,17 +99,17 @@ void vprintf(const char *fmt, va_list vargs) {
                 arch_putchar('%');
                 break;
             case 'd':
-                print_int(10, va_arg(vargs, uintmax_t), len, true,  alt, pad, false);
+                print_int(10, va_arg(vargs, umax_t), len, true,  alt, pad, false);
                 break;
             case 'u':
-                print_int(10, va_arg(vargs, uintmax_t), len, false, alt, pad, false);
+                print_int(10, va_arg(vargs, umax_t), len, false, alt, pad, false);
                 break;
             case 'p':
                 alt = true;
                 pad = true;
                 // fallthrough
             case 'x':
-                print_int(16, va_arg(vargs, uintmax_t), len, false, alt, pad, false);
+                print_int(16, va_arg(vargs, umax_t), len, false, alt, pad, false);
                 break;
             case 'c':
                 arch_putchar(va_arg(vargs, int));

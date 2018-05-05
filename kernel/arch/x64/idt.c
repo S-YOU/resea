@@ -5,7 +5,7 @@
 #include "tss.h"
 #include "handler.h"
 
-void x64_set_intr_desc(struct intr_desc *desc, uint8_t ist, uint16_t seg, uintptr_t offset) {
+void x64_set_intr_desc(struct intr_desc *desc, u8_t ist, u16_t seg, uptr_t offset) {
 
     desc->offset1  = offset & 0xffff;
     desc->seg      = seg;
@@ -17,9 +17,9 @@ void x64_set_intr_desc(struct intr_desc *desc, uint8_t ist, uint16_t seg, uintpt
 }
 
 
-#define SET_EXP_DESC(n) set_kernel_intr_desc(&idt[n], (uintptr_t) x64_exp_handler##n)
-#define SET_IRQ_DESC(n) set_kernel_intr_desc(&idt[n], (uintptr_t) x64_irq_handler##n)
-static void set_kernel_intr_desc(struct intr_desc *desc, uintptr_t offset) {
+#define SET_EXP_DESC(n) set_kernel_intr_desc(&idt[n], (uptr_t) x64_exp_handler##n)
+#define SET_IRQ_DESC(n) set_kernel_intr_desc(&idt[n], (uptr_t) x64_irq_handler##n)
+static void set_kernel_intr_desc(struct intr_desc *desc, uptr_t offset) {
 
     desc->offset1  = offset & 0xffff;
     desc->seg      = KERNEL_CODE64_SEG;
@@ -96,11 +96,11 @@ void x64_init_idt(void) {
 
     // To reduce the code size, we don't use all IDT entries for now.
     for (int i=0x40; i <= 0xff; i++) {
-        x64_set_intr_desc(&idt[i], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uintptr_t) x64_unknown_irq_handler);
+        x64_set_intr_desc(&idt[i], INTR_HANDLER_IST, KERNEL_CODE64_SEG, (uptr_t) x64_unknown_irq_handler);
     }
 
     // Update GDTR
     CPUVAR->idtr.length = IDT_LENGTH;
-    CPUVAR->idtr.address = (uintptr_t) idt;
-    asm_lidt((uintptr_t) &CPUVAR->idtr);
+    CPUVAR->idtr.address = (uptr_t) idt;
+    asm_lidt((uptr_t) &CPUVAR->idtr);
 }

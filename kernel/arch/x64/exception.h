@@ -5,6 +5,6 @@
 
 #define EXP_PAGE_FAULT 14
 
-void x64_handle_exception(uint8_t exception, uint64_t error);
+void x64_handle_exception(u8_t exception, u64_t error);
 
 #endif

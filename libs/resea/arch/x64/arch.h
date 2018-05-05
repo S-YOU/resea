@@ -1,11 +1,11 @@
 #ifndef __RESEA_ARCH_H__
 #define __RESEA_ARCH_H__
 
-typedef uint64_t uintptr_t;
-typedef uint64_t uintmax_t;
-typedef uint64_t channel_t;
-typedef uint64_t payload_t;
-typedef uint64_t header_t;
-typedef uint64_t usize_t;
+typedef u64_t uptr_t;
+typedef u64_t umax_t;
+typedef u64_t channel_t;
+typedef u64_t payload_t;
+typedef u64_t header_t;
+typedef u64_t usize_t;
 
 #endif

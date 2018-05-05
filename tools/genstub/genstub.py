@@ -94,7 +94,7 @@ def generate_stub(service):
             "channel": CHANNEL_PAYLOAD,
             "string": OOL_PAYLOAD,
             "usize": INLINE_PAYLOAD,
-            "uintmax": INLINE_PAYLOAD,
+            "umax": INLINE_PAYLOAD,
             "error": INLINE_PAYLOAD,
             "i8": INLINE_PAYLOAD,
             "i16": INLINE_PAYLOAD,

@@ -9,7 +9,7 @@ void x64_handle_unkown_irq(void) {
 }
 
 
-void x64_handle_irq(UNUSED uint8_t vector) {
+void x64_handle_irq(UNUSED u8_t vector) {
     x64_ack_interrupt();
 
     // XXX

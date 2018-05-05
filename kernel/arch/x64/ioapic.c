@@ -7,21 +7,21 @@
 
 static paddr_t mmio;
 
-static uint32_t ioapic_read(uint8_t reg) {
+static u32_t ioapic_read(u8_t reg) {
 
-    *((uint32_t *) from_paddr(mmio)) = reg;
-    return *((uint32_t *) from_paddr(mmio + 0x10));
+    *((u32_t *) from_paddr(mmio)) = reg;
+    return *((u32_t *) from_paddr(mmio + 0x10));
 }
 
 
-static void ioapic_write(uint8_t reg, uint32_t data) {
+static void ioapic_write(u8_t reg, u32_t data) {
 
-    *((uint32_t *) from_paddr(mmio)) = reg;
-    *((uint32_t *) from_paddr(mmio + 0x10)) = data;
+    *((u32_t *) from_paddr(mmio)) = reg;
+    *((u32_t *) from_paddr(mmio + 0x10)) = data;
 }
 
 
-void x64_ioapic_enable_irq(uint8_t vector, uint8_t irq) {
+void x64_ioapic_enable_irq(u8_t vector, u8_t irq) {
 
     ioapic_write(IOAPIC_REG_NTH_IOREDTBL_HIGH(irq), 0);
     ioapic_write(IOAPIC_REG_NTH_IOREDTBL_LOW(irq),  vector);

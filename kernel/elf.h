@@ -13,44 +13,44 @@
 #define PF_X 1
 
 struct elf64_ehdr{
-  uint8_t  e_ident[16];
-  uint16_t e_type;
-  uint16_t e_machine;
-  uint32_t e_version;
-  uint64_t e_entry;
-  uint64_t e_phoff;
-  uint64_t e_shoff;
-  uint32_t e_flags;
-  uint16_t e_ehsize;
-  uint16_t e_phentsize;
-  uint16_t e_phnum;
-  uint16_t e_shentsize;
-  uint16_t e_shnum;
-  uint16_t e_shstrndx;
+  u8_t  e_ident[16];
+  u16_t e_type;
+  u16_t e_machine;
+  u32_t e_version;
+  u64_t e_entry;
+  u64_t e_phoff;
+  u64_t e_shoff;
+  u32_t e_flags;
+  u16_t e_ehsize;
+  u16_t e_phentsize;
+  u16_t e_phnum;
+  u16_t e_shentsize;
+  u16_t e_shnum;
+  u16_t e_shstrndx;
 };
 
 struct elf64_phdr {
-  uint32_t p_type;
-  uint32_t p_flags;
-  uint64_t p_offset;
-  uint64_t p_vaddr;
-  uint64_t p_paddr;
-  uint64_t p_filesz;
-  uint64_t p_memsz;
-  uint64_t p_align;
+  u32_t p_type;
+  u32_t p_flags;
+  u64_t p_offset;
+  u64_t p_vaddr;
+  u64_t p_paddr;
+  u64_t p_filesz;
+  u64_t p_memsz;
+  u64_t p_align;
 };
 
 struct elf64_shdr {
-   uint32_t sh_name;
-   uint32_t sh_type;
-   uint64_t sh_flags;
-   uint64_t sh_addr;
-   uint64_t sh_offset;
-   uint64_t sh_size;
-   uint32_t sh_link;
-   uint32_t sh_info;
-   uint64_t sh_addralign;
-   uint64_t sh_entsize;
+   u32_t sh_name;
+   u32_t sh_type;
+   u64_t sh_flags;
+   u64_t sh_addr;
+   u64_t sh_offset;
+   u64_t sh_size;
+   u32_t sh_link;
+   u32_t sh_info;
+   u64_t sh_addralign;
+   u64_t sh_entsize;
 };
 
 void elf_create_process(const void *image, size_t length, pager_t *pager, void *pager_arg);

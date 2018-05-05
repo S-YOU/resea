@@ -11,7 +11,7 @@ struct kfs_header {
 
 struct kfs_file_header {
     const char name[128]; // terminated by null character
-    uint32_t length;
+    u32_t length;
 } PACKED;
 
 struct kfs_dir {
@@ -27,7 +27,7 @@ struct kfs_file {
 
 void kfs_init(void);
 void kfs_opendir(struct kfs_dir *dir);
-paddr_t kfs_pager(void *arg, uintptr_t addr, size_t length);
+paddr_t kfs_pager(void *arg, uptr_t addr, size_t length);
 struct kfs_file *kfs_readdir(struct kfs_dir *dir, struct kfs_file *file);
 
 #endif

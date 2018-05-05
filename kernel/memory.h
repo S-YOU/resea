@@ -12,7 +12,7 @@ typedef paddr_t pager_t(void *arg, off_t offset, size_t length);
 struct vmspace;
 struct vmarea {
     struct vmarea *next;
-    uintptr_t address;
+    uptr_t address;
     size_t length;
     int flags;
     pager_t *pager;
@@ -33,7 +33,7 @@ void *kmalloc(size_t size, int flags);
 void kfree(void *ptr);
 void add_vmarea(
     struct vmspace *vms,
-    uintptr_t address,
+    uptr_t address,
     off_t pager_offset,
     size_t length,
     int flags,
@@ -43,7 +43,7 @@ void add_vmarea(
 void memory_create_vmspace(struct vmspace *vms);
 void memory_destroy_mspace(struct vmspace *vms);
 paddr_t zeroed_pager(void *arg, off_t offset, size_t length);
-void handle_page_fault(uintptr_t address, bool user, bool write, bool exec);
+void handle_page_fault(uptr_t address, bool user, bool write, bool exec);
 void memory_init(void);
 
 #endif
