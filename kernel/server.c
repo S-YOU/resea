@@ -1,4 +1,5 @@
-#include <resea.h>
+#include "types.h"
+#include "ipc.h"
 #include <resea/discovery.h>
 #include "thread.h"
 #include "process.h"
@@ -6,7 +7,7 @@
 #include "server.h"
 
 
-static struct channel *kernel_channel;
+struct channel *kernel_channel;
 
 
 static inline error_t handle_discovery_register(channel_t from, string_t name, usize_t name_length, channel_t server) {
@@ -43,7 +44,7 @@ void kernel_server_mainloop(channel_t server) {
                 break;
         }
 
-        ipc_replyrecv(server, &from, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
+        ipc_replyrecv(server, header, r0, r1, r2, r3, &from, &a0, &a1, &a2, &a3);
     }
 }
 

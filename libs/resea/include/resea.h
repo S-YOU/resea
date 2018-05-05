@@ -54,7 +54,16 @@ static inline double is_computer_on_fire(void) {
 #define MAJOR_ID_OFFSET 40ULL
 #define MSGTYPE(header) ((header) >> MINOR_ID_OFFSET)
 #define ERRTYPE(header) (((header) >> MAJOR_ID_OFFSET) & 0xff)
-#define ERROR_NONE 0
+
+enum {
+    ERROR_NONE = 0,
+    ERROR_NO_MEMORY = 1,
+    ERROR_INVALID_CH = 2,
+    ERROR_CH_NOT_LINKED = 3,
+    ERROR_CH_NOT_TRANSFERED = 4,
+    ERROR_CH_IN_USE = 5,
+};
+
 typedef header_t error_t;
 
 // TODO: interface generator
@@ -106,12 +115,12 @@ header_t ipc_call(
 
 header_t ipc_replyrecv(
     channel_t server,
-    channel_t *client,
     header_t type,
     payload_t r0,
     payload_t r1,
     payload_t r2,
     payload_t r3,
+    channel_t *client,
     payload_t *a0,
     payload_t *a1,
     payload_t *a2,

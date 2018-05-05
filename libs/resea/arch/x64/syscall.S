@@ -17,9 +17,9 @@ ipc_open:
 
 
 /*
- *  type_t ipc_send(
+ *  header_t ipc_send(
  *      channel_t ch,
- *      type_t type,
+ *      header_t type,
  *      payload_t a0,
  *      payload_t a1,
  *      payload_t a2,
@@ -31,7 +31,7 @@ ipc_send:
     ret
 
 /*
- *  type_t ipc_recv(
+ *  header_t ipc_recv(
  *      channel_t ch,
  *      channel_t *from,
  *      payload_t *a0,
@@ -72,9 +72,9 @@ ipc_recv:
     ret
 
 /*
- *  type_t ipc_call(
+ *  header_t ipc_call(
  *      channel_t ch,
- *      type_t type,
+ *      header_t type,
  *      payload_t a0,
  *      payload_t a1,
  *      payload_t a2,
@@ -108,14 +108,14 @@ ipc_call:
     ret
 
 /*
- *  type_t ipc_replyrecv(
+ *  header_t ipc_replyrecv(
  *      channel_t server,
- *      channel_t *client,
- *      type_t type,
+ *      header_t type,
  *      payload_t r0,
  *      payload_t r1,
  *      payload_t r2,
  *      payload_t r3,
+ *      channel_t *client,
  *      payload_t *a0,
  *      payload_t *a1,
  *      payload_t *a2,
@@ -129,17 +129,15 @@ ipc_replyrecv:
     push r14
     push r13
     push r12
-    push rsi
 
     mov r14, 6
     syscall
 
-    pop rsi
-    mov r8, [rsi]
-    mov r9, [rbp + 16]
-    mov r10, [rbp + 24]
-    mov r12, [rbp + 32]
-    mov r13, [rbp + 40]
+    mov r8, [rbp + 16]
+    mov r9, [rbp + 24]
+    mov r10, [rbp + 32]
+    mov r12, [rbp + 40]
+    mov r13, [rbp + 48]
 
     pop r12
     pop r13
@@ -147,17 +145,17 @@ ipc_replyrecv:
     pop rbp
     ret
 
-/* type_t ipc_discard(payload_t ool0, payload_t ool1, payload_t ool2, payload_t ool3); */
+/* header_t ipc_discard(payload_t ool0, payload_t ool1, payload_t ool2, payload_t ool3); */
 .globl ipc_discard
 ipc_discard:
     ret
 
-/* type_t ipc_link(channel_t ch0, channel_t ch1); */
+/* header_t ipc_link(channel_t ch0, channel_t ch1); */
 .globl ipc_link
 ipc_link:
     ret
 
-/* type_t ipc_transfer(channel_t ch, channel_t dest); */
+/* header_t ipc_transfer(channel_t ch, channel_t dest); */
 .globl ipc_transfer
 ipc_transfer:
     ret

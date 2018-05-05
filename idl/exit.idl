@@ -1,3 +1,3 @@
-service "exit"
+service "exit" (1)
 
 exit(exit_code: error) -> ();

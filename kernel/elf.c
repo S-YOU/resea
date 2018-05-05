@@ -3,6 +3,7 @@
 #include "thread.h"
 #include "memory.h"
 #include "elf.h"
+#include "server.h"
 
 
 void elf_create_process(const void *image, UNUSED size_t length, pager_t *pager, void *pager_arg) {
@@ -20,6 +21,7 @@ void elf_create_process(const void *image, UNUSED size_t length, pager_t *pager,
     }
 
     struct process *process = process_create();
+    channel_connect(kernel_channel, process);
     INFO("elf: created process #%d", process->pid);
 
     /* Load program headers. */

@@ -20,7 +20,7 @@ included_subdirs :=
 include $(foreach lib, $(kernel_libs), libs/$(lib)/build.mk)
 kernel_objs += $(all_objs)
 kernel_include_dirs := $(PWD) $(addprefix $(ARCH_DIR)/, $(arch_include_dirs)) \
-	libs/resea/include libs/resea/arch/$(ARCH) build $(all_include_dirs)
+	build $(all_include_dirs)
 
 kernel/kfs.o: kernel/kfs.bin
 kernel/kfs.bin: $(all_kfs_files) tools/mkkfs
@@ -40,11 +40,11 @@ build/resea/%.h: idl/%.idl tools/genstub/genstub.py tools/genstub/parser/idlPars
 	$(PROGRESS) "CC(K)" $@
 	$(CC) $(CFLAGS) -c -o $@ $<
 
-%.deps: %.c Makefile $(stub_fles)
+%.deps: %.c Makefile $(stub_files)
 	$(PROGRESS) "GENDEPS(K)" $@
 	$(CC) $(CFLAGS) $(addprefix -I, $(kernel_include_dirs)) -MF $@ -MT $(<:.c=.o) -MM $<
 
-%.o: %.c Makefile $(stub_fles)
+%.o: %.c Makefile $(stub_files)
 	$(PROGRESS) "CC(K)" $@
 	$(CC) $(CFLAGS) $(addprefix -I, $(kernel_include_dirs)) -c -o $@ $<
 
