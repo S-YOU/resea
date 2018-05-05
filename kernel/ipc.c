@@ -210,17 +210,20 @@ INFO("switch???");
         thread_set_state(current_thread, THREAD_BLOCKED);
         thread_switch();
     }
-
+INFO("DO SEND");
     // Copy payloads.
     struct process *src_process = CPUVAR->current_process;
     struct process *dst_process = dst->process;
+INFO("DO SEND");
     dst->sent_from = linked_to->cid;
     dst->type = type;
     dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0);
     dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
     dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
     dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3);
+INFO("DO SEND");
     thread_set_state(dst->receiver, THREAD_RUNNABLE);
+INFO("DO SEND");
 
     return ERROR_NONE;
 }
