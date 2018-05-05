@@ -1,0 +1,5 @@
+service fs {
+    type file_mode = u32;
+    type fd = uintmax;
+    open(path: string, path_length: usize, mode: file_mode) -> (fd: fd);
+}

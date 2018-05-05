@@ -1,4 +1,0 @@
-service fs {
-    type fd = uintmax;
-    open(path: string, path_length: size, mode: file_mode) -> (fd: fd);
-}
