@@ -1,5 +1,6 @@
 #include "types.h"
 #include "ipc.h"
+#include <list.h>
 #include <resea/discovery.h>
 #include "thread.h"
 #include "process.h"
@@ -8,15 +9,18 @@
 
 
 struct channel *kernel_channel;
+struct service *services;
 
-
-static inline error_t handle_discovery_register(channel_t from, string_t name, usize_t name_length, channel_t server) {
+static inline error_t handle_discovery_register(channel_t from, u32_t msg_type, channel_t server) {
     /* TODO */
+
+    rq->thread = thread;
+    runqueue_list_append(&runqueue, rq);
     return ERROR_NONE;
 }
 
 
-static inline error_t handle_discovery_connect(channel_t from, string_t name, usize_t name_length, channel_t *client) {
+static inline error_t handle_discovery_connect(channel_t from, u32_t msg_type, channel_t *client) {
     /* TODO */
     return ERROR_NONE;
 }

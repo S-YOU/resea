@@ -1,4 +1,4 @@
 service "discovery" (3)
 
-register(name: string, name_length: usize, server: channel) -> ();
-connect(name: string, name_length: usize) -> (client: channel);
+register(msg_type: u32, server: channel) -> ();
+connect(msg_type: u32) -> (client: channel);
