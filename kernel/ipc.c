@@ -307,6 +307,7 @@ header_t sys_recv(
     // Receiver sent a reply message and resumed the sender thread. Do recv
     // work.
     header_t reply_type = src->type;
+    *from = src->sent_from;
     *a0 = src->buffer[0];
     *a1 = src->buffer[1];
     *a2 = src->buffer[2];

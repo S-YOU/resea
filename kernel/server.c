@@ -79,7 +79,7 @@ void kernel_server_mainloop(channel_t server) {
                 break;
         }
 
-        ipc_replyrecv(server, header, r0, r1, r2, r3, &from, &a0, &a1, &a2, &a3);
+        ipc_replyrecv(from, header, r0, r1, r2, r3, &from, &a0, &a1, &a2, &a3);
     }
 }
 
