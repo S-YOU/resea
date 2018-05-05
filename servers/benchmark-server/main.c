@@ -1,5 +1,5 @@
 #include <resea.h>
-
+#include <resea/discovery.h>
 
 void main(void) {
     channel_t server = ipc_open();
