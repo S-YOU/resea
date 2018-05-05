@@ -1,6 +1,6 @@
 name := benchmark-client
 objs := main.o
 libs :=
-requires := discovery
+requires := discovery benchmark
 
 include servers/server.mk

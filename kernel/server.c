@@ -1,14 +1,32 @@
 #include "types.h"
 #include "ipc.h"
+#include <resea/exit.h>
+#include <resea/logging.h>
 #include <resea/discovery.h>
 #include "thread.h"
 #include "process.h"
 #include "ipc.h"
 #include "server.h"
 
-
 struct channel *kernel_channel;
 struct service *services;
+
+
+static inline void handle_exit_exit(channel_t from, u32_t error) {
+    /* TODO */
+}
+
+
+static inline error_t handle_logging_emit(channel_t from, string_t str, usize_t length) {
+
+    for (usize_t i = 0; i < length; i++) {
+        arch_putchar(str[0]);
+    }
+
+    arch_putchar('\n');
+    return ERROR_NONE;
+}
+
 
 static inline error_t handle_discovery_register(channel_t from, u32_t service_type, channel_t server) {
     struct service *service = kmalloc(sizeof(*service), KMALLOC_NORMAL);
@@ -39,8 +57,16 @@ void kernel_server_mainloop(channel_t server) {
     for (;;) {
         error_t error;
         switch (MSGTYPE(header)) {
+            case EXIT_EXIT_MSG:
+                handle_exit_exit(from, (error_t) a0);
+                /* The caller thread is terminated. Needless to reply. */
+                continue;
+            case LOGGING_EMIT_MSG:
+                error = handle_logging_emit(from, (string_t) a0, (usize_t) a1);
+                header = LOGGING_EMIT_REPLY_MSG | error;
+                continue;
             case DISCOVERY_REGISTER_MSG:
-                error = handle_discovery_register(from, (u32_t) a0, (channel_t) a2);
+                error = handle_discovery_register(from, (u32_t) a0, (channel_t) a1);
                 header = DISCOVERY_REGISTER_REPLY_MSG | error;
                 break;
             case DISCOVERY_CONNECT_MSG:

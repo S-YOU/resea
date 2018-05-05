@@ -181,7 +181,7 @@ static inline error_t handle_{service_name}_{call_name}(channel_t from{args}) {{
 #ifndef __RESEA_STUB_{service_name}_H__
 #define __RESEA_STUB_{service_name}_H__
 
-#define {service_name.upper()}_SERVICE ({service["id"]}ULL << 40ULL)
+#define {service_name.upper()}_SERVICE ({service["id"]}U << 8U)
 
 {client_stub}
 
