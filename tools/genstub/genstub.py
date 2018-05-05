@@ -14,6 +14,7 @@ class Listener(idlListener):
 
     def exitService(self, ctx):
         self.name = str(ctx.getChild(2))
+        self.id = int(str(ctx.getChild(5)))
 
     def exitCallDef(self, ctx):
         self.calls.append({
@@ -63,6 +64,7 @@ def parse_idl(filepath):
     walker.walk(listener, tree)
     return {
         "name": listener.name,
+        "id": listener.id,
         "types": listener.types,
         "calls": listener.calls
     }
@@ -146,8 +148,8 @@ def generate_stub(service):
         header_name = f"{service_name.upper()}_{call_name.upper()}_HEADER"
         reply_header_name = f"{service_name.upper()}_{call_name.upper()}_REPLY_HEADER"
         client_stub += f"""\
-#define {msg_name}       ({msg_id}ULL)
-#define {reply_msg_name} ({msg_id + 1}ULL)
+#define {msg_name}       ({service_name.upper()}_SERVICE | {msg_id}ULL)
+#define {reply_msg_name} ({service_name.upper()}_SERVICE | {msg_id + 1}ULL)
 #define {header_name} (({msg_name} << 32ULL) | ({header}))
 #define {reply_header_name} (({msg_name} << 32ULL) | ({reply_header}))
 static inline header_t call_{service_name}_{call_name}(channel_t __server{args}) {{
@@ -160,7 +162,7 @@ static inline header_t call_{service_name}_{call_name}(channel_t __server{args})
 """
 
         server_handlers += f"""\
-static inline error_t handle_{service_name}_{call_name}(channel_t __reply_to{args}) {{
+static inline error_t handle_{service_name}_{call_name}(channel_t from{args}) {{
     /* TODO */
     return ERROR_NONE;
 }}
@@ -169,7 +171,7 @@ static inline error_t handle_{service_name}_{call_name}(channel_t __reply_to{arg
 
         server_mainloop += f"""\
             case {msg_name}:
-                error_t error = handle_{service_name}_{call_name}(__reply_to{server_params});
+                error_t error = handle_{service_name}_{call_name}(from{server_params});
                 header = {reply_msg_name} | error;
                 break;
 """
@@ -180,6 +182,7 @@ static inline error_t handle_{service_name}_{call_name}(channel_t __reply_to{arg
 #define __RESEA_STUB_{service_name}_H__
 
 #include <resea.h>
+#define {service_name.upper()}_SERVICE ({service["id"]}ULL << 40ULL)
 
 {client_stub}
 
@@ -187,7 +190,7 @@ static inline error_t handle_{service_name}_{call_name}(channel_t __reply_to{arg
 
 """
 
-    server_scaffold = f"""
+    server_scaffold = f"""\
 #include <resea.h>
 #include <resea/{service_name}.h>
 
@@ -196,7 +199,7 @@ void {service_name}_server_mainloop(void) {{
     channel_t from;
     payload_t a0, a1, a2, a3;
     payload_t r0, r1, r2, r3;
-    header_t header = ipc_recv(server, &__reply_to, &a0, &a1, &a2, &a3);
+    header_t header = ipc_recv(server, &from, &a0, &a1, &a2, &a3);
     for (;;) {{
         switch (MSGTYPE(header)) {{
 {server_mainloop}
@@ -205,7 +208,7 @@ void {service_name}_server_mainloop(void) {{
                 break;
         }}
 
-        ipc_replyrecv(server, &__reply_to, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
+        ipc_replyrecv(server, &from, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
     }}
 }}
 

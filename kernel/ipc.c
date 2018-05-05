@@ -27,7 +27,7 @@ static inline struct channel *get_channel_by_id(channel_t cid) {
     return (ch->flags == 0) ? NULL : ch;
 }
 
-static struct channel *open_channel_by(struct process *process) {
+struct channel *channel_create(struct process *process) {
     kmutex_state_t state = kmutex_lock_irq_disabled(&process->lock);
     size_t channels_max = process->channels_max;
     for (size_t i = 0; i < channels_max; i++) {
@@ -67,7 +67,7 @@ static payload_t copy_payload(
             return payload;
         case PAYLOAD_CHANNEL: {
             struct channel *ch = get_channel_by_id(payload);
-            struct channel *new_ch = open_channel_by(dst);
+            struct channel *new_ch = channel_create(dst);
 
             if (ch->linked_to) {
                 ch->linked_to->linked_to = new_ch;
@@ -85,7 +85,7 @@ static payload_t copy_payload(
 }
 
 channel_t ipc_open(void) {
-    struct channel *ch = open_channel_by(CPUVAR->current_process);
+    struct channel *ch = channel_create(CPUVAR->current_process);
     if(!ch) {
         DEBUG("ipc_open: failed to allocate #%d", CPUVAR->current_process->pid);
         return ERR_NO_MEMORY;
@@ -313,8 +313,8 @@ channel_t ipc_connect(channel_t server) {
         return ERR_INVALID_CH;
     }
 
-    struct channel *server_side = open_channel_by(ch->process);
-    struct channel *client_side = open_channel_by(CPUVAR->current_process);
+    struct channel *server_side = channel_create(ch->process);
+    struct channel *client_side = channel_create(CPUVAR->current_process);
     link_channels(server_side, client_side);
     transfer_to(server_side, ch);
 }

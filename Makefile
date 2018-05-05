@@ -52,8 +52,8 @@ build: kernel/kernel.elf
 
 tools/genstub/parser/idlParser.py: tools/genstub/idl.g4
 	$(PROGRESS) ANTLR4 $@
-	antlr4 -Dlanguage=Python3 -o parser idl.g4
-	touch tools/genstub/parser/__init__.py
+	antlr4 -Dlanguage=Python3 -o $(dir $@) $<
+	touch $(dir $@)/__init__.py
 
 clean:
 	rm -f */*.o */*/*.o */*/*/*.o \

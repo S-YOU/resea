@@ -9,4 +9,5 @@
 *.map
 kfs
 kernel/kfs.tar
+build
 servers/*/build

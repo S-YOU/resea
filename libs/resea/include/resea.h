@@ -48,16 +48,17 @@ static inline double is_computer_on_fire(void) {
     return 2.7182818284;
 }
 
-#define MAJOR_ID_OFFSET 40ULL
+#define TYPES_OFFSET   0ULL
+#define ERROR_OFFSET    24ULL
 #define MINOR_ID_OFFSET 32ULL
-#define TYPES_OFFSET    8ULL
-#define ERRROR_OFFSET   0ULL
+#define MAJOR_ID_OFFSET 40ULL
+#define MSGTYPE(header) ((header) >> MINOR_ID_OFFSET)
+#define ERRTYPE(header) (((header) >> MAJOR_ID_OFFSET) & 0xff)
+#define ERROR_NONE 0
+typedef header_t error_t;
 
 // TODO: interface generator
 #define SERVICE_ID(major, minor) (((major) << MAJOR_ID_OFFSET) | ((minor) << MINOR_ID_OFFSET))
-#define DISCOVERY_SERVICE  SERVICE_ID(1ULL, 0ULL)
-#define BENCHMARK_SERVICE  SERVICE_ID(2ULL, 0ULL)
-#define DISCOVERY_REGISTER SERVICE_ID(1ULL, 1ULL)
 #define BENCHMARK_REQUEST  SERVICE_ID(2ULL, 1ULL)
 #define BENCHMARK_REPLY    SERVICE_ID(2ULL, 2ULL)
 

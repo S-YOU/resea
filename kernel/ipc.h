@@ -39,4 +39,6 @@ enum {
     ERR_CH_IN_USE = 5,
 };
 
+struct channel *channel_create(struct process *process);
+
 #endif

@@ -1,4 +1,4 @@
-service "discovery"
+service "discovery" (3)
 
 register(name: string, name_length: usize, server: channel) -> ();
 connect(name: string, name_length: usize) -> (client: channel);
