@@ -40,7 +40,6 @@ static inline error_t handle_discovery_register(channel_t from, u32_t service_ty
     /* Connect pending clients. */
     for (struct client *c = clients; c != NULL;) {
         if (c->service_type == service_type) {
-            DEBUG("connect!");
             channel_t client = ipc_connect(service->server);
             ipc_send(c->ch, DISCOVERY_CONNECT_REPLY_MSG | ERROR_NONE, client, 0, 0, 0);
         }

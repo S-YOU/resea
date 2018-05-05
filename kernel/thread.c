@@ -83,7 +83,7 @@ void thread_switch_to(struct thread *next) {
     struct thread *current = CPUVAR->current_thread;
     CPUVAR->current_thread = next;
     CPUVAR->current_process = next->process;
-    INFO(">>> %d.%d", next->process->pid, next->tid);
+INFO(">>> %d.%d", next->process->pid, next->tid);
 
     if (next->process != kernel_process) {
         arch_switch_vmspace(&next->process->vms.arch);
@@ -101,10 +101,11 @@ void thread_switch(void) {
     // call because the current context will become its context.
     //
     struct runqueue *rq = CPUVAR->current_runqueue->next;
-
+    INFO("picking...");
     // XXX: lock
-    while (rq) {
+    while (rq != NULL) {
         int state = thread_get_state(rq->thread);
+        INFO("rq: %d state=%d", rq->thread->tid, state);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             CPUVAR->current_runqueue = rq;
             thread_switch_to(rq->thread);
@@ -117,6 +118,7 @@ void thread_switch(void) {
     rq = runqueue->next; // Skip idle thread.
     while (rq) {
         int state = thread_get_state(rq->thread);
+        INFO("rq: %d state=%d", rq->thread->tid, state);
         if (state == THREAD_RUNNABLE && rq->thread != CPUVAR->current_thread) {
             CPUVAR->current_runqueue = rq;
             thread_switch_to(rq->thread);

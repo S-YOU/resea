@@ -157,6 +157,7 @@ header_t sys_call(
 
         waitqueue_list_append(&real_dst->wq, wq);
         thread_set_state(current_thread, THREAD_BLOCKED);
+        thread_set_state(real_dst->receiver, THREAD_RUNNABLE);
         thread_switch();
     }
 
@@ -182,6 +183,9 @@ header_t sys_call(
     *r1 = src->buffer[1];
     *r2 = src->buffer[2];
     *r3 = src->buffer[3];
+    src->receiver = NULL;
+    real_dst->sender = NULL;
+    thread_set_state(real_dst->sender, THREAD_RUNNABLE);
 
     return reply_type;
 }
@@ -272,6 +276,8 @@ header_t sys_replyrecv(
     *a2 = server->buffer[2];
     *a3 = server->buffer[3];
     src->receiver = NULL;
+    real_dst->sender = NULL;
+    thread_set_state(real_dst->sender, THREAD_RUNNABLE);
 
     return reply_type;
 }
@@ -292,7 +298,6 @@ header_t sys_recv(
     }
 
     // Try to get the receiver right.
-    INFO("#### a0=%p, a1=%p", a0, a1);
     struct thread *current_thread = CPUVAR->current_thread;
     if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
         return ERROR_CH_IN_USE;
@@ -322,6 +327,7 @@ header_t sys_recv(
     *a2 = src->buffer[2];
     *a3 = src->buffer[3];
     src->receiver = NULL;
+    thread_set_state(src->sender, THREAD_RUNNABLE);
 
     return reply_type;
 }
@@ -340,7 +346,6 @@ header_t sys_send(
         DEBUG("sys_call: @%d no such channel", ch);
         return ERROR_INVALID_CH;
     }
-    INFO("#### call a0=%p, a1=%p", a0, a1);
 
     struct channel *dst = src->linked_to;
     if (!dst) {
@@ -383,7 +388,7 @@ header_t sys_send(
     struct process *src_process = CPUVAR->current_process;
     struct process *dst_process = dst->process;
     real_dst->sent_from = dst->cid;
-    real_dst->type = type;
+    real_dst->type = type | 0xaaaaaaaa;
     real_dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0);
     real_dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
     real_dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
@@ -393,7 +398,7 @@ header_t sys_send(
     thread_set_state(current_thread, THREAD_BLOCKED);
     thread_set_state(real_dst->receiver, THREAD_RUNNABLE);
     thread_switch_to(real_dst->receiver);
-
+    real_dst->sender = NULL;
 }
 
 channel_t sys_connect(channel_t server) {
