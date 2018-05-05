@@ -123,6 +123,7 @@ header_t sys_call(
         DEBUG("sys_call: @%d no such channel", ch);
         return ERROR_INVALID_CH;
     }
+    INFO("#### call a0=%p, a1=%p", a0, a1);
 
     struct channel *dst = src->linked_to;
     if (!dst) {
@@ -280,13 +281,8 @@ header_t sys_recv(
         return ERROR_INVALID_CH;
     }
 
-    struct channel *dst = src->linked_to;
-    if (!dst) {
-        DEBUG("sys_recv: @%d not linked", ch);
-        return ERROR_CH_NOT_LINKED;
-    }
-
     // Try to get the receiver right.
+    INFO("#### a0=%p, a1=%p", a0, a1);
     struct thread *current_thread = CPUVAR->current_thread;
     if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
         return ERROR_CH_IN_USE;
@@ -305,6 +301,8 @@ header_t sys_recv(
         // No threads in the queue.
         thread_switch();
     }
+
+    INFO("#### a0=%p, a1=%p", a0, a1);
 
     // Receiver sent a reply message and resumed the sender thread. Do recv
     // work.

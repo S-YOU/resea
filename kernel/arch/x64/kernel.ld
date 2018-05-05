@@ -3,7 +3,8 @@ ENTRY(x64_startup);
 
 MEMORY {
     startup(rx): ORIGIN = 0x00010000, LENGTH = 1K
-    kernel(rx): ORIGIN = 0xffff800000011000, LENGTH = 60K
+    /* FIXME: isolate .data and make this readonly */
+    rom(rwx): ORIGIN = 0xffff800000011000, LENGTH = 60K
     ram(rw): ORIGIN = 0xffff800000020000, LENGTH = 256K
 }
 
@@ -14,15 +15,9 @@ SECTIONS {
 
     .text : AT(0x00011000) {
         *(.text);
-    } > kernel
-
-    .data :{
         *(.data);
-    } > kernel
-
-    .rodata :{
         *(.rodata*);
-    } > kernel
+    } > rom
 
     .bss :{
         __bss = .;

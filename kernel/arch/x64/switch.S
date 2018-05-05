@@ -68,6 +68,14 @@ arch_switch:
     pushq 16(%rsi)      /* Restore next's RFLAGS. */
     popfq
 
+    /* Callee-saved registers. FIXME: Why do we have to save them? */
+    push %rbp
+    push %rbx
+    push %r12
+    push %r13
+    push %r14
+    push %r15
+
     movabs $1f, %rax
     movq %rax, 0(%rdi)  /* Set prev RIP to label "1". */
     movq %rsp, 8(%rdi)  /* Save the current RSP to prev. */
@@ -77,4 +85,10 @@ arch_switch:
 
 1:
     /* Resumed thread starts from here. Just return from arch_switch(). */
+    pop %r15
+    pop %r14
+    pop %r13
+    pop %r12
+    pop %rbx
+    pop %rbp
     ret

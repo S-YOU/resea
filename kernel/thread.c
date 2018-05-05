@@ -4,7 +4,7 @@
 #include "thread.h"
 #include "process.h"
 
-static tid_t last_tid = 0;
+static tid_t last_tid = 1;
 static struct runqueue *runqueue;
 struct thread *idle_thread = NULL;
 
@@ -84,7 +84,11 @@ void thread_switch_to(struct thread *next) {
     CPUVAR->current_thread = next;
     CPUVAR->current_process = next->process;
     INFO(">>> %d.%d", next->process->pid, next->tid);
-    arch_switch_vmspace(&next->process->vms.arch);
+
+    if (next->process != kernel_process) {
+        arch_switch_vmspace(&next->process->vms.arch);
+    }
+
     arch_switch(&current->arch, &next->arch);
 }
 
