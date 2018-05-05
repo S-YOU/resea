@@ -96,9 +96,8 @@ x64_syscall_handler:
     cmp r14, 4
     jne 1f
     sub rsp, 8 * 5 /* recvfrom, r0, r1, r2, and r3 */
-    push rsp
+    mov rsi, rsp
     call sys_recv
-    add rsp, 8 /* rs */
     pop r8
     pop r9
     pop r10

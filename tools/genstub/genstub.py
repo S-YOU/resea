@@ -171,7 +171,7 @@ static inline error_t handle_{service_name}_{call_name}(channel_t from{args}) {{
         server_mainloop += f"""\
             case {msg_name}:
                 error_t error = handle_{service_name}_{call_name}(from{server_params});
-                header = {reply_msg_name} | error;
+                header = {reply_header_name} | error;
                 break;
 """
         msg_id += 2 # request & reply messages

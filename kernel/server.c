@@ -41,7 +41,6 @@ static inline error_t handle_discovery_register(channel_t from, u32_t service_ty
     for (struct client *c = clients; c != NULL;) {
         if (c->service_type == service_type) {
             channel_t client = ipc_connect(service->server);
-            INFO("client %d -> c->ch+%d <<<<<<<<<,,", client, c->ch);
             ipc_send(c->ch, DISCOVERY_CONNECT_REPLY_HEADER, client, 0, 0, 0);
         }
 
@@ -86,15 +85,15 @@ void kernel_server_mainloop(channel_t server) {
                 continue;
             case LOGGING_EMIT_MSG:
                 error = handle_logging_emit(from, (string_t) a0, (usize_t) a1);
-                header = LOGGING_EMIT_REPLY_MSG | (error << ERROR_OFFSET);
+                header = LOGGING_EMIT_REPLY_HEADER | (error << ERROR_OFFSET);
                 continue;
             case DISCOVERY_REGISTER_MSG:
                 error = handle_discovery_register(from, (u32_t) a0, (channel_t) a1);
-                header = DISCOVERY_REGISTER_REPLY_MSG | (error << ERROR_OFFSET);
+                header = DISCOVERY_REGISTER_REPLY_HEADER | (error << ERROR_OFFSET);
                 break;
             case DISCOVERY_CONNECT_MSG:
                 error = handle_discovery_connect(from, (u32_t) a0, (channel_t *) &r0);
-                header = DISCOVERY_CONNECT_REPLY_MSG | (error << ERROR_OFFSET);
+                header = DISCOVERY_CONNECT_REPLY_HEADER | (error << ERROR_OFFSET);
                 break;
 
             default:
@@ -105,10 +104,8 @@ void kernel_server_mainloop(channel_t server) {
         }
 
         if (error == ERROR_DONT_REPLY) {
-            INFO("recved %p", header);
             header = ipc_recv(server, &from, &a0, &a1, &a2, &a3);
         } else {
-            INFO("replyed %p", header);
             header = ipc_replyrecv(&from, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
         }
     }
