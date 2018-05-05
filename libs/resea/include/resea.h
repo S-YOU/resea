@@ -11,6 +11,17 @@ typedef unsigned uint32_t;
 typedef unsigned long long uint64_t;
 typedef unsigned char bool;
 
+typedef uint8_t u8_t;
+typedef uint16_t u16_t;
+typedef uint32_t u32_t;
+typedef uint64_t u64_t;
+typedef int8_t i8_t;
+typedef int16_t i16_t;
+typedef int32_t i32_t;
+typedef int64_t i64_t;
+typedef char * string_t;
+typedef u8_t * buffer_t;
+
 #define NULL ((void *) 0)
 #define false 0
 #define true  1
@@ -61,16 +72,16 @@ static inline double is_computer_on_fire(void) {
 #define SYSCALL_CONNECT 9
 
 channel_t ipc_open(void);
-type_t ipc_send(
+header_t ipc_send(
     channel_t ch,
-    type_t type,
+    header_t type,
     payload_t a0,
     payload_t a1,
     payload_t a2,
     payload_t a3
 );
 
-type_t ipc_recv(
+header_t ipc_recv(
     channel_t ch,
     channel_t *from,
     payload_t *a0,
@@ -79,9 +90,9 @@ type_t ipc_recv(
     payload_t *a3
 );
 
-type_t ipc_call(
+header_t ipc_call(
     channel_t ch,
-    type_t type,
+    header_t type,
     payload_t a0,
     payload_t a1,
     payload_t a2,
@@ -92,10 +103,10 @@ type_t ipc_call(
     payload_t *r3
 );
 
-type_t ipc_replyrecv(
+header_t ipc_replyrecv(
     channel_t server,
     channel_t *client,
-    type_t type,
+    header_t type,
     payload_t r0,
     payload_t r1,
     payload_t r2,
@@ -106,15 +117,15 @@ type_t ipc_replyrecv(
     payload_t *a3
 );
 
-type_t ipc_discard(
+header_t ipc_discard(
     payload_t ool0,
     payload_t ool1,
     payload_t ool2,
     payload_t ool3
 );
 
-type_t ipc_link(channel_t ch0, channel_t ch1);
-type_t ipc_transfer(channel_t ch, channel_t dest);
+header_t ipc_link(channel_t ch0, channel_t ch1);
+header_t ipc_transfer(channel_t ch, channel_t dest);
 channel_t ipc_connect(channel_t server);
 
 #endif

@@ -123,7 +123,7 @@ def generate_stub(service):
                 params += ", 0"
             else:
                 type_id = get_type_id_by_name(type_)
-                header += f" | ({type_id} << 8 + ({i} * 3))"
+                header += f" | ({type_id} << {8 + i * 3}ULL)"
                 args += f", {type_}_t {name}"
                 params += f", (payload_t) {name}"
                 server_params += f", ({type_}_t) a{i}"
@@ -136,7 +136,7 @@ def generate_stub(service):
                 params += ", &__unused"
             else:
                 type_id = get_type_id_by_name(type_)
-                reply_header += f" | ({type_id} << 8 + ({i + 4} * 3))"
+                reply_header += f" | ({type_id} << {8 + i * 3}ULL)"
                 args += f", {type_}_t *{name}"
                 params += f", (payload_t *) {name}"
                 server_params += f", ({type_}_t *) &r{i}"
@@ -144,11 +144,12 @@ def generate_stub(service):
         msg_name = f"{service_name.upper()}_{call_name.upper()}_MSG"
         reply_msg_name = f"{service_name.upper()}_{call_name.upper()}_REPLY_MSG"
         header_name = f"{service_name.upper()}_{call_name.upper()}_HEADER"
+        reply_header_name = f"{service_name.upper()}_{call_name.upper()}_REPLY_HEADER"
         client_stub += f"""\
-#define {msg_name}       ({msg_id})
-#define {reply_msg_name} ({msg_id + 1})
-#define {header_name} (({msg_name} << 32) | ({header}))
-#define {header_name} (({msg_name} << 32) | ({reply_header}))
+#define {msg_name}       ({msg_id}ULL)
+#define {reply_msg_name} ({msg_id + 1}ULL)
+#define {header_name} (({msg_name} << 32ULL) | ({header}))
+#define {reply_header_name} (({msg_name} << 32ULL) | ({reply_header}))
 static inline header_t call_{service_name}_{call_name}(channel_t __server{args}) {{
     payload_t __unused;
 

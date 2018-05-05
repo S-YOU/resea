@@ -50,6 +50,11 @@ PROGRESS ?= printf "  \033[1;35m%7s  \033[1;m%s\033[m\n"
 
 build: kernel/kernel.elf
 
+tools/genstub/parser/idlParser.py: tools/genstub/idl.g4
+	$(PROGRESS) ANTLR4 $@
+	antlr4 -Dlanguage=Python3 -o parser idl.g4
+	touch tools/genstub/parser/__init__.py
+
 clean:
 	rm -f */*.o */*/*.o */*/*/*.o \
 		*/*.elf */*/*.elf */*/*/*.elf \

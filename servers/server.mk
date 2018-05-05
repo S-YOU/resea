@@ -24,18 +24,25 @@ included_subdirs :=
 include $(foreach lib, $(server_libs), $(LIBS_DIR)/$(lib)/build.mk)
 build_dir := $(server_dir)build
 server_objs += $(all_objs)
-server_include_dirs += $(all_include_dirs)
+server_include_dirs += $(build_dir) $(all_include_dirs)
+server_stubs := $(foreach stub, $(requires), $(build_dir)/resea/$(stub).h)
 
 server_c_objs := $(addprefix $(build_dir)/, \
 	$(patsubst %.c, %.o, $(wildcard $(server_objs:.o=.c))))
 server_s_objs := $(addprefix $(build_dir)/, \
 	$(patsubst %.S, %.o, $(wildcard $(server_objs:.o=.S))))
 
+$(build_dir)/resea/%.h: idl/%.idl tools/genstub/genstub.py tools/genstub/parser/idlParser.py
+	echo $(info  $(dir $@))
+	mkdir -p $(dir $@)
+	$(PROGRESS) GENSTUB $@
+	./tools/genstub/genstub.py -o $(dir $@) $<
+
 $(executable): $(server_c_objs) $(server_s_objs)
 	$(PROGRESS) LD $@
 	$(LD) $(LDFLAGS) --script $(LIBS_DIR)/resea/arch/$(ARCH)/app.ld -o $@ $^
 
-$(server_c_objs): $(build_dir)/%.o: %.c
+$(server_c_objs): $(build_dir)/%.o: %.c $(server_stubs)
 	$(PROGRESS) CC $@
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(addprefix -I, $(server_include_dirs)) -c -o $@ $<
@@ -61,6 +68,7 @@ ifeq ($(filter $(server_name),$(SERVERS)),$(server_name))
 all_kfs_files += $(KFS_DIR)/servers/$(server_name)
 endif
 
+server_stubs :=
 all_objs :=
 all_libs :=
 all_include_dirs :=
