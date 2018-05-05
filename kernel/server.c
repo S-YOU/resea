@@ -41,7 +41,8 @@ static inline error_t handle_discovery_register(channel_t from, u32_t service_ty
     for (struct client *c = clients; c != NULL;) {
         if (c->service_type == service_type) {
             channel_t client = ipc_connect(service->server);
-            ipc_send(c->ch, DISCOVERY_CONNECT_REPLY_MSG | ERROR_NONE, client, 0, 0, 0);
+            INFO("client %d -> c->ch+%d <<<<<<<<<,,", client, c->ch);
+            ipc_send(c->ch, DISCOVERY_CONNECT_REPLY_HEADER, client, 0, 0, 0);
         }
 
         struct client *next = c->next;
@@ -104,11 +105,11 @@ void kernel_server_mainloop(channel_t server) {
         }
 
         if (error == ERROR_DONT_REPLY) {
-            header = ipc_recv(server, &from, &a0, &a1, &a2, &a3);
             INFO("recved %p", header);
+            header = ipc_recv(server, &from, &a0, &a1, &a2, &a3);
         } else {
-            header = ipc_replyrecv(&from, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
             INFO("replyed %p", header);
+            header = ipc_replyrecv(&from, header, r0, r1, r2, r3, &a0, &a1, &a2, &a3);
         }
     }
 }

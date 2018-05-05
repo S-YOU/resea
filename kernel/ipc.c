@@ -51,12 +51,12 @@ struct channel *channel_create(struct process *process) {
 }
 
 
-error_t channel_connect(struct channel *server, struct process *client) {
+channel_t channel_connect(struct channel *server, struct process *client) {
     struct channel *server_side = channel_create(server->process);
     struct channel *client_side = channel_create(client);
     link_channels(server_side, client_side);
     transfer_to(server_side, server);
-    return ERROR_NONE;
+    return client_side->cid;
 }
 
 
@@ -128,18 +128,14 @@ header_t sys_call(
     payload_t a1,
     payload_t a2,
     payload_t a3,
-    payload_t *r0,
-    payload_t *r1,
-    payload_t *r2,
-    payload_t *r3
+    payload_t *rs
 ) {
     header_t error = sys_send(ch, type, a0, a1, a2, a3);
     if (error != ERROR_NONE) {
         return error;
     }
 
-    channel_t from;
-    return sys_recv(ch, &from, r0, r1, r2, r3);
+    return sys_recv(ch, rs);
 }
 
 
@@ -150,14 +146,10 @@ header_t sys_replyrecv(
     payload_t r1,
     payload_t r2,
     payload_t r3,
-    channel_t *sent_from,
-    payload_t *a0,
-    payload_t *a1,
-    payload_t *a2,
-    payload_t *a3
+    payload_t *rs
 ) {
     header_t error = sys_send(client, type, r0, r1, r2, r3);
-    if (error == ERROR_NONE) {
+    if (error != ERROR_NONE) {
         return error;
     }
 
@@ -166,7 +158,7 @@ header_t sys_replyrecv(
         return ERROR_CH_NOT_TRANSFERED;
     }
 
-    return sys_recv(server->cid, sent_from, a0, a1, a2, a3);
+    return sys_recv(server->cid, rs);
 }
 
 
@@ -180,27 +172,24 @@ header_t sys_send(
 ) {
     struct channel *src = get_channel_by_id(ch);
     if (!src) {
-        DEBUG("sys_recv: @%d no such channel", ch);
+        DEBUG("sys_send: @%d no such channel", ch);
         return ERROR_INVALID_CH;
     }
 
     struct channel *linked_to = src->linked_to;
     if (!linked_to) {
-        DEBUG("sys_recv: @%d not linked", ch);
+        DEBUG("sys_send: @%d not linked", ch);
         return ERROR_CH_NOT_LINKED;
     }
 
-    // Try to get the receiver right.
     struct thread *current_thread = CPUVAR->current_thread;
-    if (!atomic_compare_and_swap(&linked_to->receiver, NULL, current_thread)) {
-        return ERROR_CH_IN_USE;
-    }
-
     struct channel *dst = (linked_to->transfer_to) ? linked_to->transfer_to : linked_to;
 
     DEBUG("sys_send: @%d.%d -> @%d.%d (type=%d.%d)",
         src->process->pid, src->cid, dst->process->pid, dst->cid,
         MSG_SERVICE_ID(type), MSG_ID(type));
+
+    DEBUG("$$$$$$$$$$ sender locking %p %d.%d by #%d.%d **********", &dst->sender, dst->process->pid, dst->cid, CPUVAR->current_process->pid, current_thread->tid);
 
     while (true) {
         // Try to get the sender right.
@@ -216,6 +205,7 @@ header_t sys_send(
         struct waitqueue *wq = kmalloc(sizeof(*wq), KMALLOC_NORMAL);
         wq->thread = current_thread;
 
+INFO("switch???");
         waitqueue_list_append(&dst->wq, wq);
         thread_set_state(current_thread, THREAD_BLOCKED);
         thread_switch();
@@ -238,11 +228,7 @@ header_t sys_send(
 
 header_t sys_recv(
     channel_t ch,
-    channel_t *from,
-    payload_t *a0,
-    payload_t *a1,
-    payload_t *a2,
-    payload_t *a3
+    payload_t *rs
 ) {
     struct channel *src = get_channel_by_id(ch);
     if (!src) {
@@ -252,7 +238,7 @@ header_t sys_recv(
 
     // Try to get the receiver right.
     struct thread *current_thread = CPUVAR->current_thread;
-    DEBUG("$$$$$$$$$$ locking %p %d.%d", &src->receiver, src->process->pid, src->cid);
+    DEBUG("$$$$$$$$$$ receiver locking %p %d.%d", &src->receiver, src->process->pid, src->cid);
     if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
         return ERROR_CH_IN_USE;
     }
@@ -275,11 +261,11 @@ header_t sys_recv(
     // Receiver sent a reply message and resumed the sender thread. Do recv
     // work.
     header_t reply_type = src->type;
-    *from = src->sent_from;
-    *a0 = src->buffer[0];
-    *a1 = src->buffer[1];
-    *a2 = src->buffer[2];
-    *a3 = src->buffer[3];
+    rs[0] = src->sent_from;
+    rs[1] = src->buffer[0];
+    rs[2] = src->buffer[1];
+    rs[3] = src->buffer[2];
+    rs[4] = src->buffer[3];
     src->receiver = NULL;
     DEBUG("$$$$$$$$$$ release %p %d.%d", &src->receiver, src->process->pid, src->cid);
     src->sender = NULL;

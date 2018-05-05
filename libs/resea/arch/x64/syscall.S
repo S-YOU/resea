@@ -53,17 +53,18 @@ ipc_recv:
     push rcx
     push r8
 
-    mov r14, 5
+    xchg rcx, r12
+    mov r14, 4
     syscall
 
     pop r11
     pop rcx
     pop rdx
     pop rsi
-    mov r8, [rsi]
-    mov r9, [rdx]
-    mov r10, [rcx]
-    mov r12, [r11]
+    mov [rsi], r8
+    mov [rdx], r9
+    mov [rcx], r10
+    mov [r11], r12
 
     pop r12
     pop r13
@@ -97,10 +98,10 @@ ipc_call:
     mov r14, 5
     syscall
 
-    mov r8, [rbp + 16]
-    mov r9, [rbp + 24]
-    mov r10, [rbp + 32]
-    mov r12, [rbp + 40]
+    mov [rbp + 16], r8
+    mov [rbp + 24], r9
+    mov [rbp + 32], r10
+    mov [rbp + 40], r12
 
     pop r12
     pop r13
@@ -137,11 +138,11 @@ ipc_replyrecv:
     syscall
 
     pop rdi
-    mov r8, [rdi]
-    mov r9, [rbp + 16]
-    mov r10, [rbp + 24]
-    mov r12, [rbp + 32]
-    mov r13, [rbp + 40]
+    mov [rdi], r8
+    mov [rbp + 16], r9
+    mov [rbp + 24], r10
+    mov [rbp + 32], r12
+    mov [rbp + 40], r13
 
     pop r12
     pop r13

@@ -76,11 +76,7 @@ header_t sys_send(
 
 header_t sys_recv(
     channel_t ch,
-    channel_t *from,
-    payload_t *a0,
-    payload_t *a1,
-    payload_t *a2,
-    payload_t *a3
+    payload_t *rs
 );
 
 header_t sys_call(
@@ -90,10 +86,7 @@ header_t sys_call(
     payload_t a1,
     payload_t a2,
     payload_t a3,
-    payload_t *r0,
-    payload_t *r1,
-    payload_t *r2,
-    payload_t *r3
+    payload_t *rs
 );
 
 header_t sys_replyrecv(
@@ -103,11 +96,7 @@ header_t sys_replyrecv(
     payload_t r1,
     payload_t r2,
     payload_t r3,
-    channel_t *sent_from,
-    payload_t *a0,
-    payload_t *a1,
-    payload_t *a2,
-    payload_t *a3
+    channel_t *rs
 );
 
 channel_t sys_connect(channel_t server);
@@ -120,7 +109,14 @@ static inline header_t ipc_recv(
     payload_t *a2,
     payload_t *a3
 ) {
-    return sys_recv(ch, from, a0, a1, a2, a3);
+    payload_t rs[5];
+    header_t header = sys_recv(ch, (payload_t *) &rs);
+    *from = rs[0];
+    *a0 = rs[1];
+    *a1 = rs[2];
+    *a2 = rs[3];
+    *a3 = rs[4];
+    return header;
 }
 
 static inline header_t ipc_send(
@@ -146,7 +142,13 @@ static inline header_t ipc_call(
     payload_t *r2,
     payload_t *r3
 ) {
-    return sys_call(ch, type, a0, a1, a2, a3, r0, r1, r2, r3);
+    payload_t rs[5];
+    header_t header = sys_call(ch, type, a0, a1, a2, a3, (payload_t *) &rs);
+    *r0 = rs[1];
+    *r1 = rs[2];
+    *r2 = rs[3];
+    *r3 = rs[4];
+    return header;
 }
 
 static inline header_t ipc_replyrecv(
@@ -161,7 +163,14 @@ static inline header_t ipc_replyrecv(
     payload_t *a2,
     payload_t *a3
 ) {
-    return sys_replyrecv(*client, type, r0, r1, r2, r3, client, a0, a1, a2, a3);
+    payload_t rs[5];
+    header_t header = sys_replyrecv(*client, type, r0, r1, r2, r3, (payload_t *) &rs);
+    *client = rs[0];
+    *a0 = rs[1];
+    *a1 = rs[2];
+    *a2 = rs[3];
+    *a3 = rs[4];
+    return header;
 }
 
 static inline channel_t ipc_connect(channel_t server) {

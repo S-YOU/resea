@@ -59,8 +59,6 @@ typedef header_t error_t;
 
 // TODO: interface generator
 #define SERVICE_ID(major, minor) (((major) << MAJOR_ID_OFFSET) | ((minor) << MINOR_ID_OFFSET))
-#define BENCHMARK_REQUEST  SERVICE_ID(2ULL, 1ULL)
-#define BENCHMARK_REPLY    SERVICE_ID(2ULL, 2ULL)
 
 #define SYSCALL_OPEN 1
 #define SYSCALL_CLOSE 2

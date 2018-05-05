@@ -70,8 +70,10 @@ x64_syscall_handler:
 5:
     cmp r14, 5
     jne 6f
-    sub rsp, 8 * 4 /* r0, r1, r2, and r3 */
+    sub rsp, 8 * 5 /* recvfrom, r0, r1, r2, and r3 */
+    push rsp
     call sys_call
+    add rsp, 16 /* rs and recvfrom */
     pop r8
     pop r9
     pop r10
@@ -79,9 +81,24 @@ x64_syscall_handler:
     jmp return_from_syscall
 6:
     cmp r14, 6
-    jne 1f
-    sub rsp, 8 * 5 /* recvfrom, a0, a1, a2, and a3 */
+    jne 4f
+    sub rsp, 8 * 5 /* recvfrom, r0, r1, r2, and r3 */
+    push rsp
     call sys_replyrecv
+    add rsp, 8 /* rs */
+    pop r8
+    pop r9
+    pop r10
+    pop r12
+    pop r13
+    jmp return_from_syscall
+4:
+    cmp r14, 4
+    jne 1f
+    sub rsp, 8 * 5 /* recvfrom, r0, r1, r2, and r3 */
+    push rsp
+    call sys_recv
+    add rsp, 8 /* rs */
     pop r8
     pop r9
     pop r10
@@ -90,11 +107,10 @@ x64_syscall_handler:
     jmp return_from_syscall
 1:
     cmp r14, 1
-    jne 2f
+    jne 9f
     call sys_open
     jmp return_from_syscall
-2:
-1:
+9:
     cmp r14, 9
     jne invalid
     call sys_connect
