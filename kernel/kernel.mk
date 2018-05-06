@@ -1,6 +1,4 @@
 ARCH_DIR = kernel/arch/$(ARCH)
-KFS_DIR = $(BUILD_DIR)/kernel/kfs
-
 include $(ARCH_DIR)/arch.mk
 
 objs := init.o memory.o process.o thread.o ipc.o kfs.o elf.o server.o printf.o string.o list.o
