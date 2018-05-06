@@ -7,7 +7,7 @@ include $(ARCH_DIR)/arch.mk
 objs := init.o memory.o process.o thread.o ipc.o kfs.o elf.o server.o printf.o string.o list.o
 stubs := discovery exit logging
 
-kernel_objs := $(addprefix $(BUILD_DIR)/kernel/, $(objs)) $(addprefix $(ARCH_DIR)/, $(arch_objs))
+kernel_objs := $(addprefix kernel/, $(objs)) $(addprefix $(ARCH_DIR)/, $(arch_objs))
 kernel_libs := $(libs)
 stub_files :=  $(foreach stub, $(stubs), build/resea/$(stub).h)
 
@@ -17,7 +17,7 @@ all_libs :=
 all_include_dirs :=
 included_subdirs :=
 include $(foreach lib, $(kernel_libs), libs/$(lib)/build.mk)
-kernel_objs += $(all_objs)
+kernel_objs := $(addprefix $(BUILD_DIR)/, $(kernel_objs) $(all_objs))
 kernel_include_dirs := $(PWD) $(addprefix $(ARCH_DIR)/, $(arch_include_dirs)) \
 	build $(all_include_dirs)
 
@@ -35,6 +35,7 @@ $(BUILD_DIR)/resea/%.h: idl/%.idl tools/genstub/genstub.py tools/genstub/parser/
 	$(PROGRESS) GENSTUB $@
 	./tools/genstub/genstub.py -o $(dir $@) $<
 
+$(info ======== $(kernel_objs))
 $(BUILD_DIR)/%.o: %.S Makefile
 	mkdir -p $(dir $@)
 	$(PROGRESS) "CC(K)" $@

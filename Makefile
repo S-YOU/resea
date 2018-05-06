@@ -32,6 +32,7 @@ include kernel/kernel.mk
 V =
 $(V).SILENT:
 .SECONDARY:
+.SUFFIXES:
 
 CC = clang
 LD = ld
