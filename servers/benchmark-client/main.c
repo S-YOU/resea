@@ -14,9 +14,70 @@ static inline u64_t rdtscp(u32_t *cpu) {
 }
 
 
-void main(void) {
-//    printf("A\n");
+#define TEST_NUM 128
+u64_t results[TEST_NUM];
 
+static inline void bench_start(int i) {
+    u32_t cpu;
+    results[i] = rdtscp(&cpu);
+}
+
+static inline void bench_end(int i) {
+    u32_t cpu;
+    results[i] = rdtscp(&cpu) - results[i];
+}
+
+void bench_summarize(void) {
+    u64_t min = 0xffffffffffffffff, max = 0, mean = 0;
+    for (int i = 0; i < TEST_NUM; i++) {
+        u64_t r = results[i];
+
+        if (r < min)
+            min = r;
+        if (r > max)
+            max = r;
+
+        mean += r;
+    }
+
+    // Sort the results in order to obtain these parameters.
+    u64_t median, q1, q3;
+    bool swapped = false;
+    while (swapped) {
+        swapped = false;
+        for (int i = 0; i < TEST_NUM - 1; i++) {
+            if (results[i] > results[i + 1]) {
+                u64_t tmp = results[i + 1];
+                results[i + 1] = results[i];
+                results[i] = tmp;
+                swapped = true;
+            }
+        }
+    }
+
+    q1 = results[TEST_NUM / 4];
+    q3 = results[(TEST_NUM / 4) * 3];
+    median = results[TEST_NUM / 2];
+    mean /= TEST_NUM;
+
+    printf("min:  %d\t1Q: %d\tmedian: %d\t",
+        min, q1, median);
+    printf("mean: %d\t3Q: %d\tmax:    %d\t",
+        mean, q3, max);
+}
+
+void rdtscp_latency_benchmark(void) {
+    printf("The latency of bench_start/bench_end\n");
+    printf("-----------------------------------------\n");
+    for (int i = 0; i < TEST_NUM; i++) {
+        bench_start(i);
+        bench_end(i);
+    }
+
+    bench_summarize();
+}
+
+void rpc_latency_benchmark(void) {
     channel_t server;
     call_discovery_connect(1, BENCHMARK_SERVICE, &server);
 
@@ -25,13 +86,21 @@ void main(void) {
     payload_t a2 = 0xabcdef000000002;
     payload_t a3 = 0xabcdef000000003;
 
-    for (int i = 0; i < 1000; i++) {
+    printf("The latency of RPC style IPC (round-trip)\n");
+    printf("-----------------------------------------\n");
+    for (int i = 0; i < TEST_NUM; i++) {
         payload_t r;
-        u32_t cpu_start, cpu_end;
-
-        u64_t start = rdtscp(&cpu_start);
-//        ipc_call(server, 0, a0, a1, a2, a3, &r, &r, &r, &r);
-        u64_t cycles = rdtscp(&cpu_end) - start;
-        printf(">>>>> %d, %d, %d", cycles, cpu_start, cpu_end);
+        bench_start(i);
+        ipc_call(server, 0, a0, a1, a2, a3, &r, &r, &r, &r);
+        bench_end(i);
     }
+
+    bench_summarize();
+}
+
+void main(void) {
+    printf("Benchmarks are being started. It’s time to brew coffee!\n\n");
+    rdtscp_latency_benchmark();
+    rpc_latency_benchmark();
+    printf("Finished all benchmarks.");
 }

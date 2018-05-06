@@ -13,6 +13,7 @@ struct service *services;
 struct client *clients;
 
 
+
 static inline void handle_exit_exit(channel_t from, u32_t error) {
     struct process *caller = kernel_process->channels[from - 1].linked_to->process;
     DEBUG("exit.exit: pid=%d", caller->pid);

@@ -3,7 +3,6 @@
 #include "process.h"
 #include "ipc.h"
 
-
 static inline void link_channels(struct channel *ch1, struct channel *ch2) {
     ch1->linked_to = ch2;
     ch2->linked_to = ch1;

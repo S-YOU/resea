@@ -31,8 +31,14 @@ void elf_create_process(const void *image, UNUSED size_t length, pager_t *pager,
             int flags = PAGE_USER;
             flags |= (phdr->p_flags & PF_W)? PAGE_WRITABLE : 0;
 
-            add_vmarea(&process->vms, phdr->p_vaddr, phdr->p_offset,
-                phdr->p_filesz, flags, pager, pager_arg);
+            if (phdr->p_filesz == 0) {
+                // TODO: Ensure that this is a .bss section
+                add_vmarea(&process->vms, phdr->p_vaddr, phdr->p_offset,
+                    phdr->p_memsz, flags, zeroed_pager, NULL);
+            } else {
+                add_vmarea(&process->vms, phdr->p_vaddr, phdr->p_offset,
+                    phdr->p_filesz, flags, pager, pager_arg);
+            }
         }
     }
 

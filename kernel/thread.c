@@ -6,10 +6,9 @@
 
 static tid_t last_tid = 1;
 
-
 tid_t allocate_tid(void) {
-    // FIXME
-    return last_tid++;
+    // TODO: wrap
+    return atomic_fetch_and_add(&last_tid, 1);
 }
 
 
@@ -78,7 +77,7 @@ NORETURN void thread_destroy_current(void) {
 void thread_switch_to(struct thread *next) {
     struct thread *current = CPUVAR->current;
     CPUVAR->current = next;
-    INFO("[%d.%d] ==============================", next->process->pid, next->tid);
+    DEBUG("[%d.%d] ==============================", next->process->pid, next->tid);
 
     if (next->process != kernel_process) {
         arch_switch_vmspace(&next->process->vms.arch);

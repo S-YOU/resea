@@ -90,6 +90,7 @@ void handle_page_fault(uptr_t original_address, bool present, bool user, bool wr
 
     struct vmspace *vms = &CPUVAR->current->process->vms;
     for (struct vmarea *area = vms->vma; area != NULL; area = area->next) {
+        INFO("VMA: %p %d << %p ", area->address, area->length, address);
         if (area->address <= address && address < area->address + area->length) {
             int requested = 0;
             requested |= user ? PAGE_USER : 0;
@@ -98,7 +99,7 @@ void handle_page_fault(uptr_t original_address, bool present, bool user, bool wr
 
             // Check the access right.
             if ((area->flags & requested) != requested) {
-                goto invalid_access;
+                continue;
             }
 
             // A valid page access. Fill and link the page.
