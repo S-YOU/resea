@@ -45,7 +45,7 @@ typedef umax_t off_t;
 void arch_init(void);
 void arch_early_init(void);
 void arch_putchar(char ch);
-void arch_panic(void);
+NORETURN void arch_panic(void);
 void arch_idle(void);
 void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
                     uptr_t start, umax_t arg,

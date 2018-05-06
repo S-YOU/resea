@@ -7,7 +7,8 @@ void arch_idle(void) {
 }
 
 
-void arch_panic(void) {
+NORETURN void arch_panic(void) {
     asm_cli();
     asm_hlt();
+    for(;;);
 }
