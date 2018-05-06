@@ -1,4 +1,8 @@
 #!/bin/bash
 pip3 install antlr4-python3-runtime
-brew install coreutils gnu-tar python3 llvm binutils \
-    qemu bochs mtools cquery
+if [ "$(uname)" = "Darwin" ]; then
+    brew install coreutils gnu-tar python3 llvm binutils \
+        qemu bochs mtools cquery
+else
+    sudo apt install build-essential clang mtools qemu-system
+fi
