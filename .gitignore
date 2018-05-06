@@ -1,13 +1,2 @@
-*.o
-*.log
-*.deps
-*.elf
-*.img
-*.bin
-*.lock
-*.tmp
-*.map
-kfs
-kernel/kfs.tar
 build
-servers/*/build
+*.log

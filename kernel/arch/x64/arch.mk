@@ -11,25 +11,25 @@ override LDFLAGS +=
 QEMUFLAGS += -d cpu_reset,page -D qemu.log -nographic
 
 .PHONY: bochs
-run: $(ARCH_DIR)/disk.img
+run: $(BUILD_DIR)/$(ARCH_DIR)/disk.img
 	qemu-system-x86_64 $(QEMUFLAGS) -hda $<
 
-bochs: $(ARCH_DIR)/disk.img
+bochs: $(BUILD_DIR)/$(ARCH_DIR)/disk.img
 	rm -f $(ARCH_DIR)/disk.img.lock
 	$(BOCHS) -qf $(ARCH_DIR)/boot/bochsrc
 
 test: $(ARCH_DIR)/disk.img
 	(sleep 3; echo -e "\x01cq") | qemu-system-x86_64 $(QEMUFLAGS) -hda $<
 
-$(ARCH_DIR)/boot/mbr.elf: $(ARCH_DIR)/boot/mbr.o $(ARCH_DIR)/boot/mbr.ld
+$(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.elf: $(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.o $(ARCH_DIR)/boot/mbr.ld
 	$(PROGRESS) LD $@
 	$(LD) $(LDFLAGS) --script $(ARCH_DIR)/boot/mbr.ld -o $@ $<
 
-$(ARCH_DIR)/boot/mbr.bin: $(ARCH_DIR)/boot/mbr.elf
+$(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.bin: $(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.elf
 	$(PROGRESS) OBJCOPY $@
 	$(OBJCOPY) -Obinary $< $@
 
-$(ARCH_DIR)/disk.img: $(ARCH_DIR)/boot/mbr.bin kernel/kernel.elf
+$(BUILD_DIR)/$(ARCH_DIR)/disk.img: $(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.bin $(BUILD_DIR)/kernel/kernel.elf
 	$(PROGRESS) DD $@.tmp
 	$(DD) if=/dev/zero of=$@.tmp bs=1M count=64
 	$(PROGRESS) OFORMAT $@.tmp
