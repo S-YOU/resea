@@ -9,7 +9,7 @@ notifications:
 addons:
   apt:
     packages:
-      - qemu-system
+      - qemu-system-x86
       - mtools
 
 cache:
@@ -19,4 +19,4 @@ before_script:
   - ./tools/bootstrap
 
 script:
-  - make -j2 ANTLR4="java -jar $(PWD)/antlr-4.7.1-complete.jar" SERVERS=all
+  - make -j2 ANTLR4="java -jar $PWD/antlr-4.7.1-complete.jar" SERVERS=all
