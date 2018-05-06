@@ -18,7 +18,6 @@ void x64_handle_irq(UNUSED u8_t vector) {
     // and eventually a nasty bug.
     if (tick++ > 100) {
         tick = 0;
-INFO("te/");
         thread_switch();
     }
 }

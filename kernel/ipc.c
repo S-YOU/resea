@@ -215,17 +215,12 @@ header_t sys_send(
         wq->thread = current_thread;
 
         waitqueue_list_append(&dst->wq, wq);
-        INFO("blocking #%d %d", current_thread->tid, __LINE__);
         thread_block_current();
     }
 
     // Wait for the receiver.
     if (!dst->receiver) {
         thread_block_current();
-    }
-
-    if (!dst->receiver) {
-        PANIC("WTF?");
     }
 
     // Copy payloads.
@@ -267,18 +262,13 @@ header_t sys_recv(
     } else {
         struct waitqueue *wq = waitqueue_list_pop(&src->wq);
         if (wq) {
-            INFO("resuming the wq %d", wq->thread->tid);
             thread_resume(wq->thread);
             kfree(wq);
         } else {
-            INFO("no thread in wq");
         }
     }
 
     thread_block_current();
-    if (!src->sender) {
-        PANIC("sender is nil");
-    }
 
     // Receiver sent a reply message and resumed the sender thread. Do recv
     // work.
@@ -288,7 +278,6 @@ header_t sys_recv(
     rs[2] = src->buffer[1];
     rs[3] = src->buffer[2];
     rs[4] = src->buffer[3];
-    INFO("!!! sender=%p", src->sender);
     src->receiver = NULL;
     src->sender = NULL;
     return reply_header;

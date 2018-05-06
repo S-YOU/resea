@@ -18,6 +18,7 @@ struct x64_cpuvar {
   struct thread *current;
   struct thread *idle_thread;
   struct runqueue *runqueue;
+  kmutex_t runqueue_lock;
 };
 
 static inline int x64_get_cpu_index() {

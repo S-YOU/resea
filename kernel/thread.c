@@ -89,23 +89,25 @@ INFO("[%d.%d] ==============================", next->process->pid, next->tid);
 
 
 void thread_resume(struct thread *thread) {
-    atomic_fetch_and_add(&thread->resumed_count, 1);
-    INFO(">>> RESUME #%d by %d (%d)", thread->tid, CPUVAR->current->tid, thread->resumed_count);
-    if (thread->resumed_count == 1) {
+    int prev = atomic_fetch_and_add(&thread->resumed_count, 1);
+    INFO(">>> RESUME #%d by %d (%d -> %d)", thread->tid, CPUVAR->current->tid, prev, thread->resumed_count);
+    if (prev == 0) {
+        INFO("adding to runqueue %d", thread->tid);
         thread->flags = (thread->flags & ~3) | THREAD_RUNNABLE;
         struct runqueue *rq = kmalloc(sizeof(*rq), KMALLOC_NORMAL);
         rq->thread = thread;
+
+        kmutex_state_t state = kmutex_lock_irq_disabled(&CPUVAR->runqueue_lock);
         runqueue_list_append(&CPUVAR->runqueue, rq);
+        kmutex_unlock_restore_irq(&CPUVAR->runqueue_lock, state);
     }
 }
 
 
 void thread_block(struct thread *thread) {
-    INFO("BLK");
-
-    atomic_fetch_and_sub(&thread->resumed_count, 1);
+    int prev = atomic_fetch_and_sub(&thread->resumed_count, 1);
     INFO(">>> BLOCK  #%d by %d (%d)", thread->tid, CPUVAR->current->tid, thread->resumed_count);
-    if (thread->resumed_count == 0) {
+    if (prev == 1) {
         thread->flags = (thread->flags & ~3) | THREAD_BLOCKED;
     }
 }
@@ -124,28 +126,23 @@ void thread_block_current(void) {
 void thread_switch(void) {
     // TODO: implement a fair and smart scheduler
 
-    for (struct runqueue *rq = CPUVAR->runqueue; rq; rq = rq->next) {
-        struct thread *next = rq->thread;
+    kmutex_state_t state = kmutex_lock_irq_disabled(&CPUVAR->runqueue_lock);
+    struct runqueue *next = runqueue_list_pop(&CPUVAR->runqueue);
+    kmutex_unlock_restore_irq(&CPUVAR->runqueue_lock, state);
 
-        if (next != CPUVAR->idle_thread && next != CPUVAR->current) {
-            INFO("rq: %d state=%d from %d", rq->thread->tid, thread_get_state(rq->thread), CPUVAR->current->tid);
-            if (thread_get_state(CPUVAR->current) == THREAD_RUNNABLE) {
-                INFO("readd: %p", CPUVAR->current->tid);
-                struct runqueue *current_rq = kmalloc(sizeof(*rq), KMALLOC_NORMAL);
-                current_rq->thread = CPUVAR->current;
-                runqueue_list_append(&CPUVAR->runqueue, current_rq);
-            }
-
-            runqueue_list_remove(&CPUVAR->runqueue, rq);
-            for (struct runqueue *rq1 = CPUVAR->runqueue; rq1; rq1 = rq1->next) {
-                INFO("rq1: %d", rq1->thread->tid);
-            }
-
-            thread_switch_to(next);
-            return;
+    if (next) {
+        INFO("resuming next %d", next->thread->tid);
+        if (thread_get_state(CPUVAR->current) == THREAD_RUNNABLE) {
+            // Add the current thread to the runqueue.
+            thread_block(CPUVAR->current);
+            thread_resume(CPUVAR->current);
+            INFO("readded %d empty", runqueue_list_is_empty(&CPUVAR->runqueue));
         }
+
+        thread_switch_to(next->thread);
     }
 
+    INFO("keep running %d", CPUVAR->current->tid);
     if (thread_get_state(CPUVAR->current) == THREAD_RUNNABLE) {
         // No other thread to run. Resume the current thread.
         return;
@@ -161,6 +158,7 @@ void thread_switch(void) {
 
 void thread_init(void) {
      runqueue_list_init(&CPUVAR->runqueue);
+     kmutex_init(&CPUVAR->runqueue_lock, KMUTEX_UNLOCKED);
 
     // Create an idle thread. We specify NULL as start address because it won't
     // be used.
