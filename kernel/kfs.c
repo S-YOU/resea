@@ -47,8 +47,8 @@ void kfs_init(void) {
 
 
 void kfs_container(void) {
-    INLINE_ASM(".align 8                   \n");
-    INLINE_ASM(".globl __kfs               \n");
-    INLINE_ASM("__kfs:                     \n");
-    INLINE_ASM(".incbin \"kernel/kfs.bin\" \n");
+    INLINE_ASM(".align 8                         \n");
+    INLINE_ASM(".globl __kfs                     \n");
+    INLINE_ASM("__kfs:                           \n");
+    INLINE_ASM(".incbin \"build/kernel/kfs.bin\" \n");
 }

@@ -136,11 +136,9 @@ long_mode:
     mov rax, x64_init_bsp_addr
     call rax
 
-
 halt:
     hlt
     jmp halt
-
 
 .align 8
 

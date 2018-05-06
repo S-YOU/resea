@@ -35,7 +35,6 @@ $(BUILD_DIR)/resea/%.h: idl/%.idl tools/genstub/genstub.py tools/genstub/parser/
 	$(PROGRESS) GENSTUB $@
 	./tools/genstub/genstub.py -o $(dir $@) $<
 
-$(info ======== $(kernel_objs))
 $(BUILD_DIR)/%.o: %.S Makefile
 	mkdir -p $(dir $@)
 	$(PROGRESS) "CC(K)" $@
