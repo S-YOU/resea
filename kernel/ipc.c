@@ -280,7 +280,7 @@ header_t sys_recv(
     rs[2] = src->buffer[1];
     rs[3] = src->buffer[2];
     rs[4] = src->buffer[3];
-    thread_set_state(src->sender, THREAD_RUNNABLE);
+//    thread_set_state(src->sender, THREAD_RUNNABLE);
     src->receiver = NULL;
     src->sender = NULL;
     return reply_header;

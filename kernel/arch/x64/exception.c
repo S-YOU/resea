@@ -3,7 +3,7 @@
 #include "asm.h"
 #include "exception.h"
 
-void x64_handle_exception(u8_t exception, u64_t error) {
+void x64_handle_exception(u8_t exception, u64_t error, u64_t rip) {
 
     /* We're using IST0's stack. Context switches in an exception
        handling context are prohibited. */
@@ -19,7 +19,7 @@ void x64_handle_exception(u8_t exception, u64_t error) {
                 BUG("page fault: RSVD bit violation");
             }
 
-            INFO("x64: #PF at %p (err=%#x)", address, error);
+            INFO("x64: #PF at %p (err=%#x, RIP=%p)", address, error, rip);
             handle_page_fault(address, user, write, exec);
             break;
         }

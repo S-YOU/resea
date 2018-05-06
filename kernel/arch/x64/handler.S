@@ -206,13 +206,16 @@ x64_exp_handler\num:
     push rax
     mov  rax, [rsp + 8] /* error code */
     mov  [rsp - 112], rax
+    mov  rax, [rsp + 16] /* RIP */
+    mov  [rsp - 120], rax
     pop  rax
-    add  rsp, 8
+    add  rsp, 8 /* overwrite the error code */
 
     SAVE_REGS
 
     mov rdi, \num
     mov rsi, [rsp - 8] /* error code */
+    mov rdx, [rsp - 16] /* RIP */
     call x64_handle_exception
     jmp ret_from_exp
 .endm
