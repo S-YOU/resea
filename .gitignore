@@ -1,2 +1,5 @@
 build
 *.log
+tools/genstub/parser
+tools/genstub/!parser/.gitkeep
+tools/genstub/.antlr
