@@ -6,9 +6,14 @@ notifications:
   on_success: change
   on_failure: change
 
+addons:
+  apt:
+    packages:
+      - qemu-system
+      - mtools
+
 before_script:
-  - pyenv global 3.6.3
   - ./tools/bootstrap
 
 script:
-  - make -j2 SERVERS=all
+  - make -j2 ANTLR4="java -jar antlr-4.7.1-complete.jar" SERVERS=all

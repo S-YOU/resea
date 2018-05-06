@@ -35,13 +35,14 @@ $(V).SILENT:
 .SECONDARY:
 .SUFFIXES:
 
+ANTLR4 ?= antlr4
+OBJCOPY ?= $(TOOLCHAIN_PREFIX)objcopy
+STRIP ?= $(TOOLCHAIN_PREFIX)strip
+DD ?= dd
+TAR ?= tar
+
 CC = clang
 LD = ld
-OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
-STRIP = $(TOOLCHAIN_PREFIX)strip
-DD = dd
-TAR = tar
-
 ifeq ($(shell uname), Darwin)
 CC = /usr/local/opt/llvm/bin/clang
 LD = /usr/local/opt/llvm/bin/ld.lld
@@ -57,7 +58,7 @@ build: $(BUILD_DIR)/kernel/kernel.elf
 tools/genstub/parser/idlParser.py: tools/genstub/idl.g4
 	$(PROGRESS) ANTLR4 $@
 	cd tools/genstub && \
-		antlr4 -Dlanguage=Python3 -o parser $(notdir $<)
+		$(ANTLR4) -Dlanguage=Python3 -o parser $(notdir $<)
 	touch $(dir $@)__init__.py
 
 clean:
