@@ -76,12 +76,30 @@ static payload_t copy_payload(
     int type,
     struct process *src,
     struct process *dst,
-    payload_t payload
+    payload_t payload,
+    size_t ool_length
 ) {
 
     switch (type) {
         case PAYLOAD_INLINE:
             return payload;
+        case PAYLOAD_OOL: {
+            if (dst == kernel_process) {
+                void *kv = kmalloc(ool_length, KMALLOC_NORMAL);
+                arch_copy_from_user(kv, payload, ool_length);
+                return (payload_t) kv;
+            } else {
+                size_t allocated_size = ROUND_UP(ool_length, PAGE_SIZE);
+                size_t pages_num = allocated_size / PAGE_SIZE;
+                paddr_t p = alloc_pages(pages_num, KMALLOC_NORMAL);
+                void *kv = from_paddr(p);
+                uptr_t v = valloc(&dst->vms, allocated_size);
+                int attrs = PAGE_USER | PAGE_WRITABLE;
+                arch_copy_from_user(kv, payload, ool_length);
+                arch_link_page(&dst->vms.arch, v, p, pages_num, attrs);
+                return v;
+            }
+        }
         case PAYLOAD_CHANNEL: {
             struct channel *ch = get_channel_by_id(payload);
             if (!ch) {
@@ -228,10 +246,10 @@ header_t sys_send(
     struct process *dst_process = dst->process;
     dst->header = type;
     dst->sent_from = linked_to->cid;
-    dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0);
-    dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
-    dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
-    dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3);
+    dst->buffer[0] = copy_payload(PAYLOAD_TYPE(type, 0), src_process, dst_process, a0, a1);
+    dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1, a2);
+    dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2, a3);
+    dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3, 0);
 
     thread_resume(dst->receiver);
     return ERROR_NONE;

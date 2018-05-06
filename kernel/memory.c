@@ -28,6 +28,14 @@ void *kmalloc(size_t size, int flags) {
 }
 
 
+paddr_t v_allocated;
+uptr_t valloc(struct vmspace *vms, size_t size) {
+    // XXX
+    uptr_t v = v_allocated;
+    v_allocated += ROUND_UP(size, PAGE_SIZE);
+    return v;
+}
+
 void kfree(UNUSED void *ptr) {
 }
 
@@ -109,4 +117,5 @@ invalid_access:
 
 void memory_init(void) {
     allocated = 0x001000000;
+    v_allocated = 0xa00000000;
 }

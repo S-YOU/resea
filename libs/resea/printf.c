@@ -150,12 +150,15 @@ void vsprintf(char *buf, size_t buf_size, const char *fmt, va_list vargs) {
 
 int printf(const char *fmt, ...) {
     va_list vargs;
-    char buf[256];
+    char buf[32];
 
-    va_start(vargs, fmt);
-    vsprintf((char *) buf, sizeof(buf), fmt, vargs);
-    va_end(vargs);
+//    va_start(vargs, fmt);
+//    vsprintf((char *) &buf, sizeof(buf), fmt, vargs);
+//    va_end(vargs);
 
+    buf[0] = 'A';
+    buf[1] = 'B';
+    buf[2] = '\n';
     call_logging_emit(1, (char *) &buf, strlen(buf));
 
     return 0;

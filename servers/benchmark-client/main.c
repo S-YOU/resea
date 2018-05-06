@@ -1,8 +1,12 @@
 #include <resea.h>
 #include <resea/benchmark.h>
 #include <resea/discovery.h>
+#include <resea/logging.h>
 
 void main(void) {
+//    printf("A\n");
+    call_logging_emit(1, (char *) "ABC", 3);
+
     channel_t server;
     call_discovery_connect(1, BENCHMARK_SERVICE, &server);
 

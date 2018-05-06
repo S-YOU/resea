@@ -1,7 +1,7 @@
 arch_include_dirs := .
 arch_objs := startup.o init.o thread.o serial.o gdt.o idt.o tss.o paging.o \
 	smp.o apic.o ioapic.o cpu.o handler.o irq.o exception.o pic.o switch.o \
-	idle.o syscall.o
+	idle.o syscall.o usercopy.o
 
 BOCHS ?= bochs
 override CFLAGS += -O2 -g3 --target=x86_64

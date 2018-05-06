@@ -29,6 +29,7 @@ struct vmspace {
 
 
 paddr_t alloc_pages(size_t size, int flags);
+uptr_t valloc(struct vmspace *vms, size_t size);
 void *kmalloc(size_t size, int flags);
 void kfree(void *ptr);
 void add_vmarea(

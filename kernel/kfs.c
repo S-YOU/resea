@@ -32,7 +32,9 @@ paddr_t kfs_pager(void *arg, off_t offset, size_t length) {
     paddr_t paddr = alloc_pages(length, KMALLOC_NORMAL);
     void *ptr = from_paddr(paddr);
 
+    // FIXME: This may perform memcpy beyond the file data if offset > 0.
     memcpy(ptr, data, min(length, header->length));
+    INFO("kfs: filling %p", *((u64_t *) ptr));
     return paddr;
 }
 

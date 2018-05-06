@@ -2,6 +2,7 @@
 #include <kernel/memory.h>
 #include "asm.h"
 #include "exception.h"
+#include "usercopy.h"
 
 void x64_handle_exception(u8_t exception, u64_t error, u64_t rip) {
 
@@ -17,6 +18,11 @@ void x64_handle_exception(u8_t exception, u64_t error, u64_t rip) {
 
             if (rsvd) {
                 BUG("page fault: RSVD bit violation");
+            }
+
+            if (rip == (u64_t) &x64_do_copy_from_user) {
+                INFO("PF in usercopy");
+                user = true;
             }
 
             INFO("x64: #PF at %p (err=%#x, RIP=%p)", address, error, rip);
