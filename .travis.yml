@@ -12,8 +12,11 @@ addons:
       - qemu-system
       - mtools
 
+cache:
+  pip: true
+
 before_script:
   - ./tools/bootstrap
 
 script:
-  - make -j2 ANTLR4="java -jar antlr-4.7.1-complete.jar" SERVERS=all
+  - make -j2 ANTLR4="java -jar $(PWD)/antlr-4.7.1-complete.jar" SERVERS=all
