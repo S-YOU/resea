@@ -24,6 +24,8 @@ typedef unsigned char bool;
 #define ROUND_DOWN(x, align) ((x) & ~((align) - 1))
 #define INLINE_ASM __asm__ __volatile__
 #define atomic_compare_and_swap  __sync_bool_compare_and_swap
+#define atomic_fetch_and_add  __sync_fetch_and_add
+#define atomic_fetch_and_sub  __sync_fetch_and_sub
 #define offsetof __builtin_offsetof
 #define va_list __builtin_va_list
 #define va_start(ap, param) __builtin_va_start(ap, param)

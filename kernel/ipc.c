@@ -216,13 +216,12 @@ header_t sys_send(
 
         waitqueue_list_append(&dst->wq, wq);
         INFO("blocking #%d %d", current_thread->tid, __LINE__);
-        thread_set_state(current_thread, THREAD_BLOCKED);
-        thread_switch();
+        thread_block_current();
     }
 
     // Wait for the receiver.
-    while (!dst->receiver) {
-        thread_switch();
+    if (!dst->receiver) {
+        thread_block_current();
     }
 
     // Copy payloads.
@@ -234,7 +233,8 @@ header_t sys_send(
     dst->buffer[1] = copy_payload(PAYLOAD_TYPE(type, 1), src_process, dst_process, a1);
     dst->buffer[2] = copy_payload(PAYLOAD_TYPE(type, 2), src_process, dst_process, a2);
     dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3);
-    thread_set_state(dst->receiver, THREAD_RUNNABLE);
+
+    thread_resume(dst->receiver);
     return ERROR_NONE;
 }
 
@@ -251,9 +251,7 @@ header_t sys_recv(
 
     // Try to get the receiver right.
     struct thread *current_thread = CPUVAR->current_thread;
-    thread_set_state(current_thread, THREAD_BLOCKED);
     if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
-        thread_set_state(current_thread, THREAD_RUNNABLE);
         return ERROR_CH_IN_USE;
     }
 
@@ -261,16 +259,18 @@ header_t sys_recv(
 
     // Wait for the sender.
     // Resume a thread in the wait queue.
-    struct waitqueue *wq = waitqueue_list_pop(&src->wq);
-    if (wq) {
-        struct thread *sender = wq->thread;
-        kfree(wq);
-        thread_set_state(sender, THREAD_RUNNABLE);
-        thread_switch_to(sender);
+    if (src->sender) {
+        // The sender waits for us. Resume it and wait for it.
+        thread_resume(src->sender);
     } else {
-        // No threads in the queue.
-        thread_switch();
+        struct waitqueue *wq = waitqueue_list_pop(&src->wq);
+        if (wq) {
+            thread_resume(wq->thread);
+            kfree(wq);
+        }
     }
+
+    thread_block_current();
 
     // Receiver sent a reply message and resumed the sender thread. Do recv
     // work.
@@ -280,7 +280,6 @@ header_t sys_recv(
     rs[2] = src->buffer[1];
     rs[3] = src->buffer[2];
     rs[4] = src->buffer[3];
-//    thread_set_state(src->sender, THREAD_RUNNABLE);
     src->receiver = NULL;
     src->sender = NULL;
     return reply_header;

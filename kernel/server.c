@@ -122,8 +122,5 @@ void kernel_server_init(void) {
     client_list_init(&clients);
 
     kernel_channel = channel_create(kernel_process);
-    thread_set_state(
-        thread_create(kernel_process, (uptr_t) kernel_server, 0),
-        THREAD_RUNNABLE
-    );
+    thread_resume(thread_create(kernel_process, (uptr_t) kernel_server, 0));
 }

@@ -5,7 +5,6 @@
 void main(void) {
     channel_t server;
     call_discovery_connect(1, BENCHMARK_SERVICE, &server);
-    printf("Hello!\n");
 
     payload_t a0 = 0xabcdef000000004;
     payload_t a1 = 0xabcdef000000001;

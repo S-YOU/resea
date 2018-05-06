@@ -2,6 +2,7 @@
 #define __THREAD_H__
 
 #include <kernel/types.h>
+#include "cpu.h"
 #include "list.h"
 
 typedef u32_t tid_t;
@@ -17,6 +18,7 @@ struct thread {
     u32_t flags;
     tid_t tid;
     struct arch_thread arch;
+    int resumed_count; /* runnable if resumed_count > 0 */
 };
 
 struct runqueue {
@@ -26,14 +28,6 @@ struct runqueue {
 
 DEFINE_LIST(thread, struct thread)
 DEFINE_LIST(runqueue, struct runqueue)
-
-static inline int thread_get_state(struct thread *thread) {
-    return thread->flags & 3;
-}
-
-static inline void thread_set_state(struct thread *thread, int state) {
-    thread->flags = (thread->flags & ~3) | state;
-}
 
 struct process;
 
@@ -45,4 +39,30 @@ void thread_switch(void);
 void thread_switch_to(struct thread *thread);
 void thread_init(void);
 
+static inline int thread_get_state(struct thread *thread) {
+    return thread->flags & 3;
+}
+
+static inline void thread_resume(struct thread *thread) {
+    atomic_fetch_and_add(&thread->resumed_count, 1);
+    if (thread->resumed_count > 0) {
+        thread->flags = (thread->flags & ~3) | THREAD_RUNNABLE;
+    }
+}
+
+static inline void thread_block(struct thread *thread) {
+    atomic_fetch_and_sub(&thread->resumed_count, 1);
+    if (thread->resumed_count <= 0) {
+        thread->flags = (thread->flags & ~3) | THREAD_BLOCKED;
+    }
+}
+
+static inline void thread_block_current(void) {
+    struct thread *current = CPUVAR->current_thread;
+    atomic_fetch_and_sub(&current->resumed_count, 1);
+    if (current->resumed_count <= 0) {
+        current->flags = (current->flags & ~3) | THREAD_BLOCKED;
+        thread_switch();
+    }
+}
 #endif

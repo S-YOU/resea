@@ -37,5 +37,5 @@ void elf_create_process(const void *image, UNUSED size_t length, pager_t *pager,
     }
 
     struct thread *thread = thread_create(process, ehdr->e_entry, 0);
-    thread_set_state(thread, THREAD_RUNNABLE);
+    thread_resume(thread);
 }

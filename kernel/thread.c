@@ -37,6 +37,7 @@ struct thread *thread_create(struct process *process, uptr_t start, uptr_t arg) 
     thread->process = process;
     thread->tid = allocate_tid();
     thread->flags = THREAD_BLOCKED;
+    thread->resumed_count = 0;
     arch_create_thread(&thread->arch, is_kernel_thread,
         start, arg, stack, stack_size);
     thread_list_append(&process->threads, thread);
