@@ -78,7 +78,7 @@ NORETURN void thread_destroy_current(void) {
 void thread_switch_to(struct thread *next) {
     struct thread *current = CPUVAR->current;
     CPUVAR->current = next;
-INFO("[%d.%d] ==============================", next->process->pid, next->tid);
+    INFO("[%d.%d] ==============================", next->process->pid, next->tid);
 
     if (next->process != kernel_process) {
         arch_switch_vmspace(&next->process->vms.arch);
@@ -90,9 +90,7 @@ INFO("[%d.%d] ==============================", next->process->pid, next->tid);
 
 void thread_resume(struct thread *thread) {
     int prev = atomic_fetch_and_add(&thread->resumed_count, 1);
-    INFO(">>> RESUME #%d by %d (%d -> %d)", thread->tid, CPUVAR->current->tid, prev, thread->resumed_count);
     if (prev == 0) {
-        INFO("adding to runqueue %d", thread->tid);
         thread->flags = (thread->flags & ~3) | THREAD_RUNNABLE;
         struct runqueue *rq = kmalloc(sizeof(*rq), KMALLOC_NORMAL);
         rq->thread = thread;
@@ -106,7 +104,6 @@ void thread_resume(struct thread *thread) {
 
 void thread_block(struct thread *thread) {
     int prev = atomic_fetch_and_sub(&thread->resumed_count, 1);
-    INFO(">>> BLOCK  #%d by %d (%d)", thread->tid, CPUVAR->current->tid, thread->resumed_count);
     if (prev == 1) {
         thread->flags = (thread->flags & ~3) | THREAD_BLOCKED;
     }
@@ -115,7 +112,6 @@ void thread_block(struct thread *thread) {
 void thread_block_current(void) {
     struct thread *current = CPUVAR->current;
     atomic_fetch_and_sub(&current->resumed_count, 1);
-    INFO(">>> BLOCKC #%d (%d)", CPUVAR->current->tid, current->resumed_count);
     if (current->resumed_count <= 0) {
         current->flags = (current->flags & ~3) | THREAD_BLOCKED;
         thread_switch();
@@ -131,18 +127,15 @@ void thread_switch(void) {
     kmutex_unlock_restore_irq(&CPUVAR->runqueue_lock, state);
 
     if (next) {
-        INFO("resuming next %d", next->thread->tid);
         if (thread_get_state(CPUVAR->current) == THREAD_RUNNABLE) {
             // Add the current thread to the runqueue.
             thread_block(CPUVAR->current);
             thread_resume(CPUVAR->current);
-            INFO("readded %d empty", runqueue_list_is_empty(&CPUVAR->runqueue));
         }
 
         thread_switch_to(next->thread);
     }
 
-    INFO("keep running %d", CPUVAR->current->tid);
     if (thread_get_state(CPUVAR->current) == THREAD_RUNNABLE) {
         // No other thread to run. Resume the current thread.
         return;
