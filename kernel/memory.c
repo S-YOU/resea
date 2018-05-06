@@ -75,7 +75,7 @@ void handle_page_fault(uptr_t address, bool user, bool write, UNUSED bool exec) 
         PANIC("page fault in kernel: %p", address);
     }
 
-    struct vmspace *vms = &CPUVAR->current_thread->process->vms;
+    struct vmspace *vms = &CPUVAR->current->process->vms;
     for (struct vmarea *area = vms->vma; area != NULL; area = area->next) {
         if (area->address <= address && address < area->address + area->length) {
             int requested = 0;

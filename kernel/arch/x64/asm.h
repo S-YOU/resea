@@ -19,6 +19,14 @@ static inline void asm_stihlt(void) {
     INLINE_ASM("sti; hlt");
 }
 
+static inline void asm_cli(void) {
+    INLINE_ASM("cli");
+}
+
+static inline void asm_hlt(void) {
+    INLINE_ASM("hlt");
+}
+
 static inline void asm_lgdt(uptr_t gdtr) {
     INLINE_ASM("lgdt (%%rax)" :: "a"(gdtr));
 }

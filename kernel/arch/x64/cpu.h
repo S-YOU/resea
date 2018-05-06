@@ -15,9 +15,9 @@ struct x64_cpuvar {
   struct gdtr gdtr;
   struct idtr idtr;
   struct tss tss;
-  struct thread *current_thread;
-  struct process *current_process;
-  struct runqueue *current_runqueue;
+  struct thread *current;
+  struct thread *idle_thread;
+  struct runqueue *runqueue;
 };
 
 static inline int x64_get_cpu_index() {

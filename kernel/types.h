@@ -45,6 +45,7 @@ typedef umax_t off_t;
 void arch_init(void);
 void arch_early_init(void);
 void arch_putchar(char ch);
+void arch_panic(void);
 void arch_idle(void);
 void arch_create_thread(struct arch_thread *arch, bool is_kernel_thread,
                     uptr_t start, umax_t arg,
@@ -64,7 +65,7 @@ int printf(const char *fmt, ...);
 #define BUG(fmt, ...) printf("BUG: " fmt "\n", ## __VA_ARGS__)
 #define PANIC(fmt, ...) do { \
         printf("PANIC: " fmt "\n", ## __VA_ARGS__); \
-        for(;;); \
+        arch_panic(); \
     } while(0)
 
 #endif

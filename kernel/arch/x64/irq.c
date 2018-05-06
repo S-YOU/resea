@@ -11,7 +11,6 @@ void x64_handle_unkown_irq(void) {
 
 void x64_handle_irq(UNUSED u8_t vector) {
     x64_ack_interrupt();
-
     // XXX
     static int tick = 0;
     // The interval MUST be long enough; short interval leads to
@@ -19,6 +18,7 @@ void x64_handle_irq(UNUSED u8_t vector) {
     // and eventually a nasty bug.
     if (tick++ > 100) {
         tick = 0;
+INFO("te/");
         thread_switch();
     }
 }

@@ -16,8 +16,8 @@ static inline void transfer_to(struct channel *from, struct channel *to) {
 
 
 static inline struct channel *get_channel_by_id(channel_t cid) {
-    size_t channels_max = CPUVAR->current_process->channels_max;
-    struct channel *channels = (struct channel *) &CPUVAR->current_process->channels;
+    size_t channels_max = CPUVAR->current->process->channels_max;
+    struct channel *channels = (struct channel *) &CPUVAR->current->process->channels;
 
     if (cid == 0 || cid > channels_max) {
         return NULL;
@@ -119,13 +119,13 @@ static payload_t copy_payload(
 }
 
 channel_t sys_open(void) {
-    struct channel *ch = channel_create(CPUVAR->current_process);
+    struct channel *ch = channel_create(CPUVAR->current->process);
     if(!ch) {
-        DEBUG("sys_open: failed to allocate #%d", CPUVAR->current_process->pid);
+        DEBUG("sys_open: failed to allocate #%d", CPUVAR->current->process->pid);
         return ERROR_NO_MEMORY;
     }
 
-    DEBUG("sys_open: #%d allocate @%d", CPUVAR->current_process->pid, ch->cid);
+    DEBUG("sys_open: #%d allocate @%d", CPUVAR->current->process->pid, ch->cid);
     return ch->cid;
 }
 
@@ -191,7 +191,7 @@ header_t sys_send(
         return ERROR_CH_NOT_LINKED;
     }
 
-    struct thread *current_thread = CPUVAR->current_thread;
+    struct thread *current_thread = CPUVAR->current;
     struct channel *dst = (linked_to->transfer_to) ? linked_to->transfer_to : linked_to;
 
     DEBUG("sys_send: @%d.%d -> @%d.%d ~> @%d.%d (type=%d.%d)",
@@ -224,8 +224,12 @@ header_t sys_send(
         thread_block_current();
     }
 
+    if (!dst->receiver) {
+        PANIC("WTF?");
+    }
+
     // Copy payloads.
-    struct process *src_process = CPUVAR->current_process;
+    struct process *src_process = CPUVAR->current->process;
     struct process *dst_process = dst->process;
     dst->header = type;
     dst->sent_from = linked_to->cid;
@@ -250,12 +254,10 @@ header_t sys_recv(
     }
 
     // Try to get the receiver right.
-    struct thread *current_thread = CPUVAR->current_thread;
+    struct thread *current_thread = CPUVAR->current;
     if (!atomic_compare_and_swap(&src->receiver, NULL, current_thread)) {
         return ERROR_CH_IN_USE;
     }
-
-    INFO("blocking #%d %d", current_thread->tid, __LINE__);
 
     // Wait for the sender.
     // Resume a thread in the wait queue.
@@ -265,12 +267,18 @@ header_t sys_recv(
     } else {
         struct waitqueue *wq = waitqueue_list_pop(&src->wq);
         if (wq) {
+            INFO("resuming the wq %d", wq->thread->tid);
             thread_resume(wq->thread);
             kfree(wq);
+        } else {
+            INFO("no thread in wq");
         }
     }
 
     thread_block_current();
+    if (!src->sender) {
+        PANIC("sender is nil");
+    }
 
     // Receiver sent a reply message and resumed the sender thread. Do recv
     // work.
@@ -280,6 +288,7 @@ header_t sys_recv(
     rs[2] = src->buffer[1];
     rs[3] = src->buffer[2];
     rs[4] = src->buffer[3];
+    INFO("!!! sender=%p", src->sender);
     src->receiver = NULL;
     src->sender = NULL;
     return reply_header;
@@ -299,7 +308,7 @@ channel_t sys_connect(channel_t server) {
         return ERROR_CH_NOT_LINKED;
     }
 
-    return channel_connect(linked_to, CPUVAR->current_process);
+    return channel_connect(linked_to, CPUVAR->current->process);
 }
 
 
