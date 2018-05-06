@@ -1,6 +1,3 @@
-KFS_DIR := kernel/kfs
-LIBS_DIR := libs
-
 mkfiles := $(filter-out %/server.mk, $(MAKEFILE_LIST))
 build_mk := $(word $(words $(mkfiles)), $(mkfiles))
 server_dir := $(patsubst %/,%, $(dir $(build_mk)))
@@ -25,7 +22,7 @@ all_libs :=
 all_include_dirs :=
 included_subdirs :=
 
-include $(foreach lib, $(server_libs), $(LIBS_DIR)/$(lib)/build.mk)
+include $(foreach lib, $(server_libs), libs/$(lib)/build.mk)
 server_objs += $(all_objs)
 server_include_dirs += $(server_build_dir) $(all_include_dirs)
 server_stubs := $(foreach stub, $(requires), $(server_build_dir)/resea/$(stub).h)
@@ -42,7 +39,7 @@ $(server_build_dir)/resea/%.h: idl/%.idl tools/genstub/genstub.py tools/genstub/
 
 $(executable): $(server_c_objs) $(server_s_objs)
 	$(PROGRESS) LD $@
-	$(LD) $(LDFLAGS) --script $(LIBS_DIR)/resea/arch/$(ARCH)/app.ld -o $@ $^
+	$(LD) $(LDFLAGS) --script libs/resea/arch/$(ARCH)/app.ld -o $@ $^
 	cp $@ $@.debug
 	$(PROGRESS) STRIP $@
 	$(STRIP) $@

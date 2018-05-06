@@ -1,6 +1,5 @@
-KFS_DIR = $(BUILD_DIR)/kernel/kfs
-LIBS_DIR = libs
 ARCH_DIR = kernel/arch/$(ARCH)
+KFS_DIR = $(BUILD_DIR)/kernel/kfs
 
 include $(ARCH_DIR)/arch.mk
 

@@ -1,6 +1,7 @@
 ARCH ?= x64
 SERVERS ?=
 BUILD_DIR ?= build
+KFS_DIR = $(BUILD_DIR)/kernel/kfs
 
 server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
 ifeq ($(SERVERS),all)
