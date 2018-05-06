@@ -8,7 +8,7 @@ notifications:
 
 before_script:
   - pyenv global 3.6.3
-  - ./bootstrap
+  - ./tools/bootstrap
 
 script:
   - make -j2 SERVERS=all
