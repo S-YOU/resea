@@ -47,12 +47,12 @@ $(executable): $(server_c_objs) $(server_s_objs)
 	$(PROGRESS) STRIP $@
 	$(STRIP) $@
 
-$(server_c_objs): $(BUILD_DIR)/%.o: %.c $(server_stubs)
+$(server_c_objs): $(server_build_dir)/%.o: %.c $(server_stubs)
 	$(PROGRESS) CC $@
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(addprefix -I, $(server_include_dirs)) -c -o $@ $<
 
-$(server_s_objs): $(BUILD_DIR)/%.o: %.S
+$(server_s_objs): $(server_build_dir)/%.o: %.S
 	$(PROGRESS) CC $@
 	mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) $(addprefix -I, $(server_include_dirs)) -c -o $@ $<
