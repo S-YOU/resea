@@ -1,5 +1,5 @@
 #include <kernel/types.h>
-#include <string.h>
+#include <kernel/string.h>
 #include <kernel/init.h>
 #include "gdt.h"
 #include "idt.h"

@@ -28,7 +28,45 @@ typedef u8_t * buffer_t;
 #define va_end(ap) __builtin_va_end(ap)
 #define va_arg(ap, type) __builtin_va_arg(ap, type)
 
+int printf(const char *fmt, ...);
+
 #include <arch.h>
+
+void *memcpy(void *dest, const void *src, size_t size);
+void *memset(void *p, int c, size_t n);
+int strcmp(const char *s1, const char *s2);
+int strncmp(const char *s1, const char *s2, size_t n);
+size_t strlen(const char *s);
+
+struct list {
+    struct list *next;
+};
+
+#define DEFINE_LIST(name, type)                                     \
+    static inline void name##_list_init(type **list) {              \
+        list_init((struct list **) list);                           \
+    }                                                               \
+                                                                    \
+    static inline bool name##_list_is_empty(type **list) {          \
+        return *list == NULL;                                       \
+    }                                                               \
+                                                                    \
+    static inline void name##_list_append(type **list, type *e) {   \
+        list_append((struct list **) list, e);                      \
+    }                                                               \
+                                                                    \
+    static inline type *name##_list_pop(type **list) {              \
+        return list_pop((struct list **) list);                     \
+    }                                                               \
+                                                                    \
+    static inline void name##_list_remove(type **list, type *e) {   \
+        list_remove((struct list **) list, e);                      \
+    }
+
+void list_init(struct list **list);
+void list_append(struct list **list, void *e);
+void *list_pop(struct list **list);
+void list_remove(struct list **list, void *e);
 
 static inline bool is_computer_on(void) {
     return true;

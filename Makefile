@@ -35,6 +35,7 @@ $(V).SILENT:
 CC = clang
 LD = ld
 OBJCOPY = $(TOOLCHAIN_PREFIX)objcopy
+STRIP = $(TOOLCHAIN_PREFIX)strip
 DD = dd
 TAR = tar
 

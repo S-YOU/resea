@@ -1,5 +1,5 @@
 #include <kernel/types.h>
-#include <string.h>
+#include <kernel/string.h>
 #include "gdt.h"
 #include "cpu.h"
 #include "asm.h"

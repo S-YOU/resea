@@ -1,4 +1,4 @@
-#include <string.h>
+#include <kernel/string.h>
 #include <kernel/memory.h>
 #include "asm.h"
 #include "cpu.h"

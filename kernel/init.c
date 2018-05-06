@@ -4,7 +4,7 @@
 #include "kfs.h"
 #include "elf.h"
 #include "server.h"
-#include <string.h>
+#include "string.h"
 
 
 static void launch_servers(void) {

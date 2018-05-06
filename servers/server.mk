@@ -5,10 +5,13 @@ mkfiles := $(filter-out %/server.mk, $(MAKEFILE_LIST))
 build_mk := $(word $(words $(mkfiles)), $(mkfiles))
 server_dir := $(dir $(build_mk))
 
+libs += resea
+requires += logging
+
 server_name := $(name)
 executable := $(server_dir)server.elf
 server_objs := $(foreach obj, $(objs), $(server_dir)$(obj))
-server_libs := resea $(filter resea, $(libs))
+server_libs := $(libs)
 server_include_dirs := $(include_dirs)
 
 # Load libs.
@@ -40,6 +43,9 @@ $(build_dir)/resea/%.h: idl/%.idl tools/genstub/genstub.py tools/genstub/parser/
 $(executable): $(server_c_objs) $(server_s_objs)
 	$(PROGRESS) LD $@
 	$(LD) $(LDFLAGS) --script $(LIBS_DIR)/resea/arch/$(ARCH)/app.ld -o $@ $^
+	cp $@ $@.debug
+	$(PROGRESS) STRIP $@
+	$(STRIP) $@
 
 $(server_c_objs): $(build_dir)/%.o: %.c $(server_stubs)
 	$(PROGRESS) CC $@

@@ -56,7 +56,7 @@ void arch_switch_vmspace(struct arch_vmspace *vms);
 void arch_link_page(struct arch_vmspace *vms, uptr_t vaddr, paddr_t paddr, size_t num,
                     int attrs);
 
-#include <printf.h>
+int printf(const char *fmt, ...);
 #define INFO(fmt, ...) printf(fmt "\n", ## __VA_ARGS__)
 #define DEBUG(fmt, ...) printf(fmt "\n", ## __VA_ARGS__)
 #define BUG(fmt, ...) printf("BUG: " fmt "\n", ## __VA_ARGS__)

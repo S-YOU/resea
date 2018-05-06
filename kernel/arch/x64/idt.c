@@ -1,4 +1,4 @@
-#include <string.h>
+#include <kernel/string.h>
 #include "cpu.h"
 #include "asm.h"
 #include "idt.h"

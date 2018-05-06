@@ -1,4 +1,4 @@
-#include <string.h>
+#include "string.h"
 #include <kernel/types.h>
 #include "thread.h"
 #include "process.h"

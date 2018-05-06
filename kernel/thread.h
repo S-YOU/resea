@@ -2,7 +2,7 @@
 #define __THREAD_H__
 
 #include <kernel/types.h>
-#include <list.h>
+#include "list.h"
 
 typedef u32_t tid_t;
 

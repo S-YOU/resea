@@ -2,7 +2,7 @@
 #define __MEMORY_H__
 
 #include <kernel/types.h>
-#include <list.h>
+#include "list.h"
 
 #define KMALLOC_ZEROED 1
 #define KMALLOC_PANIC_ON_FAIL 2

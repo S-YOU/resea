@@ -1,5 +1,4 @@
 #include <kernel/types.h>
-#include <printf.h>
 #include <kernel/memory.h>
 #include "asm.h"
 #include "exception.h"

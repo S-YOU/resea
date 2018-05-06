@@ -1,4 +1,4 @@
-#include <list.h>
+#include "list.h"
 #include "cpu.h" // FIXME
 #include "memory.h"
 #include "thread.h"

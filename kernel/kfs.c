@@ -1,6 +1,6 @@
 #include "memory.h"
 #include "kfs.h"
-#include <string.h>
+#include "string.h"
 
 extern char __kfs[];
 
