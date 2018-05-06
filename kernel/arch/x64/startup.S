@@ -1,4 +1,5 @@
 .intel_syntax noprefix
+.section .startup
 .code16
 
 #define MEMMAP_ADDR 0x8000
