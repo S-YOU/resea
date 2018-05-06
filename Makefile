@@ -56,7 +56,7 @@ build: $(BUILD_DIR)/kernel/kernel.elf
 
 tools/genstub/parser/idlParser.py: tools/genstub/idl.g4
 	$(PROGRESS) ANTLR4 $@
-	cd tools/genstub &&
+	cd tools/genstub && \
 		antlr4 -Dlanguage=Python3 -o parser $(notdir $<)
 	touch $(dir $@)__init__.py
 
