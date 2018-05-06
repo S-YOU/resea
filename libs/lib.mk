@@ -4,7 +4,6 @@ current_dir := $(dir $(build_mk))
 
 ifneq ($(filter $(current_dir),$(included_subdirs)),$(current_dir))
 
-include $(foreach subdir, $(subdirs), $(current_dir)/$(subdir)/subdir.mk)
 all_objs += $(addprefix $(current_dir), $(objs))
 all_libs += $(libs)
 all_include_dirs += $(addprefix $(current_dir), $(include_dirs))

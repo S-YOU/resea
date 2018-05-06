@@ -1,5 +1,6 @@
 ARCH ?= x64
 SERVERS ?=
+BUILD_DIR ?= build
 
 server_dirs := $(filter-out servers/server.mk, $(wildcard servers/*))
 ifeq ($(SERVERS),all)
@@ -49,7 +50,7 @@ endif
 
 PROGRESS ?= printf "  \033[1;35m%7s  \033[1;m%s\033[m\n"
 
-build: kernel/kernel.elf
+build: $(BUILD_DIR)/kernel/kernel.elf
 
 tools/genstub/parser/idlParser.py: tools/genstub/idl.g4
 	$(PROGRESS) ANTLR4 $@
@@ -57,10 +58,4 @@ tools/genstub/parser/idlParser.py: tools/genstub/idl.g4
 	touch $(dir $@)/__init__.py
 
 clean:
-	rm -f */*.o */*/*.o */*/*/*.o \
-		*/*.elf */*/*.elf */*/*/*.elf \
-		*/*.img */*/*.img */*/*/*.img \
-		*/*.tmp */*/*.tmp */*/*/*.tmp \
-		*/*.bin */*/*.bin */*/*/*.bin \
-		kernel/kfs.tar
-	rm -rf kernel/kfs
+	rm -rf $(BUILD_DIR)
