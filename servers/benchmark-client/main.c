@@ -5,10 +5,11 @@
 
 void main(void) {
 //    printf("A\n");
-    call_logging_emit(1, (char *) "ABC", 3);
 
     channel_t server;
     call_discovery_connect(1, BENCHMARK_SERVICE, &server);
+    __asm__("xchg %bx,%bx");
+    call_logging_emit(1, (char *) "Hello from ID!", 15);
 
     payload_t a0 = 0xabcdef000000004;
     payload_t a1 = 0xabcdef000000001;

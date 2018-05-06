@@ -76,11 +76,16 @@ paddr_t zeroed_pager(void *arg, off_t offset, size_t length) {
 }
 
 
-void handle_page_fault(uptr_t address, bool user, bool write, UNUSED bool exec) {
-    address = ROUND_DOWN(address, PAGE_SIZE);
+void handle_page_fault(uptr_t original_address, bool present, bool user, bool write, UNUSED bool exec) {
+    uptr_t address = ROUND_DOWN(original_address, PAGE_SIZE);
 
     if (!user) {
-        PANIC("page fault in kernel: %p", address);
+        PANIC("#PF in kernel: %p", original_address);
+    }
+
+    if (present) {
+        DEBUG("PF in a present page");
+        goto invalid_access;
     }
 
     struct vmspace *vms = &CPUVAR->current->process->vms;
@@ -104,13 +109,14 @@ void handle_page_fault(uptr_t address, bool user, bool write, UNUSED bool exec) 
                 thread_destroy_current();
             }
 
+            INFO("filling %p -> %p %p    ", paddr, address, area->flags);
             arch_link_page(&vms->arch, address, paddr, 1, area->flags);
             return;
         }
     }
 
 invalid_access:
-    INFO("page fault: invalid page access");
+    INFO("page fault: invalid page access %p", original_address);
     thread_destroy_current();
 }
 

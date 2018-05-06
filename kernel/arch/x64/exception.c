@@ -11,6 +11,7 @@ void x64_handle_exception(u8_t exception, u64_t error, u64_t rip) {
     switch (exception) {
         case EXP_PAGE_FAULT: {
             uptr_t address = asm_read_cr2();
+            bool present = (error >> 0) & 1;
             bool write = (error >> 1) & 1;
             bool user = (error >> 2) & 1;
             bool rsvd = (error >> 3) & 1;
@@ -21,12 +22,13 @@ void x64_handle_exception(u8_t exception, u64_t error, u64_t rip) {
             }
 
             if (rip == (u64_t) &x64_do_copy_from_user) {
-                INFO("PF in usercopy");
+                DEBUG("PF in usercopy");
                 user = true;
             }
 
-            INFO("x64: #PF at %p (err=%#x, RIP=%p)", address, error, rip);
-            handle_page_fault(address, user, write, exec);
+            DEBUG("x64: #PF at %p (err=%#x, RIP=%p)",
+                address, error, rip);
+            handle_page_fault(address, present, user, write, exec);
             break;
         }
         default:

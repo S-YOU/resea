@@ -44,7 +44,7 @@ void add_vmarea(
 void memory_create_vmspace(struct vmspace *vms);
 void memory_destroy_mspace(struct vmspace *vms);
 paddr_t zeroed_pager(void *arg, off_t offset, size_t length);
-void handle_page_fault(uptr_t address, bool user, bool write, bool exec);
+void handle_page_fault(uptr_t address, bool present, bool user, bool write, bool exec);
 void memory_init(void);
 
 #endif

@@ -4,14 +4,16 @@
 #define abs(x) ((x < 0)? -x : x)
 
 
-static void print_str(char *buf, const char *s) {
+static char *print_str(char *buf, const char *s) {
 
-    for (int i=0; s[i] != '\0'; i++)
+    for (int i = 0; s[i] != '\0'; i++)
         *buf++ = s[i];
+
+    return buf;
 }
 
 
-static void print_int(char *buf, umax_t base, umax_t v, umax_t len,
+static char *print_int(char *buf, umax_t base, umax_t v, umax_t len,
                       bool sign, bool alt, bool pad, bool sep) {
 
     static const char *nchars = "0123456789abcdef";
@@ -32,7 +34,7 @@ static void print_int(char *buf, umax_t base, umax_t v, umax_t len,
      *  ^^
      */
     if (alt && base == 16) {
-        print_str(buf, "0x");
+        buf = print_str(buf, "0x");
     }
 
     /*
@@ -68,12 +70,12 @@ static void print_int(char *buf, umax_t base, umax_t v, umax_t len,
 
     i = 0;
     for (int j=0; tmp[i] == '\0' && j < (int) sizeof(tmp); j++, i++);
-    print_str(buf, &tmp[i]);
+    return print_str(buf, &tmp[i]);
 }
 
 
-#define CHECK_BUF_SIZE(size) do {   \
-        if (buf_size - 1<= size) {  \
+#define RESERVE_BUF_SIZE(size) do { \
+        if (buf_size - 1 <= size) { \
             *buf = '\0';            \
             return;                 \
         } else {                    \
@@ -106,34 +108,34 @@ void vsprintf(char *buf, size_t buf_size, const char *fmt, va_list vargs) {
 
             switch(specifier) {
             case '%':
-                CHECK_BUF_SIZE(1);
+                RESERVE_BUF_SIZE(1);
                 *buf++ = '%';
                 break;
             case 'd':
-                CHECK_BUF_SIZE(20);
-                print_int(buf, 10, va_arg(vargs, umax_t), len, true,  alt, pad, false);
+                RESERVE_BUF_SIZE(20);
+                buf = print_int(buf, 10, va_arg(vargs, umax_t), len, true,  alt, pad, false);
                 break;
             case 'u':
-                CHECK_BUF_SIZE(20);
-                print_int(buf, 10, va_arg(vargs, umax_t), len, false, alt, pad, false);
+                RESERVE_BUF_SIZE(20);
+                buf = print_int(buf, 10, va_arg(vargs, umax_t), len, false, alt, pad, false);
                 break;
             case 'p':
                 alt = true;
                 pad = true;
                 // fallthrough
             case 'x':
-                CHECK_BUF_SIZE(20);
-                print_int(buf, 16, va_arg(vargs, umax_t), len, false, alt, pad, false);
+                RESERVE_BUF_SIZE(20);
+                buf = print_int(buf, 16, va_arg(vargs, umax_t), len, false, alt, pad, false);
                 break;
             case 'c':
-                CHECK_BUF_SIZE(1);
+                RESERVE_BUF_SIZE(1);
                 *buf++ = va_arg(vargs, int);
                 break;
             case 's': {
                 char *str = va_arg(vargs, char *);
                 size_t str_len = strlen(str);
-                CHECK_BUF_SIZE(str_len);
-                print_str(buf, str);
+                RESERVE_BUF_SIZE(str_len);
+                buf = print_str(buf, str);
                 break;
             }
             default:
@@ -150,16 +152,12 @@ void vsprintf(char *buf, size_t buf_size, const char *fmt, va_list vargs) {
 
 int printf(const char *fmt, ...) {
     va_list vargs;
-    char buf[32];
+    char buf[256];
 
-//    va_start(vargs, fmt);
-//    vsprintf((char *) &buf, sizeof(buf), fmt, vargs);
-//    va_end(vargs);
-
-    buf[0] = 'A';
-    buf[1] = 'B';
-    buf[2] = '\n';
+    va_start(vargs, fmt);
+    vsprintf((char *) &buf, sizeof(buf), fmt, vargs);
     call_logging_emit(1, (char *) &buf, strlen(buf));
+    va_end(vargs);
 
     return 0;
 }

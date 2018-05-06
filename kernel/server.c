@@ -14,14 +14,17 @@ struct client *clients;
 
 
 static inline void handle_exit_exit(channel_t from, u32_t error) {
+    struct process *caller = kernel_process->channels[from - 1].linked_to->process;
+    DEBUG("exit.exit: pid=%d", caller->pid);
     /* TODO */
 }
 
 
 static inline error_t handle_logging_emit(channel_t from, string_t str, usize_t length) {
+    DEBUG("logging %p %d", str, length);
 
     for (usize_t i = 0; i < length; i++) {
-        arch_putchar(str[0]);
+        arch_putchar(str[i]);
     }
 
     arch_putchar('\n');
@@ -82,11 +85,12 @@ void kernel_server_mainloop(channel_t server) {
             case EXIT_EXIT_MSG:
                 handle_exit_exit(from, (error_t) a0);
                 /* The caller thread is terminated. Needless to reply. */
-                continue;
+                error = ERROR_DONT_REPLY;
+                break;
             case LOGGING_EMIT_MSG:
                 error = handle_logging_emit(from, (string_t) a0, (usize_t) a1);
                 header = LOGGING_EMIT_REPLY_HEADER | (error << ERROR_OFFSET);
-                continue;
+                break;
             case DISCOVERY_REGISTER_MSG:
                 error = handle_discovery_register(from, (u32_t) a0, (channel_t) a1);
                 header = DISCOVERY_REGISTER_REPLY_HEADER | (error << ERROR_OFFSET);
@@ -98,8 +102,8 @@ void kernel_server_mainloop(channel_t server) {
 
             default:
                 /* Unknown message. */
+                DEBUG("kernel: unknown message %d.%d", MSG_SERVICE_ID(header), MSG_ID(header));
                 header = ERROR_UNKNOWN_MSG << ERROR_OFFSET;
-                DEBUG("kernel: unknown message %p", MSGTYPE(header));
                 break;
         }
 

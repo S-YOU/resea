@@ -27,7 +27,8 @@ static void lookup_page_entry(struct arch_vmspace *vms, uptr_t v, bool allocate,
             }
         }
 
-        entries[idx] = (entries[idx] & ~PAGE_ATTRS) | attrs | PAGE_PRESENT;
+        // XXX: remove PAGE_WRITABLE
+        entries[idx] = (entries[idx] & ~PAGE_ATTRS) | attrs | PAGE_WRITABLE | PAGE_PRESENT;
 
         /* go into the next level paging table */
         entries = (u64_t *) from_paddr((u64_t) entries[idx] & 0x7ffffffffffff000);

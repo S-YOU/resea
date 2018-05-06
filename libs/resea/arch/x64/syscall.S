@@ -101,14 +101,14 @@ ipc_call:
     mov r14, 5
     syscall
 
-    mov r12, [rbp + 16]
-    mov [r12], r8
-    mov r12, [rbp + 24]
-    mov [r12], r9
-    mov r12, [rbp + 32]
-    mov [r12], r10
-    mov r12, [rbp + 40]
-    mov [r12], r12
+    mov r14, [rbp + 16]
+    mov [r14], r8
+    mov r14, [rbp + 24]
+    mov [r14], r9
+    mov r14, [rbp + 32]
+    mov [r14], r10
+    mov r14, [rbp + 40]
+    mov [r14], r12
 
     pop r12
     pop r13
@@ -146,14 +146,14 @@ ipc_replyrecv:
 
     pop rdi
     mov [rdi], r8
-    mov r12, [rbp + 16]
-    mov [r12], r9
-    mov r12, [rbp + 24]
-    mov [r12], r10
-    mov r12, [rbp + 32]
-    mov [r12], r12
-    mov r12, [rbp + 40]
-    mov [r12], r13
+    mov r14, [rbp + 16]
+    mov [r14], r9
+    mov r14, [rbp + 24]
+    mov [r14], r10
+    mov r14, [rbp + 32]
+    mov [r14], r12
+    mov r14, [rbp + 40]
+    mov [r14], r13
 
     pop r12
     pop r13
