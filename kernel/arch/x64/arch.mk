@@ -35,6 +35,8 @@ $(BUILD_DIR)/$(ARCH_DIR)/disk.img: $(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.bin $(BUILD
 	$(PROGRESS) OFORMAT $@.tmp
 	mformat -i $@.tmp -F -t 120000 -h 2 -s 4 ::
 	$(PROGRESS) MCOPY $@.tmp
-	mcopy -i $@.tmp kernel/kernel.elf ::/kernel.elf
+	mcopy -i $@.tmp $(BUILD_DIR)/kernel/kernel.elf ::/kernel.elf
 	$(PROGRESS) CAT $@
-	cat $(ARCH_DIR)/boot/mbr.bin $@.tmp > $@
+	cat $(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.bin $@.tmp > $@
+	file $@
+	ls -al $(BUILD_DIR)/$(ARCH_DIR)/boot/mbr.bin $@.tmp
