@@ -15,7 +15,7 @@ static inline void transfer_to(struct channel *from, struct channel *to) {
 }
 
 
-static inline struct channel *get_channel_by_id(channel_t cid) {
+struct channel *get_channel_by_id(channel_t cid) {
     size_t channels_max = CPUVAR->current->process->channels_max;
     struct channel *channels = (struct channel *) &CPUVAR->current->process->channels;
 
@@ -189,7 +189,7 @@ header_t sys_replyrecv(
 }
 
 
-header_t sys_send(
+header_t do_sys_send(
     channel_t ch,
     header_t type,
     payload_t a0,
@@ -219,21 +219,23 @@ header_t sys_send(
         MSG_SERVICE_ID(type), MSG_ID(type));
 
     // Get the sender right.
-    while (true) {
-        if (atomic_compare_and_swap(&dst->sender, NULL, current_thread)) {
-            // Now we have a sender right (dst->sender == current_thread).
-            break;
+    if (dst->sender != current_thread) {
+        while (true) {
+            if (atomic_compare_and_swap(&dst->sender, NULL, current_thread)) {
+                // Now we have a sender right (dst->sender == current_thread).
+                break;
+            }
+
+            // XXX: lock the wait queue or current thread will never wake up
+
+            // Another thread is sending to the destination. Add current thread
+            // to wait queue. A receiver thread will resume it.
+            struct waitqueue *wq = kmalloc(sizeof(*wq), KMALLOC_NORMAL);
+            wq->thread = current_thread;
+
+            waitqueue_list_append(&dst->wq, wq);
+            thread_block_current();
         }
-
-        // XXX: lock the wait queue or current thread will never wake up
-
-        // Another thread is sending to the destination. Add current thread
-        // to wait queue. A receiver thread will resume it.
-        struct waitqueue *wq = kmalloc(sizeof(*wq), KMALLOC_NORMAL);
-        wq->thread = current_thread;
-
-        waitqueue_list_append(&dst->wq, wq);
-        thread_block_current();
     }
 
     // Wait for the receiver.
@@ -252,6 +254,38 @@ header_t sys_send(
     dst->buffer[3] = copy_payload(PAYLOAD_TYPE(type, 3), src_process, dst_process, a3, 0);
 
     thread_resume(dst->receiver);
+    return ERROR_NONE;
+}
+
+header_t sys_send(
+    channel_t ch,
+    header_t type,
+    payload_t a0,
+    payload_t a1,
+    payload_t a2,
+    payload_t a3
+) {
+    // Get the sender right.
+    struct channel *src, *dst, *linked_to;
+    if ((type & 0xfff) != 0 /* Are all payloads inlined? */
+        || (src = get_channel_by_id(ch)) == NULL
+        || (linked_to = src->linked_to) == NULL
+        || (dst = (linked_to->transfer_to ?: linked_to)) == NULL
+        || !atomic_compare_and_swap(&dst->sender, NULL, CPUVAR->current)
+        || !dst->receiver) {
+        return do_sys_send(ch, type, a0, a1, a2, a3);
+    }
+
+    // Copy payloads.
+    dst->header = type;
+    dst->sent_from = linked_to->cid;
+    dst->buffer[0] = a0;
+    dst->buffer[1] = a1;
+    dst->buffer[2] = a2;
+    dst->buffer[3] = a3;
+    thread_resume(dst->receiver);
+    thread_switch();
+
     return ERROR_NONE;
 }
 
